@@ -8,7 +8,7 @@ import {initRenderer,
         onWindowResize,
         createGroundPlaneXZ} from "../libs/util/util.js";
 
-let scene, renderer, camera, material, light, orbit;; // Initial variables
+let scene, renderer, camera, material, light, orbit; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 camera = initCamera(new THREE.Vector3(0, 15, 30)); // Init camera in this position
@@ -27,25 +27,20 @@ scene.add( axesHelper );
 let plane = createGroundPlaneXZ(20, 20)
 scene.add(plane);
 
-// create a cube
-let cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
-let cube = new THREE.Mesh(cubeGeometry, material);
-// position the cube
-cube.position.set(0.0, 2.0, 0.0);
-// add the cube to the scene
-scene.add(cube);
+let rad = THREE.MathUtils.degToRad(30);
 
-//create o secound cube
-let cubeGeometry2 = new THREE.BoxGeometry(1,1,1);
-let cube2 = new THREE.Mesh(cubeGeometry2, material);
-cube2.position.set(8.0, 0.5, 0.0);
-scene.add(cube2)
-
-//create o secound cube
-let cubeGeometry3 = new THREE.BoxGeometry(2,2,2);
-let cube3 = new THREE.Mesh(cubeGeometry3, material);
-cube3.position.set(-4.5, 1.0, 4.0);
-scene.add(cube3)
+for(let i=0; i<12; i+=1){
+  // create a sphere
+  let sphereGeometry = new THREE.SphereGeometry(1, 32, 16);
+  let sphere = new THREE.Mesh(sphereGeometry, material);
+  // position the sphere
+  sphere.position.set(0.0, 0.0, 0.0);
+  scene.add(sphere);
+  sphere.scale.set(0.5,0.5,0.5)
+  sphere.rotateY(i*rad);
+  sphere.translateX(8);
+  sphere.translateY(0.5);
+}
 
 // Use this to show information onscreen
 let controls = new InfoBox();

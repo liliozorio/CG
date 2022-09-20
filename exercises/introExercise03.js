@@ -27,19 +27,19 @@ scene.add( axesHelper );
 let plane = createGroundPlaneXZ(20, 20)
 scene.add(plane);
 
+// create a cube
 for(let x = -8.0; x<=8.0; x+=8)
 {
-  for(let z = -8.0; z<=8.0; z+=8)
-  {
-    // create a cube
-    let cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
-    let material1 = setDefaultMaterial('darkorange');
-    let cube = new THREE.Mesh(cubeGeometry, material1);
-    // position the cube
-    cube.position.set(x, 2.0, z);
-    // add the cube to the scene
-    scene.add(cube);
-  }
+    for(let z = -8.0; z<=8.0; z+=8)
+    {
+            let cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+            let material1 = setDefaultMaterial('darkorange');
+            let cube = new THREE.Mesh(cubeGeometry, material1);
+            // position the cube
+            cube.position.set(x, 2.0, z);
+            // add the cube to the scene
+            scene.add(cube);
+    }
 
 }
 
