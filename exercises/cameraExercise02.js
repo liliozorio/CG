@@ -22,7 +22,9 @@ createTeapot( 2.0,  0.4,  0.0, Math.random() * 0xffffff);
 createTeapot(0.0,  0.4,  2.0, Math.random() * 0xffffff);  
 createTeapot(0.0,  0.4, -2.0, Math.random() * 0xffffff);    
 
-let angulox = 0
+let anguloX = 0
+let anguloY = 0
+let anguloZ = 0
 let camPos  = new THREE.Vector3(3, 4, 8);
 let camUp   = new THREE.Vector3(0.0, 1.0, 0.0);
 let camLook = new THREE.Vector3(0.0, 0.0, 0.0);
@@ -39,16 +41,6 @@ let cameraholder = new THREE.Object3D();
 scene.add(cameraholder);
 
 render();
-
-function updateCamera()
-{
-   // DICA: Atualize a câmera aqui! 
-
-   camera.updateProjectionMatrix(); 
-
-   message.changeMessage("Pos: {" + camPos.x + ", " + camPos.y + ", " + camPos.z + "} " + 
-                         "/ LookAt: {" + camLook.x + ", " + camLook.y + ", " + camLook.z + "}");
-}
 
 function keyboardUpdate() {
 
@@ -77,17 +69,47 @@ function keyboardUpdate() {
    {
       cameraholder.translateZ(0.1)
    };
-   if(keyboard.down("left"))
+   if(keyboard.down("up"))
    {
-      angulox = angulox + 1
-      var rad = THREE.MathUtils.degToRad(angulox)
+      anguloX = anguloX + 1
+      var rad = THREE.MathUtils.degToRad(anguloX)
       cameraholder.rotateY(rad)
+      anguloX = 0
+   };
+   if(keyboard.down("down"))
+   {
+      anguloX = anguloX - 1
+      var rad = THREE.MathUtils.degToRad(anguloX)
+      cameraholder.rotateY(rad)
+      anguloX = 0
    };
    if(keyboard.down("right"))
    {
-      angulox = angulox - 1
-      var rad = THREE.MathUtils.degToRad(angulox)
-      cameraholder.rotateY(rad)
+      anguloY = anguloY + 1
+      var rad = THREE.MathUtils.degToRad(anguloY)
+      cameraholder.rotateZ(rad)
+      anguloY = 0
+   };
+   if(keyboard.down("left"))
+   {
+      anguloY = anguloY - 1
+      var rad = THREE.MathUtils.degToRad(anguloY)
+      cameraholder.rotateZ(rad)
+      anguloY = 0
+   };
+   if(keyboard.down("Q"))
+   {
+      anguloZ = anguloZ + 1
+      var rad = THREE.MathUtils.degToRad(anguloZ)
+      cameraholder.rotateX(rad)
+      anguloZ = 0
+   };
+   if(keyboard.down("E"))
+   {
+      anguloZ = anguloZ - 1
+      var rad = THREE.MathUtils.degToRad(anguloZ)
+      cameraholder.rotateX(rad)
+      anguloZ = 0
    };
    // DICA: Insira aqui seu código para mover a câmera
 }
