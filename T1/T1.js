@@ -116,12 +116,15 @@ function loadGLTFFile(modelName) {
         mixer.push(mixerLocal);
     }, onProgress, onError);
 }
+
 function onProgress(xhr, model) {
     if (xhr.lengthComputable) {
         var percentComplete = xhr.loaded / xhr.total * 100;
     }
 }
+
 function onError() { };
+
 function normalizeAndRescale(obj, newScale) {
     var scale = getMaxSize(obj); // Available in 'utils.js'
     obj.scale.set(newScale * (1.0 / scale),
@@ -129,6 +132,7 @@ function normalizeAndRescale(obj, newScale) {
         newScale * (1.0 / scale));
     return obj;
 }
+
 function fixPosition(obj) {
     // Fix position of the object over the ground plane
     var box = new THREE.Box3().setFromObject(obj);
