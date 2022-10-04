@@ -1,16 +1,19 @@
 import * as THREE from 'three';
+import GUI from '../libs/util/dat.gui.module.js'
 import KeyboardState from '../libs/util/KeyboardState.js'
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js'
 import {
     initRenderer,
+    SecondaryBox,
     initCamera,
     initDefaultBasicLight,
     setDefaultMaterial,
-    InfoBox,
     getMaxSize,
     onWindowResize
 } from "../libs/util/util.js";
+
+const bbcube = [];
 
 function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments = 10, gcolor = null) {
     if (!gcolor) gcolor = "rgb(210,180,140)";
@@ -32,6 +35,7 @@ function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments =
 }
 
 let scene, renderer, camera, material, light, orbit, keyboard; // Initial variables
+let anguloY = 0
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 camera = initCamera(new THREE.Vector3(0, 10, 12.5)); // Init camera in this position
@@ -79,6 +83,7 @@ function makeEdgeX(x, z) {
         // position the cube
         let cube = new THREE.Mesh(cubeGeometry2, material1);
         cube.position.set(x, 1, z);
+        bbcube.push(new THREE.Box3().setFromObject(cube));
         // add the cube to the scene
         scene.add(cube);
     }
@@ -88,6 +93,7 @@ function makeEdgeZ(x, z) {
         // position the cube
         let cube = new THREE.Mesh(cubeGeometry2, material1);
         cube.position.set(x, 1, z);
+        bbcube.push(new THREE.Box3().setFromObject(cube));
         // add the cube to the scene
         scene.add(cube);
     }
@@ -96,25 +102,21 @@ function makeEdgeZ(x, z) {
 
 var playAction;
 var mixer = new Array();
-let man;
 
-function loadGLTFFile(modelName) {
+function loadGLTFFile(asset, file, desiredScale) {
     var loader = new GLTFLoader();
-    loader.load(modelName, function (gltf) {
+    loader.load(file, function (gltf) {
         var obj = gltf.scene;
-        // obj.traverse(function (child) {
-        //     if (child) {
-        //         child.castShadow = true;
-        //     }
-        // });
-        // obj.traverse(function (node) {
-        //     if (node.material) node.material.side = THREE.DoubleSide;
-        // });
-
+        obj.traverse( function ( child ) {
+            if ( child.isMesh ) {
+                child.castShadow = true;
+            }
+          });
         obj = normalizeAndRescale(obj, 2);
-        man = obj
+        obj.updateMatrixWorld(true)
         scene.add(obj);
 
+        asset.object = gltf.scene;
         // Create animationMixer and push it in the array of mixers
         var mixerLocal = new THREE.AnimationMixer(obj);
         mixerLocal.clipAction(gltf.animations[0]).play();
@@ -138,187 +140,110 @@ function normalizeAndRescale(obj, newScale) {
     return obj;
 }
 
-let anguloY = 0
-
+function movimentation(angulo_max, camX, camZ, walkZ, walkX)
+{
+    if (anguloY < angulo_max) {
+        while (anguloY < angulo_max) {
+            anguloY = anguloY + 1
+            var rad = THREE.MathUtils.degToRad(1)
+            asset.object.rotateY(rad)
+        }
+    }
+    if (anguloY > angulo_max) {
+        while (anguloY > angulo_max) {
+            anguloY = anguloY - 1
+            var rad = THREE.MathUtils.degToRad(-1)
+            asset.object.rotateY(rad)
+        }
+    }
+    cameraholder.translateX(camX)
+    cameraholder.translateZ(camZ)
+    asset.object.translateZ(walkZ)
+    asset.object.translateX(walkX)
+    asset.bb.setFromObject(asset.object);
+}
 
 function keyboardUpdate() {
 
     keyboard.update()
-    if (keyboard.pressed("A") || keyboard.pressed("D") || keyboard.pressed("S") || keyboard.pressed("W") || keyboard.pressed("up") || keyboard.pressed("down") || keyboard.pressed("left") || keyboard.pressed("right")) {
+    if (keyboard.pressed("A") || keyboard.pressed("D") || keyboard.pressed("S") || keyboard.pressed("W") || keyboard.pressed("up") || keyboard.pressed("down") || keyboard.pressed("left") || keyboard.pressed("right")) 
+    {
         playAction = true
     }
-    else {
+    else 
+    {
         playAction = false
     }
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
-
-        if (anguloY < 315) {
-            while (anguloY < 315) {
-                anguloY = anguloY + 1
-                var rad = THREE.MathUtils.degToRad(1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
+        var collision = checkCollisions(bbcube)
+        if(!collision){
+            movimentation(315,-(Math.sqrt(0.005, 2)),(Math.sqrt(0.005, 2)),0.1,0)
         }
-        if (anguloY > 315) {
-            while (anguloY > 315) {
-                anguloY = anguloY - 1
-                var rad = THREE.MathUtils.degToRad(-1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
-        }
-        cameraholder.translateX(-(Math.sqrt(0.005, 2)))
-        cameraholder.translateZ(Math.sqrt(0.005, 2))
-        man.translateZ(0.1)
     }
     else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
-        if (anguloY < 225) {
-            while (anguloY < 225) {
-                anguloY = anguloY + 1
-                var rad = THREE.MathUtils.degToRad(1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
+        var collision = checkCollisions(bbcube)
+        if(!collision){
+            movimentation(225,-(Math.sqrt(0.005, 2)),-(Math.sqrt(0.005, 2)),0.1,0)
         }
-        if (anguloY > 225) {
-            while (anguloY > 225) {
-                anguloY = anguloY - 1
-                var rad = THREE.MathUtils.degToRad(-1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
-        }
-        cameraholder.translateX(-(Math.sqrt(0.005, 2)))
-        cameraholder.translateZ(-(Math.sqrt(0.005, 2)))
-        man.translateZ(0.1)
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
-        if (anguloY < 45) {
-            while (anguloY < 45) {
-                anguloY = anguloY + 1
-                var rad = THREE.MathUtils.degToRad(1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
+        var collision = checkCollisions(bbcube)
+        if(!collision){
+            movimentation(45,(Math.sqrt(0.005, 2)),(Math.sqrt(0.005, 2)),0.1,0)
         }
-        if (anguloY > 45) {
-            while (anguloY > 45) {
-                anguloY = anguloY - 1
-                var rad = THREE.MathUtils.degToRad(-1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
-        }
-        cameraholder.translateX((Math.sqrt(0.005, 2)))
-        cameraholder.translateZ((Math.sqrt(0.005, 2)))
-        man.translateZ(0.1)
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
-        if (anguloY < 135) {
-            while (anguloY < 135) {
-                anguloY = anguloY + 1
-                var rad = THREE.MathUtils.degToRad(1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
+        var collision = checkCollisions(bbcube)
+        if(!collision){
+            movimentation(135,(Math.sqrt(0.005, 2)),-(Math.sqrt(0.005, 2)),0.1,0)
         }
-        if (anguloY > 135) {
-            while (anguloY > 135) {
-                anguloY = anguloY - 1
-                var rad = THREE.MathUtils.degToRad(-1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
-        }
-        cameraholder.translateX((Math.sqrt(0.005, 2)))
-        cameraholder.translateZ(-(Math.sqrt(0.005, 2)))
-        man.translateZ(0.1)
     }
     else if (keyboard.pressed("A") || keyboard.pressed("left")) {
-        if (anguloY < 270) {
-            while (anguloY < 270) {
-                anguloY = anguloY + 1
-                var rad = THREE.MathUtils.degToRad(1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
+        var collision = checkCollisions(bbcube)
+        if(!collision){
+            movimentation(270,-0.1,0,0.1,0)
         }
-        if (anguloY > 270) {
-            while (anguloY > 270) {
-                anguloY = anguloY - 1
-                var rad = THREE.MathUtils.degToRad(-1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
-        }
-        cameraholder.translateX(-0.1)
-        man.translateZ(0.1)
     }
     else if (keyboard.pressed("D") || keyboard.pressed("right")) {
-        if (anguloY < 90) {
-            while (anguloY < 90) {
-                anguloY = anguloY + 1
-                var rad = THREE.MathUtils.degToRad(1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
+        var collision = checkCollisions(bbcube)
+        if(!collision){
+            movimentation(90,0.1,0,0.1,0)
         }
-        if (anguloY > 90) {
-            while (anguloY > 90) {
-                anguloY = anguloY - 1
-                var rad = THREE.MathUtils.degToRad(-1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
-        }
-        cameraholder.translateX(0.1)
-        man.translateZ(0.1)
     }
     else if (keyboard.pressed("S") || keyboard.pressed("down")) {
-        if (anguloY < 0) {
-            while (anguloY < 0) {
-                anguloY = anguloY + 1
-                var rad = THREE.MathUtils.degToRad(1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
+        var collision = checkCollisions(bbcube)
+        if(!collision){
+            movimentation(0,0,0.1,0.1,0)
         }
-        if (anguloY > 0) {
-            while (anguloY > 0) {
-                anguloY = anguloY - 1
-                var rad = THREE.MathUtils.degToRad(-1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
-        }
-        cameraholder.translateZ(0.1)
-        man.translateZ(0.1)
     }
     else if (keyboard.pressed("W") || keyboard.pressed("up")) {
-        if (anguloY < 180) {
-            while (anguloY < 180) {
-                anguloY = anguloY + 1
-                var rad = THREE.MathUtils.degToRad(1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
+        var collision = checkCollisions(bbcube)
+        if(!collision){
+            movimentation(180,0,-0.1,0.1,0)
         }
-        if (anguloY > 180) {
-            while (anguloY > 180) {
-                anguloY = anguloY - 1
-                var rad = THREE.MathUtils.degToRad(-1)
-                man.rotateY(rad)
-                console.log(anguloY)
-            }
-        }
-        cameraholder.translateZ(-0.1)
-        man.translateZ(0.1)
     };
 }
 
-loadGLTFFile('../assets/objects/walkingMan.glb');
+function checkCollisions(object)
+{
+    for(var i = 0; i<object.length; i++)
+    {
+        let collision = asset.bb.intersectsBox(object[i]);
+        if(collision) 
+        {
+            return true;
+        }
+    }
+    return false
+}
 
+let asset = {
+    object: null,
+    loaded: false,
+    bb: new THREE.Box3()
+ }
+
+loadGLTFFile(asset,'../assets/objects/walkingMan.glb',1.0);
 
 makeFloor()
 makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2)
@@ -326,15 +251,20 @@ makeEdgeX(-SIZE_PLANE / 2, SIZE_PLANE / 2)
 makeEdgeZ(-SIZE_PLANE / 2, -SIZE_PLANE / 2)
 makeEdgeZ(SIZE_PLANE / 2, -SIZE_PLANE / 2)
 
+let cube = new THREE.Mesh(cubeGeometry2, material1);
+cube.position.set(50, 1, 20);
+// add the cube to the scene
+bbcube.push(new THREE.Box3().setFromObject(cube));
+scene.add(cube);
+
 render();
 function render() {
     var delta = clock.getDelta();
     requestAnimationFrame(render);
     keyboardUpdate();
     renderer.render(scene, camera) // Render scene
-
     if (playAction) {
         for (var i = 0; i < mixer.length; i++)
             mixer[i].update(delta * 2);
-    }
+    };
 }
