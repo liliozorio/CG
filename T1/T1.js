@@ -56,9 +56,9 @@ window.addEventListener('resize', function () { onWindowResize(camera, renderer)
 
 // create the ground plane
 
-const SIZE_PLANE = 120;
+const SIZE_PLANE = 200;
 
-let plane = createGroundPlaneXZ(SIZE_PLANE, SIZE_PLANE);
+let plane = createGroundPlaneXZ(SIZE_PLANE+55, SIZE_PLANE+55);
 scene.add(plane);
 
 let cubeGeometry = new THREE.BoxGeometry(2, 0.01, 2);
@@ -250,12 +250,6 @@ makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2)
 makeEdgeX(-SIZE_PLANE / 2, SIZE_PLANE / 2)
 makeEdgeZ(-SIZE_PLANE / 2, -SIZE_PLANE / 2)
 makeEdgeZ(SIZE_PLANE / 2, -SIZE_PLANE / 2)
-
-let cube = new THREE.Mesh(cubeGeometry2, material1);
-cube.position.set(50, 1, 20);
-// add the cube to the scene
-bbcube.push(new THREE.Box3().setFromObject(cube));
-scene.add(cube);
 
 render();
 function render() {
