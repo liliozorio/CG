@@ -144,7 +144,7 @@ let anguloY = 0
 function keyboardUpdate() {
 
     keyboard.update()
-    if(keyboard.pressed("A")||keyboard.pressed("D")||keyboard.pressed("S")||keyboard.pressed("W"))
+    if(keyboard.pressed("A")||keyboard.pressed("D")||keyboard.pressed("S")||keyboard.pressed("W")||keyboard.pressed("up")||keyboard.pressed("down")||keyboard.pressed("left")||keyboard.pressed("right"))
     {
         playAction = true
     }
@@ -152,7 +152,7 @@ function keyboardUpdate() {
     {
         playAction = false
     }
-    if(keyboard.pressed("A")&&keyboard.pressed("S"))
+    if(keyboard.pressed("A")&&keyboard.pressed("S")||keyboard.pressed("left")&&keyboard.pressed("down"))
     {
        
        if(anguloY<315)
@@ -179,7 +179,7 @@ function keyboardUpdate() {
        cameraholder.translateZ(Math.sqrt(0.005,2))
        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("A")&&keyboard.pressed("W"))
+    else if(keyboard.pressed("A")&&keyboard.pressed("W")||keyboard.pressed("left")&&keyboard.pressed("up"))
     {
        if(anguloY<225)
        {
@@ -205,7 +205,7 @@ function keyboardUpdate() {
        cameraholder.translateZ(-(Math.sqrt(0.005,2)))
        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("D")&&keyboard.pressed("S"))
+    else if(keyboard.pressed("D")&&keyboard.pressed("S")||keyboard.pressed("right")&&keyboard.pressed("down"))
     {
        if(anguloY<45)
        {
@@ -231,7 +231,7 @@ function keyboardUpdate() {
        cameraholder.translateZ((Math.sqrt(0.005,2)))
        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("D")&&keyboard.pressed("W"))
+    else if(keyboard.pressed("D")&&keyboard.pressed("W")||keyboard.pressed("right")&&keyboard.pressed("up"))
     {
        if(anguloY<135)
        {
@@ -257,7 +257,7 @@ function keyboardUpdate() {
        cameraholder.translateZ(-(Math.sqrt(0.005,2)))
        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("A"))
+    else if(keyboard.pressed("A")||keyboard.pressed("left"))
     {
        if(anguloY<270)
        {
@@ -282,7 +282,7 @@ function keyboardUpdate() {
        cameraholder.translateX(-0.1)
        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("D"))
+    else if(keyboard.pressed("D")||keyboard.pressed("right"))
     {
         if(anguloY<90)
         {
@@ -307,7 +307,7 @@ function keyboardUpdate() {
        cameraholder.translateX(0.1)
        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("S"))
+    else if(keyboard.pressed("S")||keyboard.pressed("down"))
     {
         if(anguloY<0)
         {
@@ -332,7 +332,7 @@ function keyboardUpdate() {
        cameraholder.translateZ(0.1)
        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("W"))
+    else if(keyboard.pressed("W")||keyboard.pressed("up"))
     {
         if(anguloY<180)
         {
