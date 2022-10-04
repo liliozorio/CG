@@ -51,8 +51,6 @@ camera.position.copy(camPosition);
 camera.up.copy(upVec);
 camera.lookAt(lookAtVec);
 
-console.log(camera.position)
-
 let cameraholder = new THREE.Object3D();
 cameraholder.add(camera);
 scene.add(cameraholder);
@@ -71,7 +69,7 @@ window.addEventListener('resize', function () { onWindowResize(camera, renderer)
 
 // create the ground plane
 
-const SIZE_PLANE = 200;
+const SIZE_PLANE = 60;
 
 let plane = createGroundPlaneXZ(SIZE_PLANE+55, SIZE_PLANE+55);
 scene.add(plane);
@@ -118,7 +116,7 @@ function makeEdgeZ(x, z) {
 var playAction;
 var mixer = new Array();
 
-function loadGLTFFile(asset, file, desiredScale) {
+function loadGLTFFile(asset, file, add_scene) {
     var loader = new GLTFLoader();
     loader.load(file, function (gltf) {
         var obj = gltf.scene;
@@ -129,7 +127,10 @@ function loadGLTFFile(asset, file, desiredScale) {
           });
         obj = normalizeAndRescale(obj, 2);
         obj.updateMatrixWorld(true)
-        scene.add(obj);
+        if(add_scene)
+        {
+            scene.add(obj);
+        }
 
         asset.object = gltf.scene;
         // Create animationMixer and push it in the array of mixers
@@ -155,13 +156,14 @@ function normalizeAndRescale(obj, newScale) {
     return obj;
 }
 
-function movimentation(angulo_max, camX, camZ, walkZ, walkX)
+function movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide)
 {
     if (anguloY < angulo_max) {
         while (anguloY < angulo_max) {
             anguloY = anguloY + 1
             var rad = THREE.MathUtils.degToRad(1)
             asset.object.rotateY(rad)
+            asset2.object.rotateY(rad)
         }
     }
     if (anguloY > angulo_max) {
@@ -169,13 +171,17 @@ function movimentation(angulo_max, camX, camZ, walkZ, walkX)
             anguloY = anguloY - 1
             var rad = THREE.MathUtils.degToRad(-1)
             asset.object.rotateY(rad)
+            asset2.object.rotateY(rad)
         }
     }
     cameraholder.translateX(camX)
     cameraholder.translateZ(camZ)
     asset.object.translateZ(walkZ)
     asset.object.translateX(walkX)
+    asset2.object.translateZ(walkZ_hide)
+    asset2.object.translateX(walkX_hide)
     asset.bb.setFromObject(asset.object);
+    asset2.bb.setFromObject(asset2.object);
 }
 
 function keyboardUpdate() {
@@ -190,51 +196,151 @@ function keyboardUpdate() {
         playAction = false
     }
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
-        var collision = checkCollisions(bbcube)
+        var collision = checkCollisions(bbcube,asset)
         if(!collision){
-            movimentation(315,-(Math.sqrt(0.005, 2)),(Math.sqrt(0.005, 2)),0.1,0)
+            movimentation(315,-(Math.sqrt(0.005, 2)),(Math.sqrt(0.005, 2)),0.1,0,0.1,0)
         }
     }
     else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
-        var collision = checkCollisions(bbcube)
+        var collision = checkCollisions(bbcube,asset)
         if(!collision){
-            movimentation(225,-(Math.sqrt(0.005, 2)),-(Math.sqrt(0.005, 2)),0.1,0)
+            movimentation(225,-(Math.sqrt(0.005, 2)),-(Math.sqrt(0.005, 2)),0.1,0,0.1,0)
         }
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
-        var collision = checkCollisions(bbcube)
+        var collision = checkCollisions(bbcube,asset)
         if(!collision){
-            movimentation(45,(Math.sqrt(0.005, 2)),(Math.sqrt(0.005, 2)),0.1,0)
+            movimentation(45,(Math.sqrt(0.005, 2)),(Math.sqrt(0.005, 2)),0.1,0,0.1,0)
         }
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
-        var collision = checkCollisions(bbcube)
+        var collision = checkCollisions(bbcube,asset)
         if(!collision){
-            movimentation(135,(Math.sqrt(0.005, 2)),-(Math.sqrt(0.005, 2)),0.1,0)
+            movimentation(135,(Math.sqrt(0.005, 2)),-(Math.sqrt(0.005, 2)),0.1,0,0.1,0)
         }
     }
     else if (keyboard.pressed("A") || keyboard.pressed("left")) {
-        var collision = checkCollisions(bbcube)
+        var collision = checkCollisions(bbcube,asset)
         if(!collision){
-            movimentation(270,-0.1,0,0.1,0)
+            movimentation(270,-0.1,0,0.1,0,0.1,0)
+        }
+        else
+        {
+            movimentation(270,0,0,0,0,0.1,-0.6)
+            collision = checkCollisions(bbcube,asset2)
+            if(collision)
+            {
+                movimentation(270,0,0,0,0,-0.1,0.6);
+                asset2.bb.setFromObject(asset2.object);
+                movimentation(270,0,0,0,0,0.1,0.6)
+                collision = checkCollisions(bbcube,asset2)
+                if(collision)
+                {
+                    movimentation(270,0,0,0,0,-0.1,-0.6)
+                    asset2.bb.setFromObject(asset2.object);
+                }
+                else
+                {
+                    movimentation(270,-0.1,0,0.1,0,0,-0.6)
+                }
+            }
+            else
+            {
+                movimentation(270,-0.1,0,0.1,0,0,0.6)
+            }
         }
     }
     else if (keyboard.pressed("D") || keyboard.pressed("right")) {
-        var collision = checkCollisions(bbcube)
+        var collision = checkCollisions(bbcube,asset)
         if(!collision){
-            movimentation(90,0.1,0,0.1,0)
+            movimentation(90,0.1,0,0.1,0,0.1,0)
+        }
+        else
+        {
+            movimentation(90,0,0,0,0,0.1,-0.6)
+            collision = checkCollisions(bbcube,asset2)
+            if(collision)
+            {
+                movimentation(90,0,0,0,0,-0.1,0.6)
+                asset2.bb.setFromObject(asset2.object);
+                movimentation(90,0,0,0,0,0.1,0.6)
+                collision = checkCollisions(bbcube,asset2)
+                if(collision)
+                {
+                    movimentation(90,0,0,0,0,-0.1,-0.6)
+                    asset2.bb.setFromObject(asset2.object);
+                }
+                else
+                {
+                    movimentation(90,0.1,0,0.1,0,0,-0.6)
+                }
+            }
+            else
+            {
+                movimentation(90,0.1,0,0.1,0,0,0.6)
+            }
         }
     }
     else if (keyboard.pressed("S") || keyboard.pressed("down")) {
-        var collision = checkCollisions(bbcube)
+        var collision = checkCollisions(bbcube,asset)
         if(!collision){
-            movimentation(0,0,0.1,0.1,0)
+            movimentation(0,0,0.1,0.1,0,0.1,0)
+        }
+        else
+        {
+            movimentation(0,0,0,0,0,0.1,-0.6)
+            collision = checkCollisions(bbcube,asset2)
+            if(collision)
+            {
+                movimentation(0,0,0,0,0,-0.1,0.6)
+                asset2.bb.setFromObject(asset2.object);
+                movimentation(0,0,0,0,0,0.1,0.6)
+                collision = checkCollisions(bbcube,asset2)
+                if(collision)
+                {
+                    movimentation(0,0,0,0,0,-0.1,-0.6)
+                    asset2.bb.setFromObject(asset2.object);
+                }
+                else
+                {
+                    movimentation(0,0,0.1,0.1,0,0,-0.6)  
+                }
+            }
+            else
+            {
+                movimentation(0,0,0.1,0.1,0,0,0.6)
+            }
         }
     }
     else if (keyboard.pressed("W") || keyboard.pressed("up")) {
-        var collision = checkCollisions(bbcube)
+        var collision = checkCollisions(bbcube,asset)
         if(!collision){
-            movimentation(180,0,-0.1,0.1,0)
+            movimentation(180,0,-0.1,0.1,0,0.1,0)
+        }
+        else
+        {
+            movimentation(180,0,0,0,0,0.1,-0.6)
+            collision = checkCollisions(bbcube,asset2)
+            if(collision)
+            {
+                movimentation(180,0,0,0,0,-0.1,0.6)
+                asset2.bb.setFromObject(asset2.object);
+                movimentation(180,0,0,0,0,0.1,0.6)
+                collision = checkCollisions(bbcube,asset2)
+                if(collision)
+                {
+                    movimentation(180,0,0,0,0,-0.1,-0.6)
+                    asset2.bb.setFromObject(asset2.object);
+                }
+                else
+                {
+                    movimentation(180,0,-0.1,0.1,0,0,-0.6)
+                }
+            }
+            else
+            {
+                movimentation(180,0,-0.1,0.1,0,0,0.6)
+            }
         }
     };
     if (keyboard.down("C"))
@@ -271,11 +377,19 @@ function keyboardUpdate() {
     }
 }
 
-function checkCollisions(object)
+function createBBHelper(bb, color)
+{
+   // Create a bounding box helper
+   let helper = new THREE.Box3Helper( bb, color );
+   scene.add( helper );
+   return helper;
+}
+
+function checkCollisions(object, man)
 {
     for(var i = 0; i<object.length; i++)
     {
-        let collision = asset.bb.intersectsBox(object[i]);
+        let collision = man.bb.intersectsBox(object[i]);
         if(collision) 
         {
             return true;
@@ -290,7 +404,16 @@ let asset = {
     bb: new THREE.Box3()
  }
 
-loadGLTFFile(asset,'../assets/objects/walkingMan.glb',1.0);
+let asset2 = {
+    object: null,
+    loaded: false,
+    bb: new THREE.Box3()
+ }
+
+loadGLTFFile(asset,'../assets/objects/walkingMan.glb',true);
+let assetHelper = createBBHelper(asset.bb, 'yellow');
+loadGLTFFile(asset2,'../assets/objects/walkingMan.glb',false);
+let assetHelper2 = createBBHelper(asset2.bb, 'yellow');
 
 makeFloor()
 makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2)
