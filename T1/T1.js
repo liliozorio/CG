@@ -13,6 +13,8 @@ import {
     onWindowResize
 } from "../libs/util/util.js";
 
+let orthographic = true;
+
 const bbcube = [];
 
 function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments = 10, gcolor = null) {
@@ -38,16 +40,29 @@ let scene, renderer, camera, material, light, orbit, keyboard; // Initial variab
 let anguloY = 0
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
-camera = initCamera(new THREE.Vector3(0, 10, 12.5)); // Init camera in this position
+
+var lookAtVec   = new THREE.Vector3( 0.0, 0.0, 0.0 );
+var camPosition = new THREE.Vector3( 0, 8, 12.5 );
+var upVec       = new THREE.Vector3( 0.0, 1.0, 0.0 );
+var s = 105;
+camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
+window.innerHeight / s, window.innerHeight / -s, -s, s);
+camera.position.copy(camPosition);
+camera.up.copy(upVec);
+camera.lookAt(lookAtVec);
+
+console.log(camera.position)
+
+let cameraholder = new THREE.Object3D();
+cameraholder.add(camera);
+scene.add(cameraholder);
+
+//camera = initCamera(new THREE.Vector3(0, 10, 12.5)); // Init camera in this position
 material = setDefaultMaterial(); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 orbit = new OrbitControls(camera, renderer.domElement); // Enable mouse rotation, pan, zoom etc.
 
 keyboard = new KeyboardState();
-
-let cameraholder = new THREE.Object3D();
-cameraholder.add(camera);
-scene.add(cameraholder);
 
 var clock = new THREE.Clock();
 
@@ -222,6 +237,38 @@ function keyboardUpdate() {
             movimentation(180,0,-0.1,0.1,0)
         }
     };
+    if (keyboard.down("C"))
+    {
+        if(orthographic)
+        {
+            camPosition = new THREE.Vector3( 0, 10, 12.5 );
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, s);
+            camera.position.copy(camPosition);
+            camera.up.copy(upVec);
+            camera.lookAt(lookAtVec);
+
+            console.log(camera.position)
+
+            cameraholder.add(camera);
+            scene.add(cameraholder);
+            orthographic = false;
+        }
+        else
+        {
+            camPosition = new THREE.Vector3( 0, 10, 12.5 );
+            camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
+            window.innerHeight / s, window.innerHeight / -s, -s, s);
+            camera.position.copy(camPosition);
+            camera.up.copy(upVec);
+            camera.lookAt(lookAtVec);
+            
+            console.log(camera.position)
+
+            cameraholder.add(camera);
+            scene.add(cameraholder);
+            orthographic = true;
+        }
+    }
 }
 
 function checkCollisions(object)
