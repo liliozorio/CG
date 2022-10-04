@@ -31,7 +31,7 @@ function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments =
     return plane;
 }
 
-let scene, renderer, camera, material, light, orbit,keyboard; // Initial variables
+let scene, renderer, camera, material, light, orbit, keyboard; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 camera = initCamera(new THREE.Vector3(0, 10, 12.5)); // Init camera in this position
@@ -42,7 +42,7 @@ orbit = new OrbitControls(camera, renderer.domElement); // Enable mouse rotation
 keyboard = new KeyboardState();
 
 let cameraholder = new THREE.Object3D();
-   cameraholder.add(camera);
+cameraholder.add(camera);
 scene.add(cameraholder);
 
 var clock = new THREE.Clock();
@@ -144,218 +144,176 @@ let anguloY = 0
 function keyboardUpdate() {
 
     keyboard.update()
-    if(keyboard.pressed("A")||keyboard.pressed("D")||keyboard.pressed("S")||keyboard.pressed("W")||keyboard.pressed("up")||keyboard.pressed("down")||keyboard.pressed("left")||keyboard.pressed("right"))
-    {
+    if (keyboard.pressed("A") || keyboard.pressed("D") || keyboard.pressed("S") || keyboard.pressed("W") || keyboard.pressed("up") || keyboard.pressed("down") || keyboard.pressed("left") || keyboard.pressed("right")) {
         playAction = true
     }
-    else
-    {
+    else {
         playAction = false
     }
-    if(keyboard.pressed("A")&&keyboard.pressed("S")||keyboard.pressed("left")&&keyboard.pressed("down"))
-    {
-       
-       if(anguloY<315)
-       {
-            while(anguloY<315)
-            {
+    if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
+
+        if (anguloY < 315) {
+            while (anguloY < 315) {
                 anguloY = anguloY + 1
                 var rad = THREE.MathUtils.degToRad(1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       if(anguloY>315)
-       {
-            while(anguloY>315)
-            {
+        }
+        if (anguloY > 315) {
+            while (anguloY > 315) {
                 anguloY = anguloY - 1
                 var rad = THREE.MathUtils.degToRad(-1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       cameraholder.translateX(-(Math.sqrt(0.005,2)))
-       cameraholder.translateZ(Math.sqrt(0.005,2))
-       man.translateZ(0.1)
+        }
+        cameraholder.translateX(-(Math.sqrt(0.005, 2)))
+        cameraholder.translateZ(Math.sqrt(0.005, 2))
+        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("A")&&keyboard.pressed("W")||keyboard.pressed("left")&&keyboard.pressed("up"))
-    {
-       if(anguloY<225)
-       {
-            while(anguloY<225)
-            {
+    else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
+        if (anguloY < 225) {
+            while (anguloY < 225) {
                 anguloY = anguloY + 1
                 var rad = THREE.MathUtils.degToRad(1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       if(anguloY>225)
-       {
-            while(anguloY>225)
-            {
+        }
+        if (anguloY > 225) {
+            while (anguloY > 225) {
                 anguloY = anguloY - 1
                 var rad = THREE.MathUtils.degToRad(-1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       cameraholder.translateX(-(Math.sqrt(0.005,2)))
-       cameraholder.translateZ(-(Math.sqrt(0.005,2)))
-       man.translateZ(0.1)
+        }
+        cameraholder.translateX(-(Math.sqrt(0.005, 2)))
+        cameraholder.translateZ(-(Math.sqrt(0.005, 2)))
+        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("D")&&keyboard.pressed("S")||keyboard.pressed("right")&&keyboard.pressed("down"))
-    {
-       if(anguloY<45)
-       {
-            while(anguloY<45)
-            {
+    else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
+        if (anguloY < 45) {
+            while (anguloY < 45) {
                 anguloY = anguloY + 1
                 var rad = THREE.MathUtils.degToRad(1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       if(anguloY>45)
-       {
-            while(anguloY>45)
-            {
+        }
+        if (anguloY > 45) {
+            while (anguloY > 45) {
                 anguloY = anguloY - 1
                 var rad = THREE.MathUtils.degToRad(-1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       cameraholder.translateX((Math.sqrt(0.005,2)))
-       cameraholder.translateZ((Math.sqrt(0.005,2)))
-       man.translateZ(0.1)
+        }
+        cameraholder.translateX((Math.sqrt(0.005, 2)))
+        cameraholder.translateZ((Math.sqrt(0.005, 2)))
+        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("D")&&keyboard.pressed("W")||keyboard.pressed("right")&&keyboard.pressed("up"))
-    {
-       if(anguloY<135)
-       {
-            while(anguloY<135)
-            {
+    else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
+        if (anguloY < 135) {
+            while (anguloY < 135) {
                 anguloY = anguloY + 1
                 var rad = THREE.MathUtils.degToRad(1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       if(anguloY>135)
-       {
-            while(anguloY>135)
-            {
+        }
+        if (anguloY > 135) {
+            while (anguloY > 135) {
                 anguloY = anguloY - 1
                 var rad = THREE.MathUtils.degToRad(-1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       cameraholder.translateX((Math.sqrt(0.005,2)))
-       cameraholder.translateZ(-(Math.sqrt(0.005,2)))
-       man.translateZ(0.1)
+        }
+        cameraholder.translateX((Math.sqrt(0.005, 2)))
+        cameraholder.translateZ(-(Math.sqrt(0.005, 2)))
+        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("A")||keyboard.pressed("left"))
-    {
-       if(anguloY<270)
-       {
-            while(anguloY<270)
-            {
+    else if (keyboard.pressed("A") || keyboard.pressed("left")) {
+        if (anguloY < 270) {
+            while (anguloY < 270) {
                 anguloY = anguloY + 1
                 var rad = THREE.MathUtils.degToRad(1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       if(anguloY>270)
-       {
-            while(anguloY>270)
-            {
+        }
+        if (anguloY > 270) {
+            while (anguloY > 270) {
                 anguloY = anguloY - 1
                 var rad = THREE.MathUtils.degToRad(-1)
                 man.rotateY(rad)
                 console.log(anguloY)
             }
-       }
-       cameraholder.translateX(-0.1)
-       man.translateZ(0.1)
+        }
+        cameraholder.translateX(-0.1)
+        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("D")||keyboard.pressed("right"))
-    {
-        if(anguloY<90)
-        {
-             while(anguloY<90)
-             {
-                 anguloY = anguloY + 1
-                 var rad = THREE.MathUtils.degToRad(1)
-                 man.rotateY(rad)
-                 console.log(anguloY)
-             }
+    else if (keyboard.pressed("D") || keyboard.pressed("right")) {
+        if (anguloY < 90) {
+            while (anguloY < 90) {
+                anguloY = anguloY + 1
+                var rad = THREE.MathUtils.degToRad(1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
         }
-        if(anguloY>90)
-        {
-             while(anguloY>90)
-             {
-                 anguloY = anguloY - 1
-                 var rad = THREE.MathUtils.degToRad(-1)
-                 man.rotateY(rad)
-                 console.log(anguloY)
-             }
+        if (anguloY > 90) {
+            while (anguloY > 90) {
+                anguloY = anguloY - 1
+                var rad = THREE.MathUtils.degToRad(-1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
         }
-       cameraholder.translateX(0.1)
-       man.translateZ(0.1)
+        cameraholder.translateX(0.1)
+        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("S")||keyboard.pressed("down"))
-    {
-        if(anguloY<0)
-        {
-             while(anguloY<0)
-             {
-                 anguloY = anguloY + 1
-                 var rad = THREE.MathUtils.degToRad(1)
-                 man.rotateY(rad)
-                 console.log(anguloY)
-             }
+    else if (keyboard.pressed("S") || keyboard.pressed("down")) {
+        if (anguloY < 0) {
+            while (anguloY < 0) {
+                anguloY = anguloY + 1
+                var rad = THREE.MathUtils.degToRad(1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
         }
-        if(anguloY>0)
-        {
-             while(anguloY>0)
-             {
-                 anguloY = anguloY - 1
-                 var rad = THREE.MathUtils.degToRad(-1)
-                 man.rotateY(rad)
-                 console.log(anguloY)
-             }
+        if (anguloY > 0) {
+            while (anguloY > 0) {
+                anguloY = anguloY - 1
+                var rad = THREE.MathUtils.degToRad(-1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
         }
-       cameraholder.translateZ(0.1)
-       man.translateZ(0.1)
+        cameraholder.translateZ(0.1)
+        man.translateZ(0.1)
     }
-    else if(keyboard.pressed("W")||keyboard.pressed("up"))
-    {
-        if(anguloY<180)
-        {
-             while(anguloY<180)
-             {
-                 anguloY = anguloY + 1
-                 var rad = THREE.MathUtils.degToRad(1)
-                 man.rotateY(rad)
-                 console.log(anguloY)
-             }
+    else if (keyboard.pressed("W") || keyboard.pressed("up")) {
+        if (anguloY < 180) {
+            while (anguloY < 180) {
+                anguloY = anguloY + 1
+                var rad = THREE.MathUtils.degToRad(1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
         }
-        if(anguloY>180)
-        {
-             while(anguloY>180)
-             {
-                 anguloY = anguloY - 1
-                 var rad = THREE.MathUtils.degToRad(-1)
-                 man.rotateY(rad)
-                 console.log(anguloY)
-             }
+        if (anguloY > 180) {
+            while (anguloY > 180) {
+                anguloY = anguloY - 1
+                var rad = THREE.MathUtils.degToRad(-1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
         }
-       cameraholder.translateZ(-0.1)
-       man.translateZ(0.1)
+        cameraholder.translateZ(-0.1)
+        man.translateZ(0.1)
     };
 }
 
@@ -377,6 +335,6 @@ function render() {
 
     if (playAction) {
         for (var i = 0; i < mixer.length; i++)
-            mixer[i].update(delta*2);
+            mixer[i].update(delta * 2);
     }
 }
