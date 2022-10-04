@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import KeyboardState from '../libs/util/KeyboardState.js'
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js'
 import {
@@ -24,12 +25,13 @@ function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments =
     plane.matrix.identity();    // resetting matrices
     // Will execute R1 and then T1
     plane.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0)); // T1   
-    plane.matrix.multiply(mat4.makeRotationX((-90 * 0.0175))); // R1   
+    var plano_rad = THREE.MathUtils.degToRad(90)
+    plane.matrix.multiply(mat4.makeRotationX((plano_rad))); // R1   
 
     return plane;
 }
 
-let scene, renderer, camera, material, light, orbit;; // Initial variables
+let scene, renderer, camera, material, light, orbit,keyboard; // Initial variables
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // Init a basic renderer
 camera = initCamera(new THREE.Vector3(0, 10, 12.5)); // Init camera in this position
@@ -37,14 +39,16 @@ material = setDefaultMaterial(); // create a basic material
 light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 orbit = new OrbitControls(camera, renderer.domElement); // Enable mouse rotation, pan, zoom etc.
 
+keyboard = new KeyboardState();
+
+let cameraholder = new THREE.Object3D();
+   cameraholder.add(camera);
+scene.add(cameraholder);
+
 var clock = new THREE.Clock();
 
 // Listen window size changes
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
-
-// Show axes (parameter is size of each axis)
-let axesHelper = new THREE.AxesHelper(12);
-scene.add(axesHelper);
 
 // create the ground plane
 
@@ -90,8 +94,9 @@ function makeEdgeZ(x, z) {
 }
 
 
-var playAction = true;
+var playAction;
 var mixer = new Array();
+let man;
 
 function loadGLTFFile(modelName) {
     var loader = new GLTFLoader();
@@ -107,7 +112,7 @@ function loadGLTFFile(modelName) {
         // });
 
         obj = normalizeAndRescale(obj, 2);
-        obj = fixPosition(obj);
+        man = obj
         scene.add(obj);
 
         // Create animationMixer and push it in the array of mixers
@@ -133,14 +138,225 @@ function normalizeAndRescale(obj, newScale) {
     return obj;
 }
 
-function fixPosition(obj) {
-    // Fix position of the object over the ground plane
-    var box = new THREE.Box3().setFromObject(obj);
-    if (box.min.y > 0)
-        obj.translateY(-box.min.y);
+let anguloY = 0
+
+
+function keyboardUpdate() {
+
+    keyboard.update()
+    if(keyboard.pressed("A")||keyboard.pressed("D")||keyboard.pressed("S")||keyboard.pressed("W"))
+    {
+        playAction = true
+    }
     else
-        obj.translateY(-1 * box.min.y);
-    return obj;
+    {
+        playAction = false
+    }
+    if(keyboard.pressed("A")&&keyboard.pressed("S"))
+    {
+       
+       if(anguloY<315)
+       {
+            while(anguloY<315)
+            {
+                anguloY = anguloY + 1
+                var rad = THREE.MathUtils.degToRad(1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       if(anguloY>315)
+       {
+            while(anguloY>315)
+            {
+                anguloY = anguloY - 1
+                var rad = THREE.MathUtils.degToRad(-1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       cameraholder.translateX(-(Math.sqrt(0.005,2)))
+       cameraholder.translateZ(Math.sqrt(0.005,2))
+       man.translateZ(0.1)
+    }
+    else if(keyboard.pressed("A")&&keyboard.pressed("W"))
+    {
+       if(anguloY<225)
+       {
+            while(anguloY<225)
+            {
+                anguloY = anguloY + 1
+                var rad = THREE.MathUtils.degToRad(1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       if(anguloY>225)
+       {
+            while(anguloY>225)
+            {
+                anguloY = anguloY - 1
+                var rad = THREE.MathUtils.degToRad(-1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       cameraholder.translateX(-(Math.sqrt(0.005,2)))
+       cameraholder.translateZ(-(Math.sqrt(0.005,2)))
+       man.translateZ(0.1)
+    }
+    else if(keyboard.pressed("D")&&keyboard.pressed("S"))
+    {
+       if(anguloY<45)
+       {
+            while(anguloY<45)
+            {
+                anguloY = anguloY + 1
+                var rad = THREE.MathUtils.degToRad(1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       if(anguloY>45)
+       {
+            while(anguloY>45)
+            {
+                anguloY = anguloY - 1
+                var rad = THREE.MathUtils.degToRad(-1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       cameraholder.translateX((Math.sqrt(0.005,2)))
+       cameraholder.translateZ((Math.sqrt(0.005,2)))
+       man.translateZ(0.1)
+    }
+    else if(keyboard.pressed("D")&&keyboard.pressed("W"))
+    {
+       if(anguloY<135)
+       {
+            while(anguloY<135)
+            {
+                anguloY = anguloY + 1
+                var rad = THREE.MathUtils.degToRad(1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       if(anguloY>135)
+       {
+            while(anguloY>135)
+            {
+                anguloY = anguloY - 1
+                var rad = THREE.MathUtils.degToRad(-1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       cameraholder.translateX((Math.sqrt(0.005,2)))
+       cameraholder.translateZ(-(Math.sqrt(0.005,2)))
+       man.translateZ(0.1)
+    }
+    else if(keyboard.pressed("A"))
+    {
+       if(anguloY<270)
+       {
+            while(anguloY<270)
+            {
+                anguloY = anguloY + 1
+                var rad = THREE.MathUtils.degToRad(1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       if(anguloY>270)
+       {
+            while(anguloY>270)
+            {
+                anguloY = anguloY - 1
+                var rad = THREE.MathUtils.degToRad(-1)
+                man.rotateY(rad)
+                console.log(anguloY)
+            }
+       }
+       cameraholder.translateX(-0.1)
+       man.translateZ(0.1)
+    }
+    else if(keyboard.pressed("D"))
+    {
+        if(anguloY<90)
+        {
+             while(anguloY<90)
+             {
+                 anguloY = anguloY + 1
+                 var rad = THREE.MathUtils.degToRad(1)
+                 man.rotateY(rad)
+                 console.log(anguloY)
+             }
+        }
+        if(anguloY>90)
+        {
+             while(anguloY>90)
+             {
+                 anguloY = anguloY - 1
+                 var rad = THREE.MathUtils.degToRad(-1)
+                 man.rotateY(rad)
+                 console.log(anguloY)
+             }
+        }
+       cameraholder.translateX(0.1)
+       man.translateZ(0.1)
+    }
+    else if(keyboard.pressed("S"))
+    {
+        if(anguloY<0)
+        {
+             while(anguloY<0)
+             {
+                 anguloY = anguloY + 1
+                 var rad = THREE.MathUtils.degToRad(1)
+                 man.rotateY(rad)
+                 console.log(anguloY)
+             }
+        }
+        if(anguloY>0)
+        {
+             while(anguloY>0)
+             {
+                 anguloY = anguloY - 1
+                 var rad = THREE.MathUtils.degToRad(-1)
+                 man.rotateY(rad)
+                 console.log(anguloY)
+             }
+        }
+       cameraholder.translateZ(0.1)
+       man.translateZ(0.1)
+    }
+    else if(keyboard.pressed("W"))
+    {
+        if(anguloY<180)
+        {
+             while(anguloY<180)
+             {
+                 anguloY = anguloY + 1
+                 var rad = THREE.MathUtils.degToRad(1)
+                 man.rotateY(rad)
+                 console.log(anguloY)
+             }
+        }
+        if(anguloY>180)
+        {
+             while(anguloY>180)
+             {
+                 anguloY = anguloY - 1
+                 var rad = THREE.MathUtils.degToRad(-1)
+                 man.rotateY(rad)
+                 console.log(anguloY)
+             }
+        }
+       cameraholder.translateZ(-0.1)
+       man.translateZ(0.1)
+    };
 }
 
 loadGLTFFile('../assets/objects/walkingMan.glb');
@@ -156,10 +372,11 @@ render();
 function render() {
     var delta = clock.getDelta();
     requestAnimationFrame(render);
+    keyboardUpdate();
     renderer.render(scene, camera) // Render scene
 
     if (playAction) {
         for (var i = 0; i < mixer.length; i++)
-            mixer[i].update(delta);
+            mixer[i].update(delta*2);
     }
 }
