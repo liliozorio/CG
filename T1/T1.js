@@ -14,6 +14,7 @@ import {
 } from "../libs/util/util.js";
 
 const bbcube = [];
+const cubeObstacle = [];
 
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY;
 anguloY = 0;
@@ -36,7 +37,7 @@ let cameraholder = new THREE.Object3D();
 cameraholder.add(camera);
 scene.add(cameraholder);
 
-material = setDefaultMaterial(); 
+material = setDefaultMaterial("rgb(205,133,63)"); 
 light = initDefaultBasicLight(scene);
 
 keyboard = new KeyboardState();
@@ -46,11 +47,15 @@ var clock = new THREE.Clock();
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
 const SIZE_PLANE = 60;
+const SIZE_TILE = 0.8;
+const NUM_CUBES = 100;
+const SIZE_OBSTACLE = 1
+const AVAILABLE_SPACE = SIZE_PLANE-4; 
 
 let plane = createGroundPlaneXZ(SIZE_PLANE+55, SIZE_PLANE+55);
 scene.add(plane);
 
-let cubeGeometry = new THREE.BoxGeometry(2, 0.01, 2);
+let cubeGeometry = new THREE.BoxGeometry(SIZE_TILE, 0.01, SIZE_TILE);
 let cubeGeometry2 = new THREE.BoxGeometry(2, 2, 2);
 let material1 = setDefaultMaterial("rgb(255,222,173)");
 
@@ -102,8 +107,8 @@ function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments =
 
 // CRIA CHÃO
 function makeFloor() {
-    for (let x = -SIZE_PLANE / 2; x <= SIZE_PLANE / 2; x += 2.2) {
-        for (let z = -SIZE_PLANE / 2; z <= SIZE_PLANE / 2; z += 2.2) {
+    for (let x = -SIZE_PLANE / 2; x <= SIZE_PLANE / 2; x += (SIZE_TILE*1.08)) {
+        for (let z = -SIZE_PLANE / 2; z <= SIZE_PLANE / 2; z += (SIZE_TILE*1.08)) {
             let cube = new THREE.Mesh(cubeGeometry, material1);
             cube.position.set(x, 0.05, z);
             scene.add(cube);
@@ -113,8 +118,8 @@ function makeFloor() {
 
 // CRIA BORDAS PARALELAS AO EIXO X
 function makeEdgeX(x, z) {
-    for (; x <= SIZE_PLANE / 2; x += 2.2) {
-        let cube = new THREE.Mesh(cubeGeometry2, material1);
+    for (; x <= SIZE_PLANE / 2; x += 2.1) {
+        let cube = new THREE.Mesh(cubeGeometry2, material);
         cube.position.set(x, 1, z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
         scene.add(cube);
@@ -123,13 +128,39 @@ function makeEdgeX(x, z) {
 
 // CRIA BORDAS PARALELAS AO EIXO Z
 function makeEdgeZ(x, z) {
-    for (; z <= SIZE_PLANE / 2; z += 2.2) {
-        let cube = new THREE.Mesh(cubeGeometry2, material1);
+    for (; z <= SIZE_PLANE / 2; z += 2.1) {
+        let cube = new THREE.Mesh(cubeGeometry2, material);
         cube.position.set(x, 1, z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
         scene.add(cube);
     }
 }
+
+let randomCoordinate = ()=> Math.floor((Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE/2)
+
+function randomCube(){
+    let c = new THREE.BoxGeometry(SIZE_OBSTACLE, SIZE_OBSTACLE, SIZE_OBSTACLE);
+    let m = setDefaultMaterial("rgb(222,184,135)");
+    let aux = {
+        object: null,
+        bb: new THREE.Box3()
+     }
+    for(let i=0; i< NUM_CUBES;){
+        let x = randomCoordinate();
+        let z = randomCoordinate();
+        let cube = new THREE.Mesh(c, m);
+        cube.position.set(x, 0.6, z);
+        bbcube.push(new THREE.Box3().setFromObject(cube));
+        aux.object = cube;
+        if(!checkCollisions(bbcube, asset2) && !checkCollisions(bbcube,aux)){
+            scene.add(cube);
+            i++;
+        }
+    }
+}
+
+randomCube()
+
 
 // INICIALIZA PERSONEGEM
 function loadGLTFFile(asset, file, add_scene) {
