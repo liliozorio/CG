@@ -13,7 +13,6 @@ import {
 } from "../libs/util/util.js";
 
 const bbcube = [];
-const cubeObstacle = [];
 
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY;
 anguloY = 0;
@@ -82,7 +81,6 @@ makeEdgeX(-SIZE_PLANE / 2, SIZE_PLANE / 2);
 makeEdgeZ(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
 makeEdgeZ(SIZE_PLANE / 2, -SIZE_PLANE / 2);
 
-render();
 
 // CREATE PLANE
 function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments = 10, gcolor = null) {
@@ -139,19 +137,20 @@ let randomCoordinate = ()=> Math.floor((Math.random() * AVAILABLE_SPACE) - AVAIL
 
 function randomCube(){
     let c = new THREE.BoxGeometry(SIZE_OBSTACLE, SIZE_OBSTACLE, SIZE_OBSTACLE);
-    let m = setDefaultMaterial("rgb(222,184,135)");
     let aux = {
         object: null,
         bb: new THREE.Box3()
-     }
+    }
     for(let i=0; i< NUM_CUBES;){
         let x = randomCoordinate();
         let z = randomCoordinate();
+        let m = setDefaultMaterial("rgb(222,184,135)");
         let cube = new THREE.Mesh(c, m);
         cube.position.set(x, 0.6, z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
         aux.object = cube;
         if(!checkCollisions(bbcube, asset2) && !checkCollisions(bbcube,aux)){
+            cube.name = "randomCube";
             scene.add(cube);
             i++;
         }
@@ -185,11 +184,6 @@ function loadGLTFFile(asset, file, add_scene) {
     }, ()=>{},()=>{});
 }
 
-// function onProgress(xhr, model) {
-//     if (xhr.lengthComputable) {
-//         var percentComplete = xhr.loaded / xhr.total * 100;
-//     }
-// }
 
 function onError() { };
 
@@ -351,6 +345,22 @@ function checkCollisions(object, man) {
     return false
 }
 
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+let click = false;
+let ind = 0;
+
+function clickElement(events){
+    pointer.x = ( events.clientX / window.innerWidth ) * 2 - 1;
+    pointer.y = - ( events.clientY / window.innerHeight ) * 2 + 1;
+    click = true;
+    ind = (ind==0)? 1 : 0;
+}
+
+
+let colors = ["rgb(222,184,135)", "rgb(165,42,42)"]
+
 function render() {
     var delta = clock.getDelta();
     requestAnimationFrame(render);
@@ -359,5 +369,22 @@ function render() {
     if (playAction) {
         for (var i = 0; i < mixer.length; i++)
             mixer[i].update(delta * 2);
-    };
+    };    
+	if(click){
+        renderer.render( scene, camera );
+        raycaster.setFromCamera( pointer, camera );
+        const intersects = raycaster.intersectObjects( scene.children );
+        if(intersects[0].object.name === "randomCube"){
+            if(intersects[0].object.material.color.getHexString()=="deb887"){
+                intersects[0].object.material.color.set(colors[1]);
+            }else{
+                intersects[0].object.material.color.set(colors[0]);
+            }
+        }
+        click = false;
+    }
+
+    
 }
+window.addEventListener( 'click', clickElement);
+render();
