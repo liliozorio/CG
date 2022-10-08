@@ -35,11 +35,10 @@ let cameraholder = new THREE.Object3D();
 cameraholder.add(camera);
 scene.add(cameraholder);
 
-material = setDefaultMaterial("rgb(205,133,63)"); 
+material = setDefaultMaterial("rgb(205,133,63)");
 light = initDefaultBasicLight(scene);
 
 keyboard = new KeyboardState();
-
 var clock = new THREE.Clock();
 
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
@@ -48,7 +47,7 @@ const SIZE_PLANE = 60;
 const SIZE_TILE = 0.8;
 const NUM_CUBES = 100;
 const SIZE_OBSTACLE = 1
-const AVAILABLE_SPACE = SIZE_PLANE-4; 
+const AVAILABLE_SPACE = SIZE_PLANE - 4;
 
 let plane = createGroundPlaneXZ(SIZE_PLANE + 55, SIZE_PLANE + 55);
 scene.add(plane);
@@ -104,8 +103,8 @@ function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments =
 
 // CRIA CHÃO
 function makeFloor() {
-    for (let x = -SIZE_PLANE / 2; x <= SIZE_PLANE / 2; x += (SIZE_TILE*1.08)) {
-        for (let z = -SIZE_PLANE / 2; z <= SIZE_PLANE / 2; z += (SIZE_TILE*1.08)) {
+    for (let x = -SIZE_PLANE / 2; x <= SIZE_PLANE / 2; x += (SIZE_TILE * 1.08)) {
+        for (let z = -SIZE_PLANE / 2; z <= SIZE_PLANE / 2; z += (SIZE_TILE * 1.08)) {
             let cube = new THREE.Mesh(cubeGeometry, material1);
             cube.position.set(x, 0.05, z);
             scene.add(cube);
@@ -133,15 +132,15 @@ function makeEdgeZ(x, z) {
     }
 }
 
-let randomCoordinate = ()=> Math.floor((Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE/2)
+let randomCoordinate = () => Math.floor((Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2)
 
-function randomCube(){
+function randomCube() {
     let c = new THREE.BoxGeometry(SIZE_OBSTACLE, SIZE_OBSTACLE, SIZE_OBSTACLE);
     let aux = {
         object: null,
         bb: new THREE.Box3()
     }
-    for(let i=0; i< NUM_CUBES;){
+    for (let i = 0; i < NUM_CUBES;) {
         let x = randomCoordinate();
         let z = randomCoordinate();
         let m = setDefaultMaterial("rgb(222,184,135)");
@@ -149,7 +148,7 @@ function randomCube(){
         cube.position.set(x, 0.6, z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
         aux.object = cube;
-        if(!checkCollisions(bbcube, asset2) && !checkCollisions(bbcube,aux)){
+        if (!checkCollisions(bbcube, asset2) && !checkCollisions(bbcube, aux)) {
             cube.name = "randomCube";
             scene.add(cube);
             i++;
@@ -158,7 +157,6 @@ function randomCube(){
 }
 
 randomCube()
-
 
 // INICIALIZA PERSONEGEM
 function loadGLTFFile(asset, file, add_scene) {
@@ -175,13 +173,11 @@ function loadGLTFFile(asset, file, add_scene) {
         if (add_scene) {
             scene.add(obj);
         }
-
         asset.object = gltf.scene;
-
         var mixerLocal = new THREE.AnimationMixer(obj);
         mixerLocal.clipAction(gltf.animations[0]).play();
         mixer.push(mixerLocal);
-    }, ()=>{},()=>{});
+    }, () => { }, () => { });
 }
 
 
@@ -260,7 +256,7 @@ function keyboardUpdate() {
     keyboard.update()
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
         aux_collision = movimentation_colision(315, -(Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
-        if(aux_collision){
+        if (aux_collision) {
             movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
             movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
             movimentation_colision(315, 0, 0, 0, 0, 0, 0);
@@ -269,7 +265,7 @@ function keyboardUpdate() {
     else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
 
         aux_collision = movimentation_colision(225, -(Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
-        if(aux_collision){
+        if (aux_collision) {
             movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
             movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
             movimentation_colision(225, 0, 0, 0, 0, 0, 0);
@@ -278,7 +274,7 @@ function keyboardUpdate() {
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
         aux_collision = movimentation_colision(45, (Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
-        if(aux_collision){
+        if (aux_collision) {
             movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
             movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
             movimentation_colision(45, 0, 0, 0, 0, 0, 0);
@@ -286,7 +282,7 @@ function keyboardUpdate() {
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
         aux_collision = movimentation_colision(135, (Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
-        if(aux_collision){
+        if (aux_collision) {
             movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
             movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
             movimentation_colision(135, 0, 0, 0, 0, 0, 0);
@@ -349,18 +345,13 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
 let click = false;
-let ind = 0;
-
-function clickElement(events){
-    pointer.x = ( events.clientX / window.innerWidth ) * 2 - 1;
-    pointer.y = - ( events.clientY / window.innerHeight ) * 2 + 1;
+function clickElement(events) {
+    pointer.x = (events.clientX / window.innerWidth) * 2 - 1;
+    pointer.y = - (events.clientY / window.innerHeight) * 2 + 1;
     click = true;
-    ind = (ind==0)? 1 : 0;
 }
 
-
 let colors = ["rgb(222,184,135)", "rgb(165,42,42)"]
-
 function render() {
     var delta = clock.getDelta();
     requestAnimationFrame(render);
@@ -369,22 +360,20 @@ function render() {
     if (playAction) {
         for (var i = 0; i < mixer.length; i++)
             mixer[i].update(delta * 2);
-    };    
-	if(click){
-        renderer.render( scene, camera );
-        raycaster.setFromCamera( pointer, camera );
-        const intersects = raycaster.intersectObjects( scene.children );
-        if(intersects[0].object.name === "randomCube"){
-            if(intersects[0].object.material.color.getHexString()=="deb887"){
+    };
+    if (click) {
+        renderer.render(scene, camera);
+        raycaster.setFromCamera(pointer, camera);
+        const intersects = raycaster.intersectObjects(scene.children);
+        if (intersects[0].object.name === "randomCube") {
+            if (intersects[0].object.material.color.getHexString() == "deb887") {
                 intersects[0].object.material.color.set(colors[1]);
-            }else{
+            } else {
                 intersects[0].object.material.color.set(colors[0]);
             }
         }
         click = false;
     }
-
-    
 }
-window.addEventListener( 'click', clickElement);
+window.addEventListener('click', clickElement);
 render();
