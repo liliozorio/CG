@@ -22,12 +22,12 @@ orthographic = true;
 scene = new THREE.Scene();
 renderer = initRenderer();
 
-var lookAtVec   = new THREE.Vector3( 0.0, 0.0, 0.0 );
-var camPosition = new THREE.Vector3( 0, 8, 12.5 );
-var upVec       = new THREE.Vector3( 0.0, 1.0, 0.0 );
+var lookAtVec = new THREE.Vector3(0.0, 0.0, 0.0);
+var camPosition = new THREE.Vector3(0, 8, 12.5);
+var upVec = new THREE.Vector3(0.0, 1.0, 0.0);
 var s = 105;
 camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
-window.innerHeight / s, window.innerHeight / -s, -s, s);
+    window.innerHeight / s, window.innerHeight / -s, -s, s);
 
 camera.position.copy(camPosition);
 camera.up.copy(upVec);
@@ -52,7 +52,7 @@ const NUM_CUBES = 100;
 const SIZE_OBSTACLE = 1
 const AVAILABLE_SPACE = SIZE_PLANE-4; 
 
-let plane = createGroundPlaneXZ(SIZE_PLANE+55, SIZE_PLANE+55);
+let plane = createGroundPlaneXZ(SIZE_PLANE + 55, SIZE_PLANE + 55);
 scene.add(plane);
 
 let cubeGeometry = new THREE.BoxGeometry(SIZE_TILE, 0.01, SIZE_TILE);
@@ -66,16 +66,16 @@ let asset = {
     object: null,
     loaded: false,
     bb: new THREE.Box3()
- }
+}
 
 let asset2 = {
     object: null,
     loaded: false,
     bb: new THREE.Box3()
- }
+}
 
-loadGLTFFile(asset,'../assets/objects/walkingMan.glb',true);
-loadGLTFFile(asset2,'../assets/objects/walkingMan.glb',false);
+loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true);
+loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false);
 
 makeFloor();
 makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
@@ -91,16 +91,16 @@ function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments =
     let planeGeometry = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
     let planeMaterial = new THREE.MeshLambertMaterial({ color: gcolor, side: THREE.DoubleSide });
 
-    let mat4 = new THREE.Matrix4(); 
+    let mat4 = new THREE.Matrix4();
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
-    
-    plane.matrixAutoUpdate = false;
-    plane.matrix.identity();    
 
-    plane.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0)); 
+    plane.matrixAutoUpdate = false;
+    plane.matrix.identity();
+
+    plane.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0));
     var plano_rad = THREE.MathUtils.degToRad(90);
-    plane.matrix.multiply(mat4.makeRotationX((plano_rad)));  
+    plane.matrix.multiply(mat4.makeRotationX((plano_rad)));
 
     return plane;
 }
@@ -167,15 +167,14 @@ function loadGLTFFile(asset, file, add_scene) {
     var loader = new GLTFLoader();
     loader.load(file, function (gltf) {
         var obj = gltf.scene;
-        obj.traverse( function ( child ) {
-            if ( child.isMesh ) {
+        obj.traverse(function (child) {
+            if (child.isMesh) {
                 child.castShadow = true;
             }
-          });
+        });
         obj = normalizeAndRescale(obj, 2);
         obj.updateMatrixWorld(true);
-        if(add_scene)
-        {
+        if (add_scene) {
             scene.add(obj);
         }
 
@@ -205,8 +204,7 @@ function normalizeAndRescale(obj, newScale) {
 }
 
 // GERA O MOVIMENTO DO PERSONAGEM
-function movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide)
-{
+function movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide) {
     if (anguloY < angulo_max) {
         while (anguloY < angulo_max) {
             anguloY = anguloY + 1;
@@ -234,77 +232,91 @@ function movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_h
 }
 
 // TRATA OS MOVIMENTOS COM COLISÃO DO PERSONAGEM
-function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide)
-{
+function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide) {
     playAction = true;
-    var collision = checkCollisions(bbcube,asset)
-    if(!collision){
-        movimentation(angulo_max,camX,camZ,walkZ,walkX,walkZ_hide,walkX_hide);
+    var collision = checkCollisions(bbcube, asset)
+    if (!collision) {
+        movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide);
     }
-    else
-    {
-        movimentation(angulo_max,0,0,0,0,walkZ_hide,-0.6);
-        collision = checkCollisions(bbcube,asset2);
-        if(collision)
-        {
-            movimentation(angulo_max,0,0,0,0,-walkZ_hide,0.6);
+    else {
+        movimentation(angulo_max, 0, 0, 0, 0, walkZ_hide, -0.6);
+        collision = checkCollisions(bbcube, asset2);
+        if (collision) {
+            movimentation(angulo_max, 0, 0, 0, 0, -walkZ_hide, 0.6);
             asset2.bb.setFromObject(asset2.object);
-            movimentation(angulo_max,0,0,0,0,walkZ_hide,0.6);
-            collision = checkCollisions(bbcube,asset2);
-            if(collision)
-            {
-                movimentation(angulo_max,0,0,0,0,-walkZ_hide,-0.6);
+            movimentation(angulo_max, 0, 0, 0, 0, walkZ_hide, 0.6);
+            collision = checkCollisions(bbcube, asset2);
+            if (collision) {
+                movimentation(angulo_max, 0, 0, 0, 0, -walkZ_hide, -0.6);
                 asset2.bb.setFromObject(asset2.object);
             }
-            else
-            {
-                movimentation(angulo_max,camX,camZ,walkZ,walkX,0,-0.6);
+            else {
+                movimentation(angulo_max, camX, camZ, walkZ, walkX, 0, -0.6);
             }
         }
-        else
-        {
-            movimentation(angulo_max,camX,camZ,walkZ,walkX,0,0.6);
+        else {
+            movimentation(angulo_max, camX, camZ, walkZ, walkX, 0, 0.6);
         }
     }
+    return collision;
 }
 
 // COMANDOS DO TECLADO
 function keyboardUpdate() {
-
+    let aux_collision;
     keyboard.update()
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
-        movimentation_colision(315,-(Math.sqrt(0.005, 2)),(Math.sqrt(0.005, 2)),0.1,0,0.1,0);
+        aux_collision = movimentation_colision(315, -(Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
+        if(aux_collision){
+            movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
+            movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
+            movimentation_colision(315, 0, 0, 0, 0, 0, 0);
+        }
     }
     else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
-        movimentation_colision(225,-(Math.sqrt(0.005, 2)),-(Math.sqrt(0.005, 2)),0.1,0,0.1,0);
+
+        aux_collision = movimentation_colision(225, -(Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
+        if(aux_collision){
+            movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
+            movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
+            movimentation_colision(225, 0, 0, 0, 0, 0, 0);
+        }
+
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
-        movimentation_colision(45,(Math.sqrt(0.005, 2)),(Math.sqrt(0.005, 2)),0.1,0,0.1,0);
+        aux_collision = movimentation_colision(45, (Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
+        if(aux_collision){
+            movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
+            movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
+            movimentation_colision(45, 0, 0, 0, 0, 0, 0);
+        }
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
-        movimentation_colision(135,(Math.sqrt(0.005, 2)),-(Math.sqrt(0.005, 2)),0.1,0,0.1,0);
+        aux_collision = movimentation_colision(135, (Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
+        if(aux_collision){
+            movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
+            movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
+            movimentation_colision(135, 0, 0, 0, 0, 0, 0);
+        }
     }
     else if (keyboard.pressed("A") || keyboard.pressed("left")) {
-        movimentation_colision(270,-0.1,0,0.1,0,0.1,0);
+        movimentation_colision(270, -0.1, 0, 0.1, 0, 0.1, 0);
     }
     else if (keyboard.pressed("D") || keyboard.pressed("right")) {
-        movimentation_colision(90,0.1,0,0.1,0,0.1,0);
+        movimentation_colision(90, 0.1, 0, 0.1, 0, 0.1, 0);
     }
     else if (keyboard.pressed("S") || keyboard.pressed("down")) {
-        movimentation_colision(0,0,0.1,0.1,0,0.1,0);
+        movimentation_colision(0, 0, 0.1, 0.1, 0, 0.1, 0);
     }
     else if (keyboard.pressed("W") || keyboard.pressed("up")) {
-        movimentation_colision(180,0,-0.1,0.1,0,0.1,0);
+        movimentation_colision(180, 0, -0.1, 0.1, 0, 0.1, 0);
     }
-    else
-    {
+    else {
         playAction = false;
     }
-    if (keyboard.down("C"))
-    {
-        if(orthographic)
-        {
-            camPosition = new THREE.Vector3( 0, 10, 12.5 );
+    if (keyboard.down("C")) {
+        if (orthographic) {
+            camPosition = new THREE.Vector3(0, 10, 12.5);
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, s);
             camera.position.copy(camPosition);
             camera.up.copy(upVec);
@@ -314,11 +326,10 @@ function keyboardUpdate() {
             scene.add(cameraholder);
             orthographic = false;
         }
-        else
-        {
-            camPosition = new THREE.Vector3( 0, 10, 12.5 );
+        else {
+            camPosition = new THREE.Vector3(0, 10, 12.5);
             camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
-            window.innerHeight / s, window.innerHeight / -s, -s, s);
+                window.innerHeight / s, window.innerHeight / -s, -s, s);
             camera.position.copy(camPosition);
             camera.up.copy(upVec);
             camera.lookAt(lookAtVec);
@@ -331,13 +342,10 @@ function keyboardUpdate() {
 }
 
 // CHECA SE EXISTE COLISÃO
-function checkCollisions(object, man)
-{
-    for(var i = 0; i<object.length; i++)
-    {
+function checkCollisions(object, man) {
+    for (var i = 0; i < object.length; i++) {
         let collision = man.bb.intersectsBox(object[i]);
-        if(collision) 
-        {
+        if (collision) {
             return true;
         }
     }
