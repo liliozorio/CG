@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import GUI from '../libs/util/dat.gui.module.js'
 import KeyboardState from '../libs/util/KeyboardState.js'
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js'
@@ -183,14 +182,14 @@ function loadGLTFFile(asset, file, add_scene) {
         var mixerLocal = new THREE.AnimationMixer(obj);
         mixerLocal.clipAction(gltf.animations[0]).play();
         mixer.push(mixerLocal);
-    }, onProgress, onError);
+    }, ()=>{},()=>{});
 }
 
-function onProgress(xhr, model) {
-    if (xhr.lengthComputable) {
-        var percentComplete = xhr.loaded / xhr.total * 100;
-    }
-}
+// function onProgress(xhr, model) {
+//     if (xhr.lengthComputable) {
+//         var percentComplete = xhr.loaded / xhr.total * 100;
+//     }
+// }
 
 function onError() { };
 
