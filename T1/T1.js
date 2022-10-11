@@ -45,7 +45,7 @@ window.addEventListener('resize', function () { onWindowResize(camera, renderer)
 
 const SIZE_PLANE = 60;
 const SIZE_TILE = 0.8;
-const NUM_CUBES = 10;
+const NUM_CUBES = 200;
 const SIZE_OBSTACLE = 1
 const AVAILABLE_SPACE = SIZE_PLANE - 4;
 
@@ -134,27 +134,41 @@ function makeEdgeZ(x, z) {
 
 let randomCoordinate = () => Math.floor((Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2)
 
+let randomCoordinate2 = () => (Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2
+
+let chooseCoordenate = () => Math.random()
+
 function randomCube() {
     let c = new THREE.BoxGeometry(SIZE_OBSTACLE, SIZE_OBSTACLE, SIZE_OBSTACLE);
     let aux = {
         object: null,
         bb: new THREE.Box3()
     }
-    for (let i = 0; i < NUM_CUBES;) {
-        let x = randomCoordinate();
-        let z = randomCoordinate();
+    for (let i = 0; i < NUM_CUBES; i++) {
+        let x;
+        let z;
+        if (chooseCoordenate() < 0.5) {
+
+            x = randomCoordinate2();
+            z = randomCoordinate();
+        } else {
+            x = randomCoordinate();
+            z = randomCoordinate2();
+        }
         let m = setDefaultMaterial("rgb(222,184,135)");
         let cube = new THREE.Mesh(c, m);
+
         cube.position.set(x, 0.6, z);
+
         aux.object = cube;
+        aux.bb = new THREE.Box3().setFromObject(cube)
+
         if (!checkCollisions(bbcube, asset2) && !checkCollisions(bbcube, aux)) {
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cube.name = "randomCube";
             scene.add(cube);
-            i++;
         }
-        else
-        {
+        else {
             cube.remove();
         }
     }
@@ -183,9 +197,6 @@ function loadGLTFFile(asset, file, add_scene) {
         mixer.push(mixerLocal);
     }, () => { }, () => { });
 }
-
-
-function onError() { };
 
 // AJUSTA AS ESCALAS
 function normalizeAndRescale(obj, newScale) {
@@ -261,35 +272,35 @@ function keyboardUpdate() {
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
         //aux_collision = movimentation_colision(315, -(Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
         //if (aux_collision) {
-            movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
-            movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
-            movimentation_colision(315, 0, 0, 0, 0, 0, 0);
+        movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(315, 0, 0, 0, 0, 0, 0);
         //}
     }
     else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
 
         //aux_collision = movimentation_colision(225, -(Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
         //if (aux_collision) {
-            movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
-            movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
-            movimentation_colision(225, 0, 0, 0, 0, 0, 0);
+        movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(225, 0, 0, 0, 0, 0, 0);
         //}
 
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
         //aux_collision = movimentation_colision(45, (Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
         //if (aux_collision) {
-            movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
-            movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
-            movimentation_colision(45, 0, 0, 0, 0, 0, 0);
+        movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(45, 0, 0, 0, 0, 0, 0);
         //}
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
         //aux_collision = movimentation_colision(135, (Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
         //if (aux_collision) {
-            movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
-            movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
-            movimentation_colision(135, 0, 0, 0, 0, 0, 0);
+        movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(135, 0, 0, 0, 0, 0, 0);
         //}
     }
     else if (keyboard.pressed("A") || keyboard.pressed("left")) {
