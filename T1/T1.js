@@ -21,7 +21,7 @@ scene = new THREE.Scene();
 renderer = initRenderer();
 
 var lookAtVec = new THREE.Vector3(0.0, 0.0, 0.0);
-var camPosition = new THREE.Vector3(0, 8, 12.5);
+var camPosition = new THREE.Vector3(13, 12, 13);
 var upVec = new THREE.Vector3(0.0, 1.0, 0.0);
 var s = 105;
 camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
@@ -35,6 +35,7 @@ let cameraholder = new THREE.Object3D();
 cameraholder.add(camera);
 scene.add(cameraholder);
 
+
 material = setDefaultMaterial("rgb(205,133,63)");
 light = initDefaultBasicLight(scene);
 
@@ -43,13 +44,13 @@ var clock = new THREE.Clock();
 
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
-const SIZE_PLANE = 60;
+const SIZE_PLANE = 180;
 const SIZE_TILE = 0.8;
 const NUM_CUBES = 200;
-const SIZE_OBSTACLE = 1
+const SIZE_OBSTACLE = 0.8;
 const AVAILABLE_SPACE = SIZE_PLANE - 4;
 
-let plane = createGroundPlaneXZ(SIZE_PLANE + 55, SIZE_PLANE + 55);
+let plane = createGroundPlaneXZ(SIZE_PLANE + 90, SIZE_PLANE + 90);
 scene.add(plane);
 
 let cubeGeometry = new THREE.BoxGeometry(SIZE_TILE, 0.01, SIZE_TILE);
@@ -163,7 +164,7 @@ function randomCube() {
         aux.object = cube;
         aux.bb = new THREE.Box3().setFromObject(cube)
 
-        if (!checkCollisions(bbcube, asset2) && !checkCollisions(bbcube, aux)) {
+        if (!checkCollisions(bbcube, asset) && !checkCollisions(bbcube, aux)) {
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cube.name = "randomCube";
             scene.add(cube);
@@ -209,21 +210,33 @@ function normalizeAndRescale(obj, newScale) {
 
 // GERA O MOVIMENTO DO PERSONAGEM
 function movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide) {
+    if (anguloY == 0 || anguloY == 360)
+    {
+        var diferenca = 360 - angulo_max
+        if(diferenca>angulo_max)
+        {
+            anguloY = 0
+        }
+        else
+        {
+            anguloY = 360
+        }
+    }
     if (anguloY < angulo_max) {
-        while (anguloY < angulo_max) {
+        //while (anguloY < angulo_max) {
             anguloY = anguloY + 1;
             var rad = THREE.MathUtils.degToRad(1);
             asset.object.rotateY(rad);
             asset2.object.rotateY(rad);
-        }
+        //}
     }
     if (anguloY > angulo_max) {
-        while (anguloY > angulo_max) {
+        //while (anguloY > angulo_max) {
             anguloY = anguloY - 1;
             var rad = THREE.MathUtils.degToRad(-1);
             asset.object.rotateY(rad);
             asset2.object.rotateY(rad);
-        }
+        //}
     }
     cameraholder.translateX(camX);
     cameraholder.translateZ(camZ);
@@ -237,6 +250,7 @@ function movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_h
 
 // TRATA OS MOVIMENTOS COM COLISÃO DO PERSONAGEM
 function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide) {
+    console.log("AKIIIII")
     playAction = true;
     var collision = checkCollisions(bbcube, asset)
     if (!collision) {
@@ -272,56 +286,64 @@ function keyboardUpdate() {
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
         //aux_collision = movimentation_colision(315, -(Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
         //if (aux_collision) {
-        movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(315, 0, 0, 0, 0, 0, 0);
+        var rad = THREE.MathUtils.degToRad(anguloY);
+        movimentation_colision(270, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(0, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(315, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0, 0, 0, 0);
         //}
     }
     else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
 
         //aux_collision = movimentation_colision(225, -(Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
         //if (aux_collision) {
-        movimentation_colision(270, -0.0707, 0, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(225, 0, 0, 0, 0, 0, 0);
+        var rad = THREE.MathUtils.degToRad(anguloY);
+        movimentation_colision(270, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(180,Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(225, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0, 0, 0, 0);
         //}
 
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
         //aux_collision = movimentation_colision(45, (Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
         //if (aux_collision) {
-        movimentation_colision(0, 0, 0.0707, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(45, 0, 0, 0, 0, 0, 0);
+        var rad = THREE.MathUtils.degToRad(anguloY);
+        movimentation_colision(0, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(90, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(45, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0, 0, 0, 0);
         //}
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
         //aux_collision = movimentation_colision(135, (Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
         //if (aux_collision) {
-        movimentation_colision(180, 0, -0.0707, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(90, 0.0707, 0, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(135, 0, 0, 0, 0, 0, 0);
+        var rad = THREE.MathUtils.degToRad(anguloY);
+        movimentation_colision(180, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(90, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
+        movimentation_colision(135, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0, 0, 0, 0);
         //}
     }
     else if (keyboard.pressed("A") || keyboard.pressed("left")) {
-        movimentation_colision(270, -0.1, 0, 0.1, 0, 0.1, 0);
+        var rad = THREE.MathUtils.degToRad(anguloY);
+        movimentation_colision(270, Math.sin(rad)*0.05, Math.cos(rad)*0.05, 0.05, 0, 0.05, 0);
     }
     else if (keyboard.pressed("D") || keyboard.pressed("right")) {
-        movimentation_colision(90, 0.1, 0, 0.1, 0, 0.1, 0);
+        var rad = THREE.MathUtils.degToRad(anguloY);
+        movimentation_colision(90, Math.sin(rad)*0.05, Math.cos(rad)*0.05, 0.05, 0, 0.05, 0);
     }
     else if (keyboard.pressed("S") || keyboard.pressed("down")) {
-        movimentation_colision(0, 0, 0.1, 0.1, 0, 0.1, 0);
+        var rad = THREE.MathUtils.degToRad(anguloY);
+        movimentation_colision(0, Math.sin(rad)*0.05, Math.cos(rad)*0.05, 0.05, 0, 0.05, 0);
     }
     else if (keyboard.pressed("W") || keyboard.pressed("up")) {
-        movimentation_colision(180, 0, -0.1, 0.1, 0, 0.1, 0);
+        var rad = THREE.MathUtils.degToRad(anguloY);
+        movimentation_colision(180, Math.sin(rad)*0.05, Math.cos(rad)*0.05, 0.05, 0, 0.05, 0);
     }
     else {
         playAction = false;
     }
     if (keyboard.down("C")) {
         if (orthographic) {
-            camPosition = new THREE.Vector3(0, 9.5, 11.5);
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, s);
+            camPosition = new THREE.Vector3(14, 12, 14);
+            camera = new THREE.PerspectiveCamera(31, window.innerWidth / window.innerHeight, 0.1, s);
             camera.position.copy(camPosition);
             camera.up.copy(upVec);
             camera.lookAt(lookAtVec);
@@ -331,7 +353,7 @@ function keyboardUpdate() {
             orthographic = false;
         }
         else {
-            camPosition = new THREE.Vector3(0, 10, 12.5);
+            camPosition = new THREE.Vector3(13, 12, 13);
             camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
                 window.innerHeight / s, window.innerHeight / -s, -s, s);
             camera.position.copy(camPosition);
