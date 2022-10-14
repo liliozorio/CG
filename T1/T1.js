@@ -14,7 +14,7 @@ import {
 
 const bbcube = [];
 
-let scene, renderer, camera, material, light, keyboard, orthographic, anguloY;
+let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
 anguloY = 0;
 orthographic = true;
 scene = new THREE.Scene();
@@ -46,9 +46,10 @@ window.addEventListener('resize', function () { onWindowResize(camera, renderer)
 
 const SIZE_PLANE = 180;
 const SIZE_TILE = 0.8;
-const NUM_CUBES = 200;
+const NUM_CUBES = 1000;
 const SIZE_OBSTACLE = 0.8;
 const AVAILABLE_SPACE = SIZE_PLANE - 4;
+const WALK_SIZE = 0.06;
 
 let plane = createGroundPlaneXZ(SIZE_PLANE + 90, SIZE_PLANE + 90);
 scene.add(plane);
@@ -59,6 +60,14 @@ let material1 = setDefaultMaterial("rgb(255,222,173)");
 
 var playAction;
 var mixer = new Array();
+
+function createBBHelper(bb, color)
+{
+   // Create a bounding box helper
+   let helper = new THREE.Box3Helper( bb, color );
+   scene.add( helper );
+   return helper;
+}
 
 let asset = {
     object: null,
@@ -139,6 +148,7 @@ let randomCoordinate2 = () => (Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPAC
 
 let chooseCoordenate = () => Math.random()
 
+//CRIA CUBOS EM LOCAIS ALEATORIOS
 function randomCube() {
     let c = new THREE.BoxGeometry(SIZE_OBSTACLE, SIZE_OBSTACLE, SIZE_OBSTACLE);
     let aux = {
@@ -163,13 +173,18 @@ function randomCube() {
 
         aux.object = cube;
         aux.bb = new THREE.Box3().setFromObject(cube)
-
-        if (!checkCollisions(bbcube, asset) && !checkCollisions(bbcube, aux)) {
+        
+        if ((!checkCollisions(aux.bb, asset)) && (!checkCollisions(bbcube, aux))) {
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cube.name = "randomCube";
             scene.add(cube);
         }
-        else {
+        else if(checkCollisions(aux, asset))
+        {
+            console.log(colision)
+        }
+        else{
+            console
             cube.remove();
         }
     }
@@ -210,33 +225,29 @@ function normalizeAndRescale(obj, newScale) {
 
 // GERA O MOVIMENTO DO PERSONAGEM
 function movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide) {
-    if (anguloY == 0 || anguloY == 360)
+
+    var diferenca = 360 + angulo_max - anguloY
+    var diferenca2 = anguloY - angulo_max
+    if(diferenca>diferenca2)
     {
-        var diferenca = 360 - angulo_max
-        if(diferenca>angulo_max)
-        {
-            anguloY = 0
-        }
-        else
-        {
-            anguloY = 360
-        }
+        angulo_max = angulo_max;
     }
+    else
+    {
+        angulo_max = angulo_max+360;
+    }
+
     if (anguloY < angulo_max) {
-        //while (anguloY < angulo_max) {
-            anguloY = anguloY + 1;
-            var rad = THREE.MathUtils.degToRad(1);
-            asset.object.rotateY(rad);
-            asset2.object.rotateY(rad);
-        //}
+        anguloY = anguloY + 5;
+        var rad = THREE.MathUtils.degToRad(5);
+        asset.object.rotateY(rad);
+        asset2.object.rotateY(rad);
     }
-    if (anguloY > angulo_max) {
-        //while (anguloY > angulo_max) {
-            anguloY = anguloY - 1;
-            var rad = THREE.MathUtils.degToRad(-1);
-            asset.object.rotateY(rad);
-            asset2.object.rotateY(rad);
-        //}
+    else if (anguloY > angulo_max) {
+        anguloY = anguloY - 5;
+        var rad = THREE.MathUtils.degToRad(-5);
+        asset.object.rotateY(rad);
+        asset2.object.rotateY(rad);
     }
     cameraholder.translateX(camX);
     cameraholder.translateZ(camZ);
@@ -250,7 +261,6 @@ function movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_h
 
 // TRATA OS MOVIMENTOS COM COLISÃO DO PERSONAGEM
 function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide) {
-    console.log("AKIIIII")
     playAction = true;
     var collision = checkCollisions(bbcube, asset)
     if (!collision) {
@@ -260,23 +270,32 @@ function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide
         movimentation(angulo_max, 0, 0, 0, 0, walkZ_hide, -0.6);
         collision = checkCollisions(bbcube, asset2);
         if (collision) {
-            movimentation(angulo_max, 0, 0, 0, 0, -walkZ_hide, 0.6);
+            asset2.object.position.x = asset.object.position.x
+            asset2.object.position.z = asset.object.position.z
+            asset2.object.position.y = 0;
             asset2.bb.setFromObject(asset2.object);
             movimentation(angulo_max, 0, 0, 0, 0, walkZ_hide, 0.6);
             collision = checkCollisions(bbcube, asset2);
             if (collision) {
-                movimentation(angulo_max, 0, 0, 0, 0, -walkZ_hide, -0.6);
+                asset2.object.position.x = asset.object.position.x
+                asset2.object.position.z = asset.object.position.z
+                asset2.object.position.y = 0;
                 asset2.bb.setFromObject(asset2.object);
             }
             else {
-                movimentation(angulo_max, camX, camZ, walkZ, walkX, 0, -0.6);
+                asset2.object.position.x = asset.object.position.x
+                asset2.object.position.z = asset.object.position.z
+                asset2.object.position.y = 0;
+                movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide);
             }
         }
         else {
-            movimentation(angulo_max, camX, camZ, walkZ, walkX, 0, 0.6);
+            asset2.object.position.x = asset.object.position.x
+            asset2.object.position.z = asset.object.position.z
+            asset2.object.position.y = 0;
+            movimentation(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide);
         }
     }
-    return collision;
 }
 
 // COMANDOS DO TECLADO
@@ -284,58 +303,36 @@ function keyboardUpdate() {
     let aux_collision;
     keyboard.update()
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
-        //aux_collision = movimentation_colision(315, -(Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
-        //if (aux_collision) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(270, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(0, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(315, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0, 0, 0, 0);
-        //}
+        movimentation_colision(315, Math.sin(rad)*WALK_SIZE, Math.cos(rad)*WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
     }
     else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
-
-        //aux_collision = movimentation_colision(225, -(Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
-        //if (aux_collision) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(270, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(180,Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(225, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0, 0, 0, 0);
-        //}
-
+        movimentation_colision(225, Math.sin(rad)*WALK_SIZE, Math.cos(rad)*WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
-        //aux_collision = movimentation_colision(45, (Math.sqrt(0.005, 2)), (Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
-        //if (aux_collision) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(0, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(90, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(45, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0, 0, 0, 0);
-        //}
+        movimentation_colision(45, Math.sin(rad)*WALK_SIZE, Math.cos(rad)*WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
-        //aux_collision = movimentation_colision(135, (Math.sqrt(0.005, 2)), -(Math.sqrt(0.005, 2)), 0.1, 0, 0.1, 0);
-        //if (aux_collision) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(180, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(90, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0.0707, 0, 0.0707, 0);
-        movimentation_colision(135, Math.sin(rad)*0.047, Math.cos(rad)*0.047, 0, 0, 0, 0);
-        //}
+        movimentation_colision(135, Math.sin(rad)*WALK_SIZE, Math.cos(rad)*WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
     }
     else if (keyboard.pressed("A") || keyboard.pressed("left")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(270, Math.sin(rad)*0.05, Math.cos(rad)*0.05, 0.05, 0, 0.05, 0);
+        movimentation_colision(270, Math.sin(rad)*WALK_SIZE, Math.cos(rad)*WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
     }
     else if (keyboard.pressed("D") || keyboard.pressed("right")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(90, Math.sin(rad)*0.05, Math.cos(rad)*0.05, 0.05, 0, 0.05, 0);
+        movimentation_colision(90, Math.sin(rad)*WALK_SIZE, Math.cos(rad)*WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
     }
     else if (keyboard.pressed("S") || keyboard.pressed("down")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(0, Math.sin(rad)*0.05, Math.cos(rad)*0.05, 0.05, 0, 0.05, 0);
+        movimentation_colision(0, Math.sin(rad)*WALK_SIZE, Math.cos(rad)*WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
     }
     else if (keyboard.pressed("W") || keyboard.pressed("up")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(180, Math.sin(rad)*0.05, Math.cos(rad)*0.05, 0.05, 0, 0.05, 0);
+        movimentation_colision(180, Math.sin(rad)*WALK_SIZE, Math.cos(rad)*WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
     }
     else {
         playAction = false;
@@ -369,10 +366,22 @@ function keyboardUpdate() {
 
 // CHECA SE EXISTE COLISÃO
 function checkCollisions(object, man) {
-    for (var i = 0; i < object.length; i++) {
-        let collision = man.bb.intersectsBox(object[i]);
+    try
+    {
+        let collision = man.bb.intersectsBox(object);
         if (collision) {
+            console.log("aki")
             return true;
+        }
+    }
+    catch(e)
+    {
+
+        for (var i = 0; i < object.length; i++) {
+            let collision = man.bb.intersectsBox(object[i]);
+            if (collision) {
+                return true;
+            }
         }
     }
     return false
@@ -396,7 +405,7 @@ function render() {
     renderer.render(scene, camera) // Render scene
     if (playAction) {
         for (var i = 0; i < mixer.length; i++)
-            mixer[i].update(delta * 2);
+            mixer[i].update(delta * 2.3);
     };
     if (click) {
         renderer.render(scene, camera);
