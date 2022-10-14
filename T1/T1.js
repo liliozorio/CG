@@ -44,9 +44,9 @@ var clock = new THREE.Clock();
 
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
-const SIZE_PLANE = 180;
+const SIZE_PLANE = 60;//180
 const SIZE_TILE = 0.8;
-const NUM_CUBES = 1000;
+const NUM_CUBES = 500;//1000
 const SIZE_OBSTACLE = 0.8;
 const AVAILABLE_SPACE = SIZE_PLANE - 4;
 const WALK_SIZE = 0.06;
@@ -83,7 +83,6 @@ let asset2 = {
 
 loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true);
 loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false);
-
 makeFloor();
 makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
 makeEdgeX(-SIZE_PLANE / 2, SIZE_PLANE / 2);
@@ -170,27 +169,25 @@ function randomCube() {
         let cube = new THREE.Mesh(c, m);
 
         cube.position.set(x, 0.6, z);
-
         aux.object = cube;
-        aux.bb = new THREE.Box3().setFromObject(cube)
+        aux.bb = new THREE.Box3().setFromObject(cube);
+
         
-        if ((!checkCollisions(aux.bb, asset)) && (!checkCollisions(bbcube, aux))) {
+        asset2.bb.setFromObject(asset2.object);
+       
+        if ((!checkCollisions(aux.bb, asset2)) && (!checkCollisions(bbcube, aux))) {
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cube.name = "randomCube";
             scene.add(cube);
-        }
-        else if(checkCollisions(aux, asset))
-        {
-            console.log(colision)
-        }
-        else{
-            console
+        }else{
             cube.remove();
+            i--;
         }
     }
 }
 
-randomCube()
+    
+
 
 // INICIALIZA PERSONEGEM
 function loadGLTFFile(asset, file, add_scene) {
@@ -300,7 +297,7 @@ function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide
 
 // COMANDOS DO TECLADO
 function keyboardUpdate() {
-    let aux_collision;
+
     keyboard.update()
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
@@ -370,7 +367,6 @@ function checkCollisions(object, man) {
     {
         let collision = man.bb.intersectsBox(object);
         if (collision) {
-            console.log("aki")
             return true;
         }
     }
@@ -399,6 +395,12 @@ function clickElement(events) {
 
 let colors = ["rgb(222,184,135)", "rgb(165,42,42)"]
 function render() {
+    if(asset2.object && !asset2.loaded){
+        asset2.bb.setFromObject(asset2.object);
+        randomCube();
+        asset2.loaded = true;
+        asset.loaded = true;
+    }
     var delta = clock.getDelta();
     requestAnimationFrame(render);
     keyboardUpdate();
