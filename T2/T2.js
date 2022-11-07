@@ -137,7 +137,7 @@ function makeEdgeX(x, z) {
         bbcube.push(new THREE.Box3().setFromObject(cube));
         scene.add(cube);
     }
-    for (x = 3; x <= (SIZE_PLANE / 2); x += 1.1) {
+    for (x = 3.5; x <= (SIZE_PLANE / 2); x += 1.1) {
         let cube = new THREE.Mesh(cubeGeometry2, material);
         cube.position.set(x, 1, z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
@@ -147,13 +147,13 @@ function makeEdgeX(x, z) {
 
 // CRIA BORDAS PARALELAS AO EIXO Z
 function makeEdgeZ(x, z) {
-    for (; z <= -3 / 2; z += 1.1) {
+    for (; z <= -3; z += 1.1) {
         let cube = new THREE.Mesh(cubeGeometry2, material);
         cube.position.set(x, 1, z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
         scene.add(cube);
     }
-    for (z = 3; z <= SIZE_PLANE / 2; z += 1.1) {
+    for (z = 3.5; z <= SIZE_PLANE / 2; z += 1.1) {
         let cube = new THREE.Mesh(cubeGeometry2, material);
         cube.position.set(x, 1, z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
@@ -161,20 +161,17 @@ function makeEdgeZ(x, z) {
     }
 }
 
-let a = makePortal("rgb(210,180,140)")
-a.position.set(0, 3, 0)
-// scene.add(a)
 
 // CRIA PORTAL
 function makePortal(rgb) {
     let cube1 = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 1));
     let cube2 = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 1));
     let cylinder = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 1, 32));
-
+    
     cube2.position.set(0, -1, 0);
     cube2.matrixAutoUpdate = false;
     cube2.updateMatrix();
-
+    
     cylinder.position.set(0, 0.7, 0);
     cylinder.rotateX(THREE.MathUtils.degToRad(90))
     cylinder.matrixAutoUpdate = false;
@@ -190,16 +187,47 @@ function makePortal(rgb) {
     return csgFinal;
 }
 
+
+// INSERE OS PORTAIS EM SUAS DEVIDAS POSIÇÕES
+function insertPortal(){
+    let portalAreal = makePortal("rgb(46,139,87)");
+    portalAreal.position.set(0, 3, -20);
+    scene.add(portalAreal);
+    
+    let portalArea2 = makePortal("rgb(25,25,112)");
+    portalArea2.position.set(0, 3, 20);
+    scene.add(portalArea2);
+    
+    let portalArea3 = makePortal("rgb(165,42,42)");
+    portalArea3.position.set(20, 3, 0);
+    portalArea3.rotateY(THREE.MathUtils.degToRad(90));
+    scene.add(portalArea3);
+    
+    let portalFinal = makePortal("rgb(255,215,0)");
+    portalFinal.position.set(-20, 3, 0);
+    portalFinal.rotateY(THREE.MathUtils.degToRad(90));
+    scene.add(portalFinal);
+}
+
+
+// CRIA AS PORTAS
+insertPortal()
+function makeDoor(){
+    let cube = new THREE.Mesh(new TREES.Cube)
+}
+
+
+// FAZ AS ESCADAS
 function makeStairs(rgb = undefined) {
-    let cube = new THREE.Mesh(new THREE.BoxGeometry(6, 3, 6), new THREE.MeshLambertMaterial({ color: "rgb(210,180,140)" }));
-    let rectangle = new THREE.Mesh(new THREE.BoxGeometry(7, 0.25, 0.5), new THREE.MeshLambertMaterial({ color: "rgb(210,0,0)" }));
+    let cube = new THREE.Mesh(new THREE.BoxGeometry(6, 3, 6));
+    let rectangle = new THREE.Mesh(new THREE.BoxGeometry(7, 0.25, 0.5));
     cube.position.set(0, 1.5, 0)
     cube.matrixAutoUpdate = false;
     cube.updateMatrix();
 
     let cubeCSG = CSG.fromMesh(cube);
     let rectangleCSG = CSG.fromMesh(rectangle);
-    let csgObject = undefined;
+    let csgObject;
     let z = -2.25, y = 2.88;
     for (let aux = 2.88; aux >= 0; aux -= 0.25) {
         for (let y = 2.88; y >= aux; y -= 0.25) {
@@ -218,10 +246,27 @@ function makeStairs(rgb = undefined) {
     }
     let csgFinal = CSG.toMesh(csgObject, new THREE.Matrix4());
     csgFinal.material = new THREE.MeshPhongMaterial({ color: rgb });
-    csgFinal.position.set(0, 0, 0)
-    scene.add(csgFinal);
+    return csgFinal;
 }
-makeStairs()
+
+// INSERE AS ESCADAS EM SUAS DEVIDAS POSICOES
+function insertStairs(){
+    let escadaArea1 = makeStairs("rgb(143,188,143)");
+    escadaArea1.rotateY(THREE.MathUtils.degToRad(180));
+    escadaArea1.position.set(0, -3, -23.5);
+    scene.add(escadaArea1);
+    let escadaArea2 = makeStairs("rgb(72,61,139)");
+    escadaArea2.rotateY(THREE.MathUtils.degToRad(180));
+    escadaArea2.position.set(0, 0, 23.5);
+    scene.add(escadaArea2);
+    let escadaArea3 = makeStairs("rgb(128,0,0)");
+    escadaArea3.rotateY(THREE.MathUtils.degToRad(90));
+    escadaArea3.position.set(23.5,-3, 0);
+    scene.add(escadaArea3);
+}
+
+insertStairs();
+
 
 let randomCoordinate = () => Math.floor((Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2)
 let randomCoordinate2 = () => (Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2
