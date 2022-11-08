@@ -61,9 +61,27 @@ const NUM_CUBES = 0
 const SIZE_OBSTACLE = 0.8;
 const AVAILABLE_SPACE = SIZE_PLANE - 4;
 const WALK_SIZE = 0.06;
+let mat4
 
 let plane = createGroundPlaneXZ(SIZE_PLANE + 1, SIZE_PLANE + 1);
+mat4 = new THREE.Matrix4();
+plane.matrixAutoUpdate = false;
+plane.matrix.identity();
+
+plane.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0));
+var plano_rad = THREE.MathUtils.degToRad(90);
+plane.matrix.multiply(mat4.makeRotationX((plano_rad)));
 scene.add(plane);
+
+let plane2 = createGroundPlaneXZ(SIZE_PLANE + 1, SIZE_PLANE + 1);
+mat4 = new THREE.Matrix4();
+plane2.matrixAutoUpdate = false;
+plane2.matrix.identity();
+
+plane2.matrix.multiply(mat4.makeTranslation(46.0, -3, 0.0));
+var plano_rad = THREE.MathUtils.degToRad(90);
+plane2.matrix.multiply(mat4.makeRotationX((plano_rad)));
+scene.add(plane2);
 
 let cubeGeometry = new THREE.BoxGeometry(SIZE_TILE, 0.01, SIZE_TILE);
 let cubeGeometry2 = new THREE.BoxGeometry(1, 2, 1);
@@ -71,13 +89,6 @@ let material1 = setDefaultMaterial("rgb(255,222,173)");
 
 var playAction;
 var mixer = new Array();
-
-function createBBHelper(bb, color) {
-    // Create a bounding box helper
-    let helper = new THREE.Box3Helper(bb, color);
-    scene.add(helper);
-    return helper;
-}
 
 let asset = {
     object: null,
@@ -99,23 +110,14 @@ makeEdgeX(-SIZE_PLANE / 2, SIZE_PLANE / 2);
 makeEdgeZ(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
 makeEdgeZ(SIZE_PLANE / 2, -SIZE_PLANE / 2);
 
-
 // CREATE PLANE
 function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments = 10, gcolor = null) {
     if (!gcolor) gcolor = "rgb(210,180,140)";
     let planeGeometry = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
     let planeMaterial = new THREE.MeshLambertMaterial({ color: gcolor, side: THREE.DoubleSide });
 
-    let mat4 = new THREE.Matrix4();
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
-
-    plane.matrixAutoUpdate = false;
-    plane.matrix.identity();
-
-    plane.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0));
-    var plano_rad = THREE.MathUtils.degToRad(90);
-    plane.matrix.multiply(mat4.makeRotationX((plano_rad)));
 
     return plane;
 }
@@ -408,7 +410,7 @@ function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide
             let id = getColissionObjectId(bbstairs, asset)
             if(ListEscadas[id].inclinacao == 'positivo')
             {
-                movimentation(angulo_max, camX, camZ, 0.03, walkZ, walkX, 0.03, walkZ_hide, walkX_hide, 0.03);
+                movimentation(angulo_max, camX, camZ, 0.024, walkZ, walkX, 0.024, walkZ_hide, walkX_hide, 0.024);
                 if(asset.object.position.y>-3)
                 {
                     ListEscadas[id].inclinacao = 'positivo';
@@ -416,7 +418,7 @@ function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide
             }
             else
             {
-                movimentation(angulo_max, camX, camZ, -0.03, walkZ, walkX, -0.03, walkZ_hide, walkX_hide, -0.03);
+                movimentation(angulo_max, camX, camZ, -0.024, walkZ, walkX, -0.024, walkZ_hide, walkX_hide, -0.024);
                 if(asset.object.position.y<-3)
                 {
                     ListEscadas[id].inclinacao = 'negativo';
@@ -444,36 +446,21 @@ function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide
                 asset2.object.position.x = asset.object.position.x
                 asset2.object.position.z = asset.object.position.z
                 asset2.object.position.y = 0;
-                if(!escada)
-                {
-                    movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0);
-                }
-                else
-                {
-                    movimentation(angulo_max, camX, camZ, 0.25, walkZ, walkX, 0.25, walkZ_hide, walkX_hide, 0.25);
-                }
-                
+                movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0);    
             }
         }
         else {
             asset2.object.position.x = asset.object.position.x
             asset2.object.position.z = asset.object.position.z
             asset2.object.position.y = 0;
-            if(escada)
-            {
-                movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0);
-            }
-            else
-            {
-                movimentation(angulo_max, camX, camZ, 0.25, walkZ, walkX, 0.25, walkZ_hide, walkX_hide, 0.25);
-            }
+            movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0);
         }
     }
 }
 
 // COMANDOS DO TECLADO
 function keyboardUpdate() {
-
+    
     keyboard.update()
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
