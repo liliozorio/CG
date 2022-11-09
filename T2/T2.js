@@ -16,6 +16,7 @@ import { CSG } from '../libs/other/CSGMesh.js'
 const bbcube = [];
 const bbstairs = [];
 const ListEscadas = [];
+const doors = {box:[], obj:[]};
 
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
 anguloY = 0;
@@ -89,6 +90,11 @@ let material1 = setDefaultMaterial("rgb(255,222,173)");
 
 var playAction;
 var mixer = new Array();
+const lerpConfig = {
+	destination: new THREE.Vector3(0.0, -1.0, 0.0),
+	alpha: 0.01,
+	move: true
+  }
 
 let asset = {
     object: null,
@@ -194,30 +200,80 @@ function makePortal(rgb) {
 
 // INSERE OS PORTAIS EM SUAS DEVIDAS POSIÇÕES
 function insertPortal(){
-    let portalAreal = makePortal("rgb(46,139,87)");
-    portalAreal.position.set(0, 3, -20);
-    scene.add(portalAreal);
+	let portalAreal = makePortal("rgb(46,139,87)");
+	let doorAreal = makeDoor("rgb(0,0,0)");
+	portalAreal.position.set(0, 3, -20);
+	doorAreal.position.set(0, 3, -20);
+	scene.add(portalAreal);
+	scene.add(doorAreal);
+	console.log(doorAreal)
+	doorAreal.name = "doorAreal";
+
+	doors.box.push(new THREE.Box3().setFromObject(doorAreal));
+	doors.obj.push(doorAreal)
+	bbcube.push(new THREE.Box3().setFromObject(doorAreal));
     
-    let portalArea2 = makePortal("rgb(25,25,112)");
-    portalArea2.position.set(0, 3, 20);
-    scene.add(portalArea2);
+	let portalArea2 = makePortal("rgb(25,25,112)");
+	let doorAreal2 = makeDoor("rgb(0,0,0)");
+	portalArea2.position.set(0, 3, 20);
+	doorAreal2.position.set(0, 3, 20);
+	scene.add(portalArea2);
+	scene.add(doorAreal2);
+
+	doors.box.push(new THREE.Box3().setFromObject(doorAreal2));
+	doors.obj.push(doorAreal2)
+	bbcube.push(new THREE.Box3().setFromObject(doorAreal2));
+
+	let portalArea3 = makePortal("rgb(165,42,42)");
+	let doorAreal3 = makeDoor("rgb(0,0,0)");
+	portalArea3.position.set(20, 3, 0);
+	doorAreal3.position.set(20, 3, 0);
+	portalArea3.rotateY(THREE.MathUtils.degToRad(90));
+	doorAreal3.rotateY(THREE.MathUtils.degToRad(90));
+	scene.add(portalArea3);
+	scene.add(doorAreal3)
     
-    let portalArea3 = makePortal("rgb(165,42,42)");
-    portalArea3.position.set(20, 3, 0);
-    portalArea3.rotateY(THREE.MathUtils.degToRad(90));
-    scene.add(portalArea3);
-    
-    let portalFinal = makePortal("rgb(255,215,0)");
-    portalFinal.position.set(-20, 3, 0);
-    portalFinal.rotateY(THREE.MathUtils.degToRad(90));
-    scene.add(portalFinal);
+	doors.box.push(new THREE.Box3().setFromObject(doorAreal3));
+	doors.obj.push(doorAreal3)
+	bbcube.push(new THREE.Box3().setFromObject(doorAreal3));
+
+	let portalFinal = makePortal("rgb(255,215,0)");
+	let doorFinal = makeDoor("rgb(0,0,0)");
+	portalFinal.position.set(-20, 3, 0);
+	doorFinal.position.set(-20, 3, 0);
+	portalFinal.rotateY(THREE.MathUtils.degToRad(90));
+	doorFinal.rotateY(THREE.MathUtils.degToRad(90));
+	scene.add(portalFinal);
+	scene.add(doorFinal);
+
+	doors.box.push(new THREE.Box3().setFromObject(doorFinal));
+	doors.obj.push(doorFinal)
+	bbcube.push(new THREE.Box3().setFromObject(doorFinal));
 }
 
 
 // CRIA AS PORTAS
 insertPortal()
-function makeDoor(){
-    let cube = new THREE.Mesh(new TREES.Cube)
+function makeDoor(rgb){
+	let cube2 = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 1));
+    	let cylinder = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 1, 32));
+   	 
+    	cube2.position.set(0, -1, 0);
+    	cube2.matrixAutoUpdate = false;
+    	cube2.updateMatrix();
+   	 
+    	cylinder.position.set(0, 0.7, 0);
+    	cylinder.rotateX(THREE.MathUtils.degToRad(90))
+    	cylinder.matrixAutoUpdate = false;
+    	cylinder.updateMatrix();
+    
+    	let cubeCSG2 = CSG.fromMesh(cube2);
+    	let sphereCSG = CSG.fromMesh(cylinder);
+    	let csgObject = cubeCSG2.union(sphereCSG);
+    	let csgFinal = CSG.toMesh(csgObject, new THREE.Matrix4());
+    	csgFinal.material = new THREE.MeshPhongMaterial({ color: rgb });
+    	return csgFinal;
+    
 }
 
 
@@ -567,6 +623,11 @@ function clickElement(events) {
 
 let colors = ["rgb(222,184,135)", "rgb(165,42,42)"]
 function render() {
+    if(checkCollisions(doors.box , asset)){
+    	let indexDoor = getColissionObjectId(doors.box , asset)
+    	lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -3.0, doors.obj[indexDoor].position.z)
+    	doors.obj[indexDoor].position.lerp(lerpConfig.destination, lerpConfig.alpha);
+	}
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
         randomCube();
