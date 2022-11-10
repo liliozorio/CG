@@ -53,15 +53,13 @@ var clock = new THREE.Clock();
 
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
-const SIZE_PLANE = 40
+const SIZE_PLANE = 40;
 const SIZE_TILE = 0.8;
 const NUM_CUBES = 0
 const SIZE_OBSTACLE = 0.8;
 const AVAILABLE_SPACE = SIZE_PLANE - 4;
 const WALK_SIZE = 0.06;
 
-let plane = createGroundPlaneXZ(SIZE_PLANE + 1, SIZE_PLANE + 1);
-scene.add(plane);
 
 let cubeGeometry = new THREE.BoxGeometry(SIZE_TILE, 0.01, SIZE_TILE);
 let cubeGeometry2 = new THREE.BoxGeometry(1, 2, 1);
@@ -91,17 +89,14 @@ let asset2 = {
 
 loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true);
 loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false);
-makeFloor();
-makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
-makeEdgeX(-SIZE_PLANE / 2, SIZE_PLANE / 2);
-makeEdgeZ(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
-makeEdgeZ(SIZE_PLANE / 2, -SIZE_PLANE / 2);
+
+
 
 
 // CREATE PLANE
-function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments = 10, gcolor = null) {
+function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor = null) {
     if (!gcolor) gcolor = "rgb(210,180,140)";
-    let planeGeometry = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
+    let planeGeometry = new THREE.PlaneGeometry(p.w, p.h, widthSegments, heightSegments);
     let planeMaterial = new THREE.MeshLambertMaterial({ color: gcolor, side: THREE.DoubleSide });
 
     let mat4 = new THREE.Matrix4();
@@ -111,7 +106,8 @@ function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments =
     plane.matrixAutoUpdate = false;
     plane.matrix.identity();
 
-    plane.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0));
+    console
+    plane.matrix.multiply(mat4.makeTranslation(p.x, p.y, p.z));
     var plano_rad = THREE.MathUtils.degToRad(90);
     plane.matrix.multiply(mat4.makeRotationX((plano_rad)));
 
@@ -119,11 +115,20 @@ function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments =
 }
 
 // CRIA CHÃO
-function makeFloor() {
-    for (let x = -SIZE_PLANE / 2; x <= SIZE_PLANE / 2; x += (SIZE_TILE * 1.08)) {
-        for (let z = -SIZE_PLANE / 2; z <= SIZE_PLANE / 2; z += (SIZE_TILE * 1.08)) {
+// function makeFloor(p) {
+//     for (let x = -SIZE_PLANE / 2; x <= SIZE_PLANE / 2; x += (SIZE_TILE * 1.08)) {
+//         for (let z = -SIZE_PLANE / 2; z <= SIZE_PLANE / 2; z += (SIZE_TILE * 1.08)) {
+//             let cube = new THREE.Mesh(cubeGeometry, material1);
+//             cube.position.set(x, 0.05, z);
+//             scene.add(cube);
+//         }
+//     }
+// }
+function makeFloor(p) {
+    for (let x = p.x1; x <= p.x2; x += (SIZE_TILE * 1.08)) {
+        for (let z = p.z1; z <= p.z2; z += (SIZE_TILE * 1.08)) {
             let cube = new THREE.Mesh(cubeGeometry, material1);
-            cube.position.set(x, 0.05, z);
+            cube.position.set(x, p.y, z);
             scene.add(cube);
         }
     }
@@ -161,17 +166,52 @@ function makeEdgeZ(x, z) {
     }
 }
 
+function createChambers() {
+    const pp = {//planePositions
+        p0: { x: 0.0, y: -0.1, z: 0.0, w: SIZE_PLANE + 1, h: SIZE_PLANE + 1 },
+        p1: { x: 0, y: -3, z: -SIZE_PLANE - 4.4, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
+        p2: { x: 0.0, y: 3, z: SIZE_PLANE + 4.5, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
+        p3: { x: SIZE_PLANE + 0.4, y: -3, z: 0.0, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
+        p4: { x: -SIZE_PLANE - 0.5, y: 3, z: 0.0, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.7 },
+        p5: { x: 0, y: -3, z: -75, w: SIZE_PLANE * 0.5, h: SIZE_PLANE * 0.5 },
+    };
+
+    for (let i = 0; i < 6; i++) {
+        let plane = createGroundPlaneXZ(pp["p" + i]);
+        scene.add(plane);
+    }
+
+    const auxCdnt = {
+        p0: { x1: pp.p0.x - (pp.p0.w / 2 - 0.5), x2: pp.p0.x + pp.p0.w / 2, z1: pp.p0.z - (pp.p0.h / 2 - 0.5), z2: pp.p0.z + (pp.p0.h / 2 - 0.5), y: 0.05 },
+        p1: { x1: pp.p1.x - (pp.p1.w / 2), x2: pp.p1.x + pp.p1.w / 2, z1: pp.p1.z - (pp.p1.h / 2), z2: pp.p1.z + (pp.p1.h / 2), y: -2.95 },
+        p2: { x1: pp.p2.x - (pp.p2.w / 2), x2: pp.p2.x + pp.p2.w / 2, z1: pp.p2.z - (pp.p2.h / 2), z2: pp.p2.z + (pp.p2.h / 2), y: 3.05 },
+        p3: { x1: pp.p3.x - (pp.p3.w / 2), x2: pp.p3.x + pp.p3.w / 2, z1: pp.p3.z - (pp.p3.h / 2), z2: pp.p3.z + (pp.p3.h / 2), y: -2.95 },
+        p4: { x1: pp.p4.x - (pp.p4.w / 2), x2: pp.p4.x + pp.p4.w / 2, z1: pp.p4.z - (pp.p4.h / 2), z2: pp.p4.z + (pp.p4.h / 2), y: 3.05 },
+        p5: { x1: pp.p5.x - (pp.p5.w / 2), x2: pp.p5.x + pp.p5.w / 2, z1: pp.p5.z - (pp.p5.h / 2), z2: pp.p5.z + (pp.p5.h / 2), y: -2.95 },
+    }
+    for(let i=0;i<6;i++){
+        makeFloor(auxCdnt["p"+i]);
+    }
+
+    makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
+    makeEdgeX(-SIZE_PLANE / 2, SIZE_PLANE / 2);
+    makeEdgeZ(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
+    makeEdgeZ(SIZE_PLANE / 2, -SIZE_PLANE / 2);
+
+}
+
+createChambers()
 
 // CRIA PORTAL
 function makePortal(rgb) {
     let cube1 = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 1));
     let cube2 = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 1));
     let cylinder = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 1, 32));
-    
+
     cube2.position.set(0, -1, 0);
     cube2.matrixAutoUpdate = false;
     cube2.updateMatrix();
-    
+
     cylinder.position.set(0, 0.7, 0);
     cylinder.rotateX(THREE.MathUtils.degToRad(90))
     cylinder.matrixAutoUpdate = false;
@@ -189,22 +229,22 @@ function makePortal(rgb) {
 
 
 // INSERE OS PORTAIS EM SUAS DEVIDAS POSIÇÕES
-function insertPortal(){
+function insertPortal() {
     let portalAreal = makePortal("rgb(46,139,87)");
-    portalAreal.position.set(0, 3, -20);
+    portalAreal.position.set(0, 3, -SIZE_PLANE / 2);
     scene.add(portalAreal);
-    
+
     let portalArea2 = makePortal("rgb(25,25,112)");
-    portalArea2.position.set(0, 3, 20);
+    portalArea2.position.set(0, 3, SIZE_PLANE / 2);
     scene.add(portalArea2);
-    
+
     let portalArea3 = makePortal("rgb(165,42,42)");
-    portalArea3.position.set(20, 3, 0);
+    portalArea3.position.set(SIZE_PLANE / 2, 3, 0);
     portalArea3.rotateY(THREE.MathUtils.degToRad(90));
     scene.add(portalArea3);
-    
+
     let portalFinal = makePortal("rgb(255,215,0)");
-    portalFinal.position.set(-20, 3, 0);
+    portalFinal.position.set(-SIZE_PLANE / 2, 3, 0);
     portalFinal.rotateY(THREE.MathUtils.degToRad(90));
     scene.add(portalFinal);
 }
@@ -212,7 +252,7 @@ function insertPortal(){
 
 // CRIA AS PORTAS
 insertPortal()
-function makeDoor(){
+function makeDoor() {
     let cube = new THREE.Mesh(new TREES.Cube)
 }
 
@@ -250,19 +290,23 @@ function makeStairs(rgb = undefined) {
 }
 
 // INSERE AS ESCADAS EM SUAS DEVIDAS POSICOES
-function insertStairs(){
+function insertStairs() {
     let escadaArea1 = makeStairs("rgb(143,188,143)");
     escadaArea1.rotateY(THREE.MathUtils.degToRad(180));
-    escadaArea1.position.set(0, -3, -23.5);
+    escadaArea1.position.set(0, -3, -SIZE_PLANE / 2 - 3.5);
     scene.add(escadaArea1);
     let escadaArea2 = makeStairs("rgb(72,61,139)");
     escadaArea2.rotateY(THREE.MathUtils.degToRad(180));
-    escadaArea2.position.set(0, 0, 23.5);
+    escadaArea2.position.set(0, 0, SIZE_PLANE / 2 + 3.5);
     scene.add(escadaArea2);
     let escadaArea3 = makeStairs("rgb(128,0,0)");
     escadaArea3.rotateY(THREE.MathUtils.degToRad(90));
-    escadaArea3.position.set(23.5,-3, 0);
+    escadaArea3.position.set(SIZE_PLANE / 2 + 3.5, -3, 0);
     scene.add(escadaArea3);
+    let escadaFinal = makeStairs("rgb(255,215,0)");
+    escadaFinal.rotateY(THREE.MathUtils.degToRad(90));
+    escadaFinal.position.set(-SIZE_PLANE / 2 - 3.5, 0, 0); 0
+    scene.add(escadaFinal);
 }
 
 insertStairs();
