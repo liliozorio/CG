@@ -218,6 +218,11 @@ function createChambers() {
         p5: { x1: pp.p5.x - (pp.p5.w / 2), x2: pp.p5.x + pp.p5.w / 2, z1: pp.p5.z - (pp.p5.h / 2), z2: pp.p5.z + (pp.p5.h / 2), y: -2.95 },
     }
     for(let i=0;i<6;i++){
+        if(i==1 || i==2 || i==3){
+            makeFloor(auxCdnt["p"+i]);
+            randomCube(auxCdnt["p"+i], 6);
+        }
+        else
         makeFloor(auxCdnt["p"+i]);
     }
     makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
@@ -225,6 +230,15 @@ function createChambers() {
     makeEdgeZ(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
     makeEdgeZ(SIZE_PLANE / 2, -SIZE_PLANE / 2);
 }
+
+function randomCoordinate(pcoord) {
+    return Math.floor((Math.random() * pcoord) - pcoord / 2);
+}
+function randomCoordinate2(pcoord) {
+    return (Math.random() * pcoord) - pcoord / 2;
+}
+let chooseCoordenate = () => Math.random()
+
 createChambers()
 
 
@@ -262,7 +276,6 @@ function insertPortal(){
 	doorAreal.position.set(0, 3, -SIZE_PLANE / 2);
 	scene.add(portalAreal);
 	scene.add(doorAreal);
-	console.log(doorAreal)
 	doorAreal.name = "doorAreal";
 
 	doors.box.push(new THREE.Box3().setFromObject(doorAreal));
@@ -408,35 +421,32 @@ function insertStairs(){
 
 insertStairs();
 
-let randomCoordinate = () => Math.floor((Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2)
-let randomCoordinate2 = () => (Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2
-let chooseCoordenate = () => Math.random()
-
 //CRIA CUBOS EM LOCAIS ALEATORIOS
-function randomCube() {
+function randomCube(p, numB) {
     let c = new THREE.BoxGeometry(SIZE_OBSTACLE, SIZE_OBSTACLE, SIZE_OBSTACLE);
     let aux = {
         object: null,
         bb: new THREE.Box3()
     }
-    for (let i = 0; i < NUM_CUBES; i++) {
+    for (let i = 0; i < numB; i++) {
         let x;
         let z;
         if (chooseCoordenate() < 0.5) {
-            x = randomCoordinate2();
-            z = randomCoordinate();
+            x = p.x1 + Math.abs(randomCoordinate2(Math.abs(p.x1 - p.x2)));
+            z = p.z1 + Math.abs(randomCoordinate(Math.abs(p.z1 - p.z2)));
+            
         } else {
-            x = randomCoordinate();
-            z = randomCoordinate2();
+            x = p.x1 + Math.abs(randomCoordinate(Math.abs(p.x1 - p.x2)));
+            z = p.z1 + Math.abs(randomCoordinate2(Math.abs(p.z1 - p.z2)));
         }
         let m = setDefaultMaterial("rgb(222,184,135)");
         let cube = new THREE.Mesh(c, m);
-        cube.position.set(x, 0.6, z);
+        cube.position.set(x, p.y + 0.6, z);
         aux.object = cube;
         aux.bb = new THREE.Box3().setFromObject(cube);
-        asset2.bb.setFromObject(asset2.object);
+        //asset2.bb.setFromObject(asset2.object);
 
-        if ((!checkCollisions(aux.bb, asset2)) && (!checkCollisions(bbcube, aux))) {
+        if ((!checkCollisions(bbcube, aux))) {
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cube.name = "randomCube";
             scene.add(cube);
@@ -697,7 +707,6 @@ function render() {
 	}
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
-        randomCube();
         asset2.loaded = true;
         asset.loaded = true;
     }
