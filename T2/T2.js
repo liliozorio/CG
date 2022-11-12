@@ -96,7 +96,7 @@ loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false);
 // CREATE PLANE
 function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor = null) {
     if (!gcolor) gcolor = "rgb(210,180,140)";
-    let planeGeometry = new THREE.PlaneGeometry(p.w, p.h, widthSegments, heightSegments);
+    let planeGeometry = new THREE.PlaneGeometry(p.w + 1, p.h + 1, widthSegments, heightSegments);
     let planeMaterial = new THREE.MeshLambertMaterial({ color: gcolor, side: THREE.DoubleSide });
 
     let mat4 = new THREE.Matrix4();
@@ -115,15 +115,6 @@ function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor 
 }
 
 // CRIA CHÃO
-// function makeFloor(p) {
-//     for (let x = -SIZE_PLANE / 2; x <= SIZE_PLANE / 2; x += (SIZE_TILE * 1.08)) {
-//         for (let z = -SIZE_PLANE / 2; z <= SIZE_PLANE / 2; z += (SIZE_TILE * 1.08)) {
-//             let cube = new THREE.Mesh(cubeGeometry, material1);
-//             cube.position.set(x, 0.05, z);
-//             scene.add(cube);
-//         }
-//     }
-// }
 function makeFloor(p) {
     for (let x = p.x1; x <= p.x2; x += (SIZE_TILE * 1.08)) {
         for (let z = p.z1; z <= p.z2; z += (SIZE_TILE * 1.08)) {
@@ -134,38 +125,52 @@ function makeFloor(p) {
     }
 }
 
-// CRIA BORDAS PARALELAS AO EIXO X
-function makeEdgeX(x, z) {
-    for (; x <= -3; x += 1.1) {
+// CRIA BORDAS
+function makeEdges(coor, sizeX, sizeZ, dif, q) {
+    let aux1 = (coor.x + sizeX / 2);
+    let aux2 = (coor.z + sizeZ / 2);
+
+    for (let x = coor.x; x <= (coor.x + sizeX); x += 1.1) {
+        if (q.f1 && x >= aux1 - dif && x <= aux1 + dif) {
+            x = aux1 + 2.5;
+            continue;
+        }
         let cube = new THREE.Mesh(cubeGeometry2, material);
-        cube.position.set(x, 1, z);
+        cube.position.set(x, coor.y, coor.z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
         scene.add(cube);
     }
-    for (x = 3.5; x <= (SIZE_PLANE / 2); x += 1.1) {
+    for (let x = coor.x; x <= (coor.x + sizeX); x += 1.1) {
+        if (q.f2 && x >= aux1 - dif && x <= aux1 + dif) {
+            x = aux1 + 2.5;
+            continue;
+        }
         let cube = new THREE.Mesh(cubeGeometry2, material);
-        cube.position.set(x, 1, z);
+        cube.position.set(x, coor.y, coor.z + sizeZ);
+        bbcube.push(new THREE.Box3().setFromObject(cube));
+        scene.add(cube);
+    }
+    for (let z = coor.z; z <= coor.z + sizeZ; z += 1.1) {
+        if (q.f3 && z >= aux2 - dif && z <= aux2 + dif) {
+            z = aux2 + 2.5;
+            continue;
+        }
+        let cube = new THREE.Mesh(cubeGeometry2, material);
+        cube.position.set(coor.x, coor.y, z);
+        bbcube.push(new THREE.Box3().setFromObject(cube));
+        scene.add(cube);
+    }
+    for (let z = coor.z; z <= coor.z + sizeZ; z += 1.1) {
+        if (q.f4 && z >= aux2 - dif && z <= aux2 + dif) {
+            z = aux2 + 2.5;
+            continue;
+        }
+        let cube = new THREE.Mesh(cubeGeometry2, material);
+        cube.position.set(coor.x + sizeX, coor.y, z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
         scene.add(cube);
     }
 }
-
-// CRIA BORDAS PARALELAS AO EIXO Z
-function makeEdgeZ(x, z) {
-    for (; z <= -3; z += 1.1) {
-        let cube = new THREE.Mesh(cubeGeometry2, material);
-        cube.position.set(x, 1, z);
-        bbcube.push(new THREE.Box3().setFromObject(cube));
-        scene.add(cube);
-    }
-    for (z = 3.5; z <= SIZE_PLANE / 2; z += 1.1) {
-        let cube = new THREE.Mesh(cubeGeometry2, material);
-        cube.position.set(x, 1, z);
-        bbcube.push(new THREE.Box3().setFromObject(cube));
-        scene.add(cube);
-    }
-}
-
 function createChambers() {
     const pp = {//planePositions
         p0: { x: 0.0, y: -0.1, z: 0.0, w: SIZE_PLANE + 1, h: SIZE_PLANE + 1 },
@@ -189,16 +194,20 @@ function createChambers() {
         p4: { x1: pp.p4.x - (pp.p4.w / 2), x2: pp.p4.x + pp.p4.w / 2, z1: pp.p4.z - (pp.p4.h / 2), z2: pp.p4.z + (pp.p4.h / 2), y: 3.05 },
         p5: { x1: pp.p5.x - (pp.p5.w / 2), x2: pp.p5.x + pp.p5.w / 2, z1: pp.p5.z - (pp.p5.h / 2), z2: pp.p5.z + (pp.p5.h / 2), y: -2.95 },
     }
-    for(let i=0;i<6;i++){
-        makeFloor(auxCdnt["p"+i]);
+    for (let i = 0; i < 6; i++) {
+        makeFloor(auxCdnt["p" + i]);
     }
 
-    makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
-    makeEdgeX(-SIZE_PLANE / 2, SIZE_PLANE / 2);
-    makeEdgeZ(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
-    makeEdgeZ(SIZE_PLANE / 2, -SIZE_PLANE / 2);
+    makeEdges({ x: auxCdnt.p0.x1, y: 1, z: auxCdnt.p0.z1 }, pp.p0.w - 1, pp.p0.h - 1, 3, { f1: 1, f2: 1, f3: 1, f4: 1 })
+    makeEdges({ x: auxCdnt.p1.x1, y: -2, z: auxCdnt.p1.z1 }, pp.p1.w, pp.p1.h, 3, { f1: 1, f2: 1, f3: 0, f4: 0 })
+    makeEdges({ x: auxCdnt.p2.x1, y: 4, z: auxCdnt.p2.z1 }, pp.p2.w, pp.p2.h, 3, { f1: 1, f2: 0, f3: 0, f4: 0 })
+    makeEdges({ x: auxCdnt.p3.x1, y: -2, z: auxCdnt.p3.z1 }, pp.p3.w, pp.p3.h, 3, { f1: 0, f2: 0, f3: 1, f4: 0 })
+    makeEdges({ x: auxCdnt.p4.x1, y: 4, z: auxCdnt.p4.z1 }, pp.p4.w, pp.p4.h, 3, { f1: 0, f2: 0, f3: 0, f4: 1 })
+    makeEdges({ x: auxCdnt.p5.x1, y: -2, z: auxCdnt.p5.z1 }, pp.p5.w, pp.p5.h, 3, { f1: 0, f2: 1, f3: 0, f4: 0 })
 
 }
+
+
 
 createChambers()
 
