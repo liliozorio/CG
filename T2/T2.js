@@ -89,8 +89,15 @@ let asset2 = {
     bb: new THREE.Box3()
 }
 
+let key = {
+    object: null,
+    loaded: false,
+    bb: new THREE.Box3()
+}
+
 loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true);
 loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false);
+loadGLTFFile(key, './key.glb', true);
 
 
 
@@ -178,9 +185,11 @@ function createChambers() {
         p0: { x: 0.0, y: -0.1, z: 0.0, w: SIZE_PLANE + 1, h: SIZE_PLANE + 1 },
         p1: { x: 0, y: -3, z: -SIZE_PLANE - 4.4, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
         p2: { x: 0.0, y: 3, z: SIZE_PLANE + 4.5, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
-        p3: { x: SIZE_PLANE + 0.4, y: -3, z: 0.0, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
+        p3: { x: SIZE_PLANE + 0.4, y: -3, z: 0.0, w: SIZE_PLANE * 0.9, h: SIZE_PLANE * 0.7 },
         p4: { x: -SIZE_PLANE - 0.5, y: 3, z: 0.0, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.7 },
-        p5: { x: 0, y: -3, z: -75, w: SIZE_PLANE * 0.5, h: SIZE_PLANE * 0.5 },
+        p5: { x: 0, y: -3, z: -75, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
+        p6: { x: 0, y: -3, z: -75, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
+        p7: { x: 0, y: -3, z: -75, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
     };
 
     for (let i = 0; i < 6; i++) {
@@ -247,7 +256,6 @@ function insertPortal() {
 	doorAreal.position.set(0, 3, -20);
 	scene.add(portalAreal);
 	scene.add(doorAreal);
-	console.log(doorAreal)
 	doorAreal.name = "doorAreal";
 
 	doors.box.push(new THREE.Box3().setFromObject(doorAreal));
@@ -293,9 +301,9 @@ function insertPortal() {
 }
 
 
-// CRIA AS PORTAS
 insertPortal()
 
+// CRIA AS PORTAS
 function makeDoor(rgb){
 	let cube2 = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 1));
     	let cylinder = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 1, 32));
@@ -320,7 +328,7 @@ function makeDoor(rgb){
 
 
 // FAZ AS ESCADAS
-function makeStairs(rgb = undefined) {
+function makeStairs(rgb) {
     let stairs = {
         object: null,
         inclinacao: null
@@ -574,27 +582,27 @@ function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide
         if (collision) {
             asset2.object.position.x = asset.object.position.x
             asset2.object.position.z = asset.object.position.z
-            asset2.object.position.y = 0;
+            asset2.object.position.y = asset.object.position.y;
             asset2.bb.setFromObject(asset2.object);
             movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, 0.6, 0, deslisa);
             collision = checkCollisions(bbcube, asset2);
             if (collision) {
                 asset2.object.position.x = asset.object.position.x
                 asset2.object.position.z = asset.object.position.z
-                asset2.object.position.y = 0;
+                asset2.object.position.y = asset.object.position.y;
                 asset2.bb.setFromObject(asset2.object);
             }
             else {
                 asset2.object.position.x = asset.object.position.x
                 asset2.object.position.z = asset.object.position.z
-                asset2.object.position.y = 0;
+                asset2.object.position.y = asset.object.position.y;
                 movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0, deslisa);
             }
         }
         else {
             asset2.object.position.x = asset.object.position.x
             asset2.object.position.z = asset.object.position.z
-            asset2.object.position.y = 0;
+            asset2.object.position.y = asset.object.position.y;
             movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0, deslisa);
         }
     }
