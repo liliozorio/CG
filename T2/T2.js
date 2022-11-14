@@ -15,8 +15,13 @@ import { CSG } from '../libs/other/CSGMesh.js'
 
 const bbcube = [];
 const bbstairs = [];
+const bbportal = [];
 const ListEscadas = [];
-const doors = { box: [], obj: [] };
+const bbcubeportal = []; 
+const doors = {box:[], obj:[]};
+const bbkey = [];
+const get_key = [true,false,false,false]
+const id_key = [];
 
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
 anguloY = 0;
@@ -89,17 +94,29 @@ let asset2 = {
     bb: new THREE.Box3()
 }
 
-let key = {
+let key1 = {
     object: null,
     loaded: false,
     bb: new THREE.Box3()
 }
 
-loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true);
-loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false);
-//loadGLTFFile(key, './key.glb', true);
+let key2 = {
+    object: null,
+    loaded: false,
+    bb: new THREE.Box3()
+}
 
+let key3 = {
+    object: null,
+    loaded: false,
+    bb: new THREE.Box3()
+}
 
+loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false);
+loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false);
+loadGLTFFile(key1, './key.glb', true, 0, -2, -75, "rgb(72,61,139)", true);
+loadGLTFFile(key2, './key.glb', true, 0, 4, 70, "rgb(128,0,0)", true);
+loadGLTFFile(key3, './key.glb', true, 70, -2, 0, "rgb(255,215,0)", true);
 
 
 // CREATE PLANE
@@ -115,7 +132,6 @@ function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor 
     plane.matrixAutoUpdate = false;
     plane.matrix.identity();
 
-    console
     plane.matrix.multiply(mat4.makeTranslation(p.x, p.y, p.z));
     var plano_rad = THREE.MathUtils.degToRad(90);
     plane.matrix.multiply(mat4.makeRotationX((plano_rad)));
@@ -204,13 +220,13 @@ function createChambers() {
 
     const auxCdnt = {
         p0: { rgb: "rgb(255,222,173)", x1: pp.p0.x - (pp.p0.w / 2 - 0.5), x2: pp.p0.x + pp.p0.w / 2, z1: pp.p0.z - (pp.p0.h / 2 - 0.5), z2: pp.p0.z + (pp.p0.h / 2 - 0.5), y: 0.05 },
-        p1: { rgb: "rgb(173,216,230)", x1: pp.p1.x - (pp.p1.w / 2), x2: pp.p1.x + pp.p1.w / 2, z1: pp.p1.z - (pp.p1.h / 2), z2: pp.p1.z + (pp.p1.h / 2), y: -2.95 },
-        p2: { rgb: "rgb(250,128,114)", x1: pp.p2.x - (pp.p2.w / 2), x2: pp.p2.x + pp.p2.w / 2, z1: pp.p2.z - (pp.p2.h / 2), z2: pp.p2.z + (pp.p2.h / 2), y: 3.05 },
-        p3: { rgb: "rgb(240,230,140)", x1: pp.p3.x - (pp.p3.w / 2), x2: pp.p3.x + pp.p3.w / 2, z1: pp.p3.z - (pp.p3.h / 2), z2: pp.p3.z + (pp.p3.h / 2), y: -2.95 },
-        p4: { rgb: "rgb(152,251,152)", x1: pp.p4.x - (pp.p4.w / 2), x2: pp.p4.x + pp.p4.w / 2, z1: pp.p4.z - (pp.p4.h / 2), z2: pp.p4.z + (pp.p4.h / 2), y: 3.05 },
-        p5: { rgb: "rgb(173,216,230)", x1: pp.p5.x - (pp.p5.w / 2), x2: pp.p5.x + pp.p5.w / 2, z1: pp.p5.z - (pp.p5.h / 2), z2: pp.p5.z + (pp.p5.h / 2), y: -2.95 },
-        p6: { rgb: "rgb(250,128,114)", x1: pp.p6.x - (pp.p6.w / 2), x2: pp.p6.x + pp.p6.w / 2, z1: pp.p6.z - (pp.p6.h / 2), z2: pp.p6.z + (pp.p6.h / 2), y: 3.05 },
-        p7: { rgb: "rgb(240,230,140)", x1: pp.p7.x - (pp.p7.w / 2), x2: pp.p7.x + pp.p7.w / 2, z1: pp.p7.z - (pp.p7.h / 2), z2: pp.p7.z + (pp.p7.h / 2), y: -2.95 },
+        p1: { rgb: "rgb(152,251,152)", x1: pp.p1.x - (pp.p1.w / 2), x2: pp.p1.x + pp.p1.w / 2, z1: pp.p1.z - (pp.p1.h / 2), z2: pp.p1.z + (pp.p1.h / 2), y: -2.95 },
+        p2: { rgb: "rgb(173,216,230)", x1: pp.p2.x - (pp.p2.w / 2), x2: pp.p2.x + pp.p2.w / 2, z1: pp.p2.z - (pp.p2.h / 2), z2: pp.p2.z + (pp.p2.h / 2), y: 3.05 },
+        p3: { rgb: "rgb(250,128,114)", x1: pp.p3.x - (pp.p3.w / 2), x2: pp.p3.x + pp.p3.w / 2, z1: pp.p3.z - (pp.p3.h / 2), z2: pp.p3.z + (pp.p3.h / 2), y: -2.95 },
+        p4: { rgb: "rgb(240,230,140)", x1: pp.p4.x - (pp.p4.w / 2), x2: pp.p4.x + pp.p4.w / 2, z1: pp.p4.z - (pp.p4.h / 2), z2: pp.p4.z + (pp.p4.h / 2), y: 3.05 },
+        p5: { rgb: "rgb(152,251,152)", x1: pp.p5.x - (pp.p5.w / 2), x2: pp.p5.x + pp.p5.w / 2, z1: pp.p5.z - (pp.p5.h / 2), z2: pp.p5.z + (pp.p5.h / 2), y: -2.95 },
+        p6: { rgb: "rgb(173,216,230)", x1: pp.p6.x - (pp.p6.w / 2), x2: pp.p6.x + pp.p6.w / 2, z1: pp.p6.z - (pp.p6.h / 2), z2: pp.p6.z + (pp.p6.h / 2), y: 3.05 },
+        p7: { rgb: "rgb(250,128,114)", x1: pp.p7.x - (pp.p7.w / 2), x2: pp.p7.x + pp.p7.w / 2, z1: pp.p7.z - (pp.p7.h / 2), z2: pp.p7.z + (pp.p7.h / 2), y: -2.95 },
     }
     for (let i = 0; i < 8; i++) {
         makeFloor(auxCdnt["p" + i]);
@@ -260,53 +276,53 @@ function makePortal(rgb) {
 // INSERE OS PORTAIS EM SUAS DEVIDAS POSIÇÕES
 function insertPortal() {
     let portalAreal = makePortal("rgb(46,139,87)");
-    let doorAreal = makeDoor("rgb(0,0,0)");
-    portalAreal.position.set(0, 3, -20);
-    doorAreal.position.set(0, 3, -20);
-    scene.add(portalAreal);
-    scene.add(doorAreal);
-    doorAreal.name = "doorAreal";
+	let doorAreal = makeDoor("rgb(0,0,0)");
+	portalAreal.position.set(0, 3, -20);
+	doorAreal.position.set(0, 3, -20);
+	scene.add(portalAreal);
+	scene.add(doorAreal);
+	doorAreal.name = "doorAreal";
 
-    doors.box.push(new THREE.Box3().setFromObject(doorAreal));
-    doors.obj.push(doorAreal)
-    bbcube.push(new THREE.Box3().setFromObject(doorAreal));
+    bbportal.push(new THREE.Box3().setFromObject(portalAreal));
+	doors.box.push(new THREE.Box3().setFromObject(doorAreal));
+	doors.obj.push(doorAreal)
 
-    let portalArea2 = makePortal("rgb(25,25,112)");
-    let doorAreal2 = makeDoor("rgb(0,0,0)");
-    portalArea2.position.set(0, 3, 20);
-    doorAreal2.position.set(0, 3, 20);
-    scene.add(portalArea2);
-    scene.add(doorAreal2);
+	let portalArea2 = makePortal("rgb(25,25,112)");
+	let doorAreal2 = makeDoor("rgb(0,0,0)");
+	portalArea2.position.set(0, 3, 20);
+	doorAreal2.position.set(0, 3, 20);
+	scene.add(portalArea2);
+	scene.add(doorAreal2);
 
-    doors.box.push(new THREE.Box3().setFromObject(doorAreal2));
-    doors.obj.push(doorAreal2)
-    bbcube.push(new THREE.Box3().setFromObject(doorAreal2));
+    bbportal.push(new THREE.Box3().setFromObject(portalArea2));
+	doors.box.push(new THREE.Box3().setFromObject(doorAreal2));
+	doors.obj.push(doorAreal2)
 
-    let portalArea3 = makePortal("rgb(165,42,42)");
-    let doorAreal3 = makeDoor("rgb(0,0,0)");
-    portalArea3.position.set(20, 3, 0);
-    doorAreal3.position.set(20, 3, 0);
-    portalArea3.rotateY(THREE.MathUtils.degToRad(90));
-    doorAreal3.rotateY(THREE.MathUtils.degToRad(90));
-    scene.add(portalArea3);
-    scene.add(doorAreal3)
+	let portalArea3 = makePortal("rgb(165,42,42)");
+	let doorAreal3 = makeDoor("rgb(0,0,0)");
+	portalArea3.position.set(20, 3, 0);
+	doorAreal3.position.set(20, 3, 0);
+	portalArea3.rotateY(THREE.MathUtils.degToRad(90));
+	doorAreal3.rotateY(THREE.MathUtils.degToRad(90));
+	scene.add(portalArea3);
+	scene.add(doorAreal3)
 
-    doors.box.push(new THREE.Box3().setFromObject(doorAreal3));
-    doors.obj.push(doorAreal3)
-    bbcube.push(new THREE.Box3().setFromObject(doorAreal3));
+    bbportal.push(new THREE.Box3().setFromObject(portalArea3));
+	doors.box.push(new THREE.Box3().setFromObject(doorAreal3));
+	doors.obj.push(doorAreal3)
 
-    let portalFinal = makePortal("rgb(255,215,0)");
-    let doorFinal = makeDoor("rgb(0,0,0)");
-    portalFinal.position.set(-20, 3, 0);
-    doorFinal.position.set(-20, 3, 0);
-    portalFinal.rotateY(THREE.MathUtils.degToRad(90));
-    doorFinal.rotateY(THREE.MathUtils.degToRad(90));
-    scene.add(portalFinal);
-    scene.add(doorFinal);
+	let portalFinal = makePortal("rgb(255,215,0)");
+	let doorFinal = makeDoor("rgb(0,0,0)");
+	portalFinal.position.set(-20, 3, 0);
+	doorFinal.position.set(-20, 3, 0);
+	portalFinal.rotateY(THREE.MathUtils.degToRad(90));
+	doorFinal.rotateY(THREE.MathUtils.degToRad(90));
+	scene.add(portalFinal);
+	scene.add(doorFinal);
 
-    doors.box.push(new THREE.Box3().setFromObject(doorFinal));
-    doors.obj.push(doorFinal)
-    bbcube.push(new THREE.Box3().setFromObject(doorFinal));
+    bbportal.push(new THREE.Box3().setFromObject(portalFinal));
+	doors.box.push(new THREE.Box3().setFromObject(doorFinal));
+	doors.obj.push(doorFinal)
 }
 
 
@@ -451,26 +467,41 @@ function randomCube() {
 
 
 // INICIALIZA PERSONEGEM
-function loadGLTFFile(asset, file, add_scene) {
+function loadGLTFFile(asset, file, add_scene, x,y,z,color,iskey) {
     var loader = new GLTFLoader();
     loader.load(file, function (gltf) {
         var obj = gltf.scene;
         obj.traverse(function (child) {
             if (child.isMesh) {
                 child.castShadow = true;
+                if(color != '')
+                {
+                    child.material = setDefaultMaterial(color);
+                }
             }
         });
         obj = normalizeAndRescale(obj, 2);
         obj.updateMatrixWorld(true);
+        obj.position.x = x
+        obj.position.y = y
+        obj.position.z = z
+
         if (add_scene) {
             scene.add(obj);
         }
         asset.object = gltf.scene;
+        if(iskey)
+        {
+            bbkey.push(new THREE.Box3().setFromObject(asset.object));
+            id_key.push(asset.object)
+        }
         var mixerLocal = new THREE.AnimationMixer(obj);
         mixerLocal.clipAction(gltf.animations[0]).play();
         mixer.push(mixerLocal);
     }, () => { }, () => { });
 }
+
+
 
 // AJUSTA AS ESCALAS
 function normalizeAndRescale(obj, newScale) {
@@ -484,27 +515,32 @@ function normalizeAndRescale(obj, newScale) {
 // GERA O MOVIMENTO DO PERSONAGEM
 function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa) {
 
-    if (angulo_max > anguloY) {
+    if(angulo_max > anguloY)
+    {
         var dif = angulo_max - anguloY
         var dif2 = 360 - angulo_max + anguloY
-        if (dif2 < dif) {
+        if(dif2 < dif)
+        {
             anguloY = anguloY + 360
         }
     }
-    else {
+    else
+    {
         var dif = anguloY - angulo_max
         var dif2 = 360 - anguloY + angulo_max
-        if (dif2 < dif) {
+        if(dif2 < dif)
+        {
             angulo_max = angulo_max + 360
         }
-    }
+    }  
     if (anguloY < angulo_max && !deslisa) {
         anguloY = anguloY + 5;
         var rad = THREE.MathUtils.degToRad(5);
         asset.object.rotateY(rad);
         asset2.object.rotateY(rad);
-        if (anguloY > 360) {
-            anguloY = anguloY - 360
+        if(anguloY > 360)
+        {
+            anguloY = anguloY -360
         }
     }
     else if (anguloY > angulo_max && !deslisa) {
@@ -512,11 +548,13 @@ function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_
         var rad = THREE.MathUtils.degToRad(-5);
         asset.object.rotateY(rad);
         asset2.object.rotateY(rad);
-        if (anguloY > 360) {
-            anguloY = anguloY - 360
+        if(anguloY > 360)
+        {
+            anguloY = anguloY -360
         }
     }
-    else if (deslisa) {
+    else if (deslisa)
+    {
         if (anguloY < angulo_max) {
             while (anguloY < angulo_max) {
                 anguloY = anguloY + 1;
@@ -547,42 +585,51 @@ function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_
     asset2.bb.setFromObject(asset2.object);
 }
 
+function movimentation_stairs(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa)
+{
+    playAction = true;
+    let id = getColissionObjectId(bbstairs, asset)
+    movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa);
+    if(asset.object.position.y > 0 && asset.object.position.y < 0.025)
+    {
+        asset.object.position.y = 0
+        asset2.object.position.y = 0
+    }
+    else if(asset.object.position.y < -3)
+    {
+        asset.object.position.y = -3
+        asset2.object.position.y = -3
+    }
+    else if(asset.object.position.y > 3)
+    {
+        asset.object.position.y = 3
+        asset2.object.position.y = 3
+    }
+}
+
 // TRATA OS MOVIMENTOS COM COLISÃO DO PERSONAGEM
 function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide, deslisa) {
     playAction = true;
     var collision = checkCollisions(bbcube, asset)
-    var escada = checkCollisions(bbstairs, asset)
-    if (!collision) {
-        if (!escada) {
-            movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0, deslisa);
-        }
-        else {
-            let id = getColissionObjectId(bbstairs, asset)
-            if (ListEscadas[id].inclinacao == 'positivo') {
-                movimentation(angulo_max, camX, camZ, 0.028, walkZ, walkX, 0.028, walkZ_hide, walkX_hide, 0.028, deslisa);
-                if (asset.object.position.y > -3) {
-                    ListEscadas[id].inclinacao = 'positivo';
-                }
-            }
-            else {
-                movimentation(angulo_max, camX, camZ, -0.024, walkZ, walkX, -0.024, walkZ_hide, walkX_hide, -0.024, deslisa);
-                if (asset.object.position.y < -3) {
-                    ListEscadas[id].inclinacao = 'negativo';
-                }
-            }
-        }
+    var collision_door = checkCollisions(doors.box, asset)
+    var collision_portal = checkCollisions(bbportal, asset)
+    if (!collision && !collision_door) {
+        movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0, deslisa);
     }
     else {
         movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, -0.6, 0, deslisa);
         collision = checkCollisions(bbcube, asset2);
-        if (collision) {
+        collision_door = checkCollisions(doors.box, asset2);
+        collision_portal = checkCollisions(bbportal, asset2);
+        var collision_cylinder = checkCollisions(bbcubeportal, asset2)
+        if (collision || collision_door) {
             asset2.object.position.x = asset.object.position.x
             asset2.object.position.z = asset.object.position.z
             asset2.object.position.y = asset.object.position.y;
             asset2.bb.setFromObject(asset2.object);
             movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, 0.6, 0, deslisa);
             collision = checkCollisions(bbcube, asset2);
-            if (collision) {
+            if (collision || collision_door) {
                 asset2.object.position.x = asset.object.position.x
                 asset2.object.position.z = asset.object.position.z
                 asset2.object.position.y = asset.object.position.y;
@@ -610,57 +657,245 @@ function keyboardUpdate() {
 
     keyboard.update()
     let aux_collision;
-
+    var escada = checkCollisions(bbstairs, asset)
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        if(escada)
+        {
+            var select_stairs = getColissionObjectId(bbstairs, asset)
+            if(select_stairs == 0)
+            {
+                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+            }
+            else if(select_stairs == 1)
+            {
+                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+            }
+            if(select_stairs == 2)
+            {
+                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
+            } 
+            else if(select_stairs == 3)
+            {
+                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
+            }
+        }
+        else
+        {
+            movimentation_colision(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        }
     }
     else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        if(escada)
+        {
+            var select_stairs = getColissionObjectId(bbstairs, asset)
+            if(select_stairs == 0)
+            {
+                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0,WALK_SIZE, 0, 0, false);
+            }
+            else if(select_stairs == 1)
+            {
+                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
+            }
+            if(select_stairs == 2)
+            {
+                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+            }
+            else if(select_stairs == 3)
+            {
+                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+            }
+        }
+        else
+        {
+            movimentation_colision(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        }
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        if(escada)
+        {
+            var select_stairs = getColissionObjectId(bbstairs, asset)
+            if(select_stairs == 0)
+            {
+                movimentation_stairs(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
+            }
+            else if(select_stairs == 1)
+            {
+                movimentation_stairs(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
+            }
+            if(select_stairs == 2)
+            {
+                movimentation_stairs(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+            }
+            else if(select_stairs == 3)
+            {
+                movimentation_stairs(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+            }
+        }
+        else
+        {
+            movimentation_colision(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        }
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        if(escada)
+        {
+            var select_stairs = getColissionObjectId(bbstairs, asset)
+            if(select_stairs == 0)
+            {
+                movimentation_stairs(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+            }
+            else if(select_stairs == 1)
+            {
+                movimentation_stairs(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+            }
+            if(select_stairs == 2)
+            {
+                movimentation_stairs(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
+            }
+            else if(select_stairs == 3)
+            {
+                movimentation_stairs(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
+            }
+        }
+        else
+        {
+            movimentation_colision(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        }
     }
     else if (keyboard.pressed("A") || keyboard.pressed("left")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        aux_collision = movimentation_colision(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
-        if (aux_collision) {
-            movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
-            movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
-            movimentation_colision(315, 0, 0, 0, 0, 0, 0, true);
+        if(escada)
+        {
+            var select_stairs = getColissionObjectId(bbstairs, asset)
+            if(select_stairs == 0)
+            {
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+            }
+            else if(select_stairs == 1)
+            {
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+            }
+            if(select_stairs == 2)
+            {
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+            }
+            else if(select_stairs == 3)
+            {
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+            }
+        }
+        else
+        {
+            aux_collision = movimentation_colision(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+            if(aux_collision)
+            {
+                movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+                movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+                movimentation_colision(315, 0, 0, 0, 0, 0, 0, true);
+            }
         }
     }
     else if (keyboard.pressed("D") || keyboard.pressed("right")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        aux_collision = movimentation_colision(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
-        if (aux_collision) {
-            movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
-            movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
-            movimentation_colision(135, 0, 0, 0, 0, 0, 0, true);
+        if(escada)
+        {
+            var select_stairs = getColissionObjectId(bbstairs, asset)
+            if(select_stairs == 0)
+            {
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+            }
+            else if(select_stairs == 1)
+            {
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+            }
+            if(select_stairs == 2)
+            {
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+            }
+            else if(select_stairs == 3)
+            {
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+            }
+        }
+        else
+        {
+            aux_collision = movimentation_colision(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+            if(aux_collision)
+            {
+                movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+                movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+                movimentation_colision(135, 0, 0, 0, 0, 0, 0, true);
+            }
         }
     }
     else if (keyboard.pressed("S") || keyboard.pressed("down")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        aux_collision = movimentation_colision(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
-        if (aux_collision) {
-            movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
-            movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
-            movimentation_colision(45, 0, 0, 0, 0, 0, 0, true);
+        if(escada)
+        {
+            var select_stairs = getColissionObjectId(bbstairs, asset)
+            if(select_stairs == 0)
+            {
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+            }
+            else if(select_stairs == 1)
+            {
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+            }
+            if(select_stairs == 2)
+            {
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+            }
+            else if(select_stairs == 3)
+            {
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+            }
+        }
+        else
+        {
+            aux_collision = movimentation_colision(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+            if(aux_collision)
+            {
+                movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+                movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+                movimentation_colision(45, 0, 0, 0, 0, 0, 0, true);
+            }
         }
     }
     else if (keyboard.pressed("W") || keyboard.pressed("up")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        aux_collision = movimentation_colision(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
-        if (aux_collision) {
-            movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
-            movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
-            movimentation_colision(225, 0, 0, 0, 0, 0, 0, true);
+        if(escada)
+        {
+            var select_stairs = getColissionObjectId(bbstairs, asset)
+            if(select_stairs == 0)
+            {
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+            }
+            else if(select_stairs == 1)
+            {
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+            }
+            if(select_stairs == 2)
+            {
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+            }
+            else if(select_stairs == 3)
+            {
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+            }
+        }
+        else
+        {
+            aux_collision = movimentation_colision(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+            if(aux_collision)
+            {
+                movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+                movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+                movimentation_colision(225, 0, 0, 0, 0, 0, 0, true);
+            }
         }
     }
     else {
@@ -737,11 +972,19 @@ function clickElement(events) {
 let colors = ["rgb(222,184,135)", "rgb(165,42,42)"]
 function render() {
     if (checkCollisions(doors.box, asset)) {
-        let indexDoor = getColissionObjectId(doors.box, asset)
-        lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -4.0, doors.obj[indexDoor].position.z)
-        doors.obj[indexDoor].position.lerp(lerpConfig.destination, lerpConfig.alpha);
-        console.log(doors.obj[indexDoor].position)
-        doors.box[indexDoor].setFromObject(doors.obj[indexDoor])
+        let indexDoor = getColissionObjectId(doors.box , asset)
+        if(get_key[indexDoor])
+        {
+            lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -4.0, doors.obj[indexDoor].position.z)
+    	    doors.obj[indexDoor].position.lerp(lerpConfig.destination, lerpConfig.alpha);
+            doors.box[indexDoor] = new THREE.Box3().setFromObject(doors.obj[indexDoor]);
+        }
+    }
+    if (checkCollisions(bbkey, asset))
+    {
+        let indexkey = getColissionObjectId(bbkey, asset)
+        id_key[indexkey].removeFromParent()
+        get_key[indexkey] = true
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
