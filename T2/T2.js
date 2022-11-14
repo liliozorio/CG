@@ -15,8 +15,11 @@ import { CSG } from '../libs/other/CSGMesh.js'
 
 const bbcube = [];
 const bbstairs = [];
+const bbportal = [];
 const ListEscadas = [];
+const bbcubeportal = []; 
 const doors = {box:[], obj:[]};
+const key = [true,false,false,false]
 
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
 anguloY = 0;
@@ -56,33 +59,13 @@ var clock = new THREE.Clock();
 
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
-const SIZE_PLANE = 40
+const SIZE_PLANE = 40;
 const SIZE_TILE = 0.8;
 const NUM_CUBES = 0
 const SIZE_OBSTACLE = 0.8;
 const AVAILABLE_SPACE = SIZE_PLANE - 4;
 const WALK_SIZE = 0.06;
-let mat4
 
-let plane = createGroundPlaneXZ(SIZE_PLANE + 1, SIZE_PLANE + 1);
-mat4 = new THREE.Matrix4();
-plane.matrixAutoUpdate = false;
-plane.matrix.identity();
-
-plane.matrix.multiply(mat4.makeTranslation(0.0, -0.1, 0.0));
-var plano_rad = THREE.MathUtils.degToRad(90);
-plane.matrix.multiply(mat4.makeRotationX((plano_rad)));
-scene.add(plane);
-
-let plane2 = createGroundPlaneXZ(SIZE_PLANE + 1, SIZE_PLANE + 1);
-mat4 = new THREE.Matrix4();
-plane2.matrixAutoUpdate = false;
-plane2.matrix.identity();
-
-plane2.matrix.multiply(mat4.makeTranslation(46.0, -3, 0.0));
-var plano_rad = THREE.MathUtils.degToRad(90);
-plane2.matrix.multiply(mat4.makeRotationX((plano_rad)));
-scene.add(plane2);
 
 let cubeGeometry = new THREE.BoxGeometry(SIZE_TILE, 0.01, SIZE_TILE);
 let cubeGeometry2 = new THREE.BoxGeometry(1, 2, 1);
@@ -90,6 +73,7 @@ let material1 = setDefaultMaterial("rgb(255,222,173)");
 
 var playAction;
 var mixer = new Array();
+
 const lerpConfig = {
 	destination: new THREE.Vector3(0.0, -1.0, 0.0),
 	alpha: 0.01,
@@ -110,78 +94,140 @@ let asset2 = {
 
 loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true);
 loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false);
-makeFloor();
-makeEdgeX(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
-makeEdgeX(-SIZE_PLANE / 2, SIZE_PLANE / 2);
-makeEdgeZ(-SIZE_PLANE / 2, -SIZE_PLANE / 2);
-makeEdgeZ(SIZE_PLANE / 2, -SIZE_PLANE / 2);
+
+
+
 
 // CREATE PLANE
-function createGroundPlaneXZ(width, height, widthSegments = 10, heightSegments = 10, gcolor = null) {
+function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor = null) {
     if (!gcolor) gcolor = "rgb(210,180,140)";
-    let planeGeometry = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
+    let planeGeometry = new THREE.PlaneGeometry(p.w + 1, p.h + 1, widthSegments, heightSegments);
     let planeMaterial = new THREE.MeshLambertMaterial({ color: gcolor, side: THREE.DoubleSide });
 
+    let mat4 = new THREE.Matrix4();
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
+
+    plane.matrixAutoUpdate = false;
+    plane.matrix.identity();
+
+    console
+    plane.matrix.multiply(mat4.makeTranslation(p.x, p.y, p.z));
+    var plano_rad = THREE.MathUtils.degToRad(90);
+    plane.matrix.multiply(mat4.makeRotationX((plano_rad)));
 
     return plane;
 }
 
 // CRIA CHÃO
-function makeFloor() {
-    for (let x = -SIZE_PLANE / 2; x <= SIZE_PLANE / 2; x += (SIZE_TILE * 1.08)) {
-        for (let z = -SIZE_PLANE / 2; z <= SIZE_PLANE / 2; z += (SIZE_TILE * 1.08)) {
+function makeFloor(p) {
+    for (let x = p.x1; x <= p.x2; x += (SIZE_TILE * 1.08)) {
+        for (let z = p.z1; z <= p.z2; z += (SIZE_TILE * 1.08)) {
             let cube = new THREE.Mesh(cubeGeometry, material1);
-            cube.position.set(x, 0.05, z);
+            cube.position.set(x, p.y, z);
             scene.add(cube);
         }
     }
 }
 
-// CRIA BORDAS PARALELAS AO EIXO X
-function makeEdgeX(x, z) {
-    for (; x <= -3; x += 1.1) {
+// CRIA BORDAS
+function makeEdges(coor, sizeX, sizeZ, dif, q) {
+    let aux1 = (coor.x + sizeX / 2);
+    let aux2 = (coor.z + sizeZ / 2);
+
+    for (let x = coor.x; x <= (coor.x + sizeX); x += 1.1) {
+        if (q.f1 && x >= aux1 - dif && x <= aux1 + dif) {
+            x = aux1 + 2.5;
+            continue;
+        }
         let cube = new THREE.Mesh(cubeGeometry2, material);
-        cube.position.set(x, 1, z);
+        cube.position.set(x, coor.y, coor.z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
         scene.add(cube);
     }
-    for (x = 3.5; x <= (SIZE_PLANE / 2); x += 1.1) {
+    for (let x = coor.x; x <= (coor.x + sizeX); x += 1.1) {
+        if (q.f2 && x >= aux1 - dif && x <= aux1 + dif) {
+            x = aux1 + 2.5;
+            continue;
+        }
         let cube = new THREE.Mesh(cubeGeometry2, material);
-        cube.position.set(x, 1, z);
+        cube.position.set(x, coor.y, coor.z + sizeZ);
+        bbcube.push(new THREE.Box3().setFromObject(cube));
+        scene.add(cube);
+    }
+    for (let z = coor.z; z <= coor.z + sizeZ; z += 1.1) {
+        if (q.f3 && z >= aux2 - dif && z <= aux2 + dif) {
+            z = aux2 + 2.5;
+            continue;
+        }
+        let cube = new THREE.Mesh(cubeGeometry2, material);
+        cube.position.set(coor.x, coor.y, z);
+        bbcube.push(new THREE.Box3().setFromObject(cube));
+        scene.add(cube);
+    }
+    for (let z = coor.z; z <= coor.z + sizeZ; z += 1.1) {
+        if (q.f4 && z >= aux2 - dif && z <= aux2 + dif) {
+            z = aux2 + 2.5;
+            continue;
+        }
+        let cube = new THREE.Mesh(cubeGeometry2, material);
+        cube.position.set(coor.x + sizeX, coor.y, z);
         bbcube.push(new THREE.Box3().setFromObject(cube));
         scene.add(cube);
     }
 }
+function createChambers() {
+    const pp = {//planePositions
+        p0: { x: 0.0, y: -0.1, z: 0.0, w: SIZE_PLANE + 1, h: SIZE_PLANE + 1 },
+        p1: { x: 0, y: -3, z: -SIZE_PLANE - 4.4, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
+        p2: { x: 0.0, y: 3, z: SIZE_PLANE + 4.5, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
+        p3: { x: SIZE_PLANE + 0.4, y: -3, z: 0.0, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
+        p4: { x: -SIZE_PLANE - 0.5, y: 3, z: 0.0, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.7 },
+        p5: { x: 0, y: -3, z: -75, w: SIZE_PLANE * 0.5, h: SIZE_PLANE * 0.5 },
+    };
 
-// CRIA BORDAS PARALELAS AO EIXO Z
-function makeEdgeZ(x, z) {
-    for (; z <= -3; z += 1.1) {
-        let cube = new THREE.Mesh(cubeGeometry2, material);
-        cube.position.set(x, 1, z);
-        bbcube.push(new THREE.Box3().setFromObject(cube));
-        scene.add(cube);
+    for (let i = 0; i < 6; i++) {
+        let plane = createGroundPlaneXZ(pp["p" + i]);
+        scene.add(plane);
     }
-    for (z = 3.5; z <= SIZE_PLANE / 2; z += 1.1) {
-        let cube = new THREE.Mesh(cubeGeometry2, material);
-        cube.position.set(x, 1, z);
-        bbcube.push(new THREE.Box3().setFromObject(cube));
-        scene.add(cube);
+
+    const auxCdnt = {
+        p0: { x1: pp.p0.x - (pp.p0.w / 2 - 0.5), x2: pp.p0.x + pp.p0.w / 2, z1: pp.p0.z - (pp.p0.h / 2 - 0.5), z2: pp.p0.z + (pp.p0.h / 2 - 0.5), y: 0.05 },
+        p1: { x1: pp.p1.x - (pp.p1.w / 2), x2: pp.p1.x + pp.p1.w / 2, z1: pp.p1.z - (pp.p1.h / 2), z2: pp.p1.z + (pp.p1.h / 2), y: -2.95 },
+        p2: { x1: pp.p2.x - (pp.p2.w / 2), x2: pp.p2.x + pp.p2.w / 2, z1: pp.p2.z - (pp.p2.h / 2), z2: pp.p2.z + (pp.p2.h / 2), y: 3.05 },
+        p3: { x1: pp.p3.x - (pp.p3.w / 2), x2: pp.p3.x + pp.p3.w / 2, z1: pp.p3.z - (pp.p3.h / 2), z2: pp.p3.z + (pp.p3.h / 2), y: -2.95 },
+        p4: { x1: pp.p4.x - (pp.p4.w / 2), x2: pp.p4.x + pp.p4.w / 2, z1: pp.p4.z - (pp.p4.h / 2), z2: pp.p4.z + (pp.p4.h / 2), y: 3.05 },
+        p5: { x1: pp.p5.x - (pp.p5.w / 2), x2: pp.p5.x + pp.p5.w / 2, z1: pp.p5.z - (pp.p5.h / 2), z2: pp.p5.z + (pp.p5.h / 2), y: -2.95 },
     }
+    for (let i = 0; i < 6; i++) {
+        makeFloor(auxCdnt["p" + i]);
+    }
+
+    makeEdges({ x: auxCdnt.p0.x1, y: 1, z: auxCdnt.p0.z1 }, pp.p0.w - 1, pp.p0.h - 1, 3, { f1: 1, f2: 1, f3: 1, f4: 1 })
+    makeEdges({ x: auxCdnt.p1.x1, y: -2, z: auxCdnt.p1.z1 }, pp.p1.w, pp.p1.h, 3, { f1: 1, f2: 1, f3: 0, f4: 0 })
+    makeEdges({ x: auxCdnt.p2.x1, y: 4, z: auxCdnt.p2.z1 }, pp.p2.w, pp.p2.h, 3, { f1: 1, f2: 0, f3: 0, f4: 0 })
+    makeEdges({ x: auxCdnt.p3.x1, y: -2, z: auxCdnt.p3.z1 }, pp.p3.w, pp.p3.h, 3, { f1: 0, f2: 0, f3: 1, f4: 0 })
+    makeEdges({ x: auxCdnt.p4.x1, y: 4, z: auxCdnt.p4.z1 }, pp.p4.w, pp.p4.h, 3, { f1: 0, f2: 0, f3: 0, f4: 1 })
+    makeEdges({ x: auxCdnt.p5.x1, y: -2, z: auxCdnt.p5.z1 }, pp.p5.w, pp.p5.h, 3, { f1: 0, f2: 1, f3: 0, f4: 0 })
+
 }
 
+
+
+createChambers()
 
 // CRIA PORTAL
 function makePortal(rgb) {
     let cube1 = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 1));
     let cube2 = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 1));
     let cylinder = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 1, 32));
-    
+
     cube2.position.set(0, -1, 0);
     cube2.matrixAutoUpdate = false;
     cube2.updateMatrix();
-    
+   
+    bbcubeportal.push(new THREE.Box3().setFromObject(cube2));
+
     cylinder.position.set(0, 0.7, 0);
     cylinder.rotateX(THREE.MathUtils.degToRad(90))
     cylinder.matrixAutoUpdate = false;
@@ -199,8 +245,8 @@ function makePortal(rgb) {
 
 
 // INSERE OS PORTAIS EM SUAS DEVIDAS POSIÇÕES
-function insertPortal(){
-	let portalAreal = makePortal("rgb(46,139,87)");
+function insertPortal() {
+    let portalAreal = makePortal("rgb(46,139,87)");
 	let doorAreal = makeDoor("rgb(0,0,0)");
 	portalAreal.position.set(0, 3, -20);
 	doorAreal.position.set(0, 3, -20);
@@ -209,10 +255,10 @@ function insertPortal(){
 	console.log(doorAreal)
 	doorAreal.name = "doorAreal";
 
+    bbportal.push(new THREE.Box3().setFromObject(portalAreal));
 	doors.box.push(new THREE.Box3().setFromObject(doorAreal));
 	doors.obj.push(doorAreal)
-	bbcube.push(new THREE.Box3().setFromObject(doorAreal));
-    
+
 	let portalArea2 = makePortal("rgb(25,25,112)");
 	let doorAreal2 = makeDoor("rgb(0,0,0)");
 	portalArea2.position.set(0, 3, 20);
@@ -220,9 +266,9 @@ function insertPortal(){
 	scene.add(portalArea2);
 	scene.add(doorAreal2);
 
+    bbportal.push(new THREE.Box3().setFromObject(portalArea2));
 	doors.box.push(new THREE.Box3().setFromObject(doorAreal2));
 	doors.obj.push(doorAreal2)
-	bbcube.push(new THREE.Box3().setFromObject(doorAreal2));
 
 	let portalArea3 = makePortal("rgb(165,42,42)");
 	let doorAreal3 = makeDoor("rgb(0,0,0)");
@@ -232,10 +278,10 @@ function insertPortal(){
 	doorAreal3.rotateY(THREE.MathUtils.degToRad(90));
 	scene.add(portalArea3);
 	scene.add(doorAreal3)
-    
+
+    bbportal.push(new THREE.Box3().setFromObject(portalArea3));
 	doors.box.push(new THREE.Box3().setFromObject(doorAreal3));
 	doors.obj.push(doorAreal3)
-	bbcube.push(new THREE.Box3().setFromObject(doorAreal3));
 
 	let portalFinal = makePortal("rgb(255,215,0)");
 	let doorFinal = makeDoor("rgb(0,0,0)");
@@ -246,34 +292,35 @@ function insertPortal(){
 	scene.add(portalFinal);
 	scene.add(doorFinal);
 
+    bbportal.push(new THREE.Box3().setFromObject(portalFinal));
 	doors.box.push(new THREE.Box3().setFromObject(doorFinal));
 	doors.obj.push(doorFinal)
-	bbcube.push(new THREE.Box3().setFromObject(doorFinal));
 }
 
 
 // CRIA AS PORTAS
 insertPortal()
+
 function makeDoor(rgb){
 	let cube2 = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 1));
     	let cylinder = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 1, 32));
-   	 
+
     	cube2.position.set(0, -1, 0);
     	cube2.matrixAutoUpdate = false;
     	cube2.updateMatrix();
-   	 
+
     	cylinder.position.set(0, 0.7, 0);
     	cylinder.rotateX(THREE.MathUtils.degToRad(90))
     	cylinder.matrixAutoUpdate = false;
     	cylinder.updateMatrix();
-    
+
     	let cubeCSG2 = CSG.fromMesh(cube2);
     	let sphereCSG = CSG.fromMesh(cylinder);
     	let csgObject = cubeCSG2.union(sphereCSG);
     	let csgFinal = CSG.toMesh(csgObject, new THREE.Matrix4());
     	csgFinal.material = new THREE.MeshPhongMaterial({ color: rgb });
     	return csgFinal;
-    
+
 }
 
 
@@ -315,7 +362,7 @@ function makeStairs(rgb = undefined) {
 }
 
 // INSERE AS ESCADAS EM SUAS DEVIDAS POSICOES
-function insertStairs(){
+function insertStairs() {
     let escadaArea1 = makeStairs("rgb(143,188,143)");
     escadaArea1.object.rotateY(THREE.MathUtils.degToRad(180));
     escadaArea1.object.position.set(0, -3, -23.5);
@@ -337,9 +384,17 @@ function insertStairs(){
     bbstairs.push(new THREE.Box3().setFromObject(escadaArea3.object));
     ListEscadas.push(escadaArea3);
     scene.add(escadaArea3.object);
+    let escadaFinal = makeStairs("rgb(255,215,0)");
+    escadaFinal.object.rotateY(THREE.MathUtils.degToRad(90));
+    escadaFinal.object.position.set(-SIZE_PLANE / 2 - 3.5, 0, 0); 
+    escadaFinal.inclinacao = 'positivo'
+    bbstairs.push(new THREE.Box3().setFromObject(escadaFinal.object));
+    ListEscadas.push(escadaFinal);
+    scene.add(escadaFinal.object);
 }
 
 insertStairs();
+
 
 let randomCoordinate = () => Math.floor((Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2)
 let randomCoordinate2 = () => (Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2
@@ -415,28 +470,64 @@ function normalizeAndRescale(obj, newScale) {
 }
 
 // GERA O MOVIMENTO DO PERSONAGEM
-function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide) {
+function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa) {
 
-    var diferenca = 360 + angulo_max - anguloY
-    var diferenca2 = anguloY - angulo_max
-    if (diferenca > diferenca2) {
-        angulo_max = angulo_max;
+    if(angulo_max > anguloY)
+    {
+        var dif = angulo_max - anguloY
+        var dif2 = 360 - angulo_max + anguloY
+        if(dif2 < dif)
+        {
+            anguloY = anguloY + 360
+        }
     }
-    else {
-        angulo_max = angulo_max + 360;
-    }
-
-    if (anguloY < angulo_max) {
+    else
+    {
+        var dif = anguloY - angulo_max
+        var dif2 = 360 - anguloY + angulo_max
+        if(dif2 < dif)
+        {
+            angulo_max = angulo_max + 360
+        }
+    }  
+    if (anguloY < angulo_max && !deslisa) {
         anguloY = anguloY + 5;
         var rad = THREE.MathUtils.degToRad(5);
         asset.object.rotateY(rad);
         asset2.object.rotateY(rad);
+        if(anguloY > 360)
+        {
+            anguloY = anguloY -360
+        }
     }
-    else if (anguloY > angulo_max) {
+    else if (anguloY > angulo_max && !deslisa) {
         anguloY = anguloY - 5;
         var rad = THREE.MathUtils.degToRad(-5);
         asset.object.rotateY(rad);
         asset2.object.rotateY(rad);
+        if(anguloY > 360)
+        {
+            anguloY = anguloY -360
+        }
+    }
+    else if (deslisa)
+    {
+        if (anguloY < angulo_max) {
+            while (anguloY < angulo_max) {
+                anguloY = anguloY + 1;
+                var rad = THREE.MathUtils.degToRad(1);
+                asset.object.rotateY(rad);
+                asset2.object.rotateY(rad);
+            }
+        }
+        if (anguloY > angulo_max) {
+            while (anguloY > angulo_max) {
+                anguloY = anguloY - 1;
+                var rad = THREE.MathUtils.degToRad(-1);
+                asset.object.rotateY(rad);
+                asset2.object.rotateY(rad);
+            }
+        }
     }
     cameraholder.translateX(camX);
     cameraholder.translateZ(camZ);
@@ -452,47 +543,74 @@ function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_
 }
 
 // TRATA OS MOVIMENTOS COM COLISÃO DO PERSONAGEM
-function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide) {
+function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide, deslisa) {
     playAction = true;
     var collision = checkCollisions(bbcube, asset)
+    var collision_door = checkCollisions(doors.box, asset)
+    var collision_portal = checkCollisions(bbportal, asset)
     var escada = checkCollisions(bbstairs, asset)
-    if (!collision) {
+    var collision_cylinder = checkCollisions(bbcubeportal, asset)
+    if (!collision && !collision_door) {
         if(!escada)
         {
-            movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0);
+            console.log(asset.object.position)
+            movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0, deslisa);
+            if(asset.object.position.y!=0 || asset.object.position.y!=-3 || asset.object.position.y!=3)
+            {
+                if(asset.object.position.y>2.6)
+                {
+                    asset.object.position.y = 3
+                    asset2.object.position.y = 3
+                }
+                else if(asset.object.position.y<-2.6)
+                {
+                    asset.object.position.y = -3
+                    asset2.object.position.y = -3
+                }
+                else
+                {
+                    asset.object.position.y = 0
+                    asset2.object.position.y = 0
+                }
+            }
         }
         else
         {
             let id = getColissionObjectId(bbstairs, asset)
+            console.log(asset.object.position)
             if(ListEscadas[id].inclinacao == 'positivo')
             {
-                movimentation(angulo_max, camX, camZ, 0.024, walkZ, walkX, 0.024, walkZ_hide, walkX_hide, 0.024);
-                if(asset.object.position.y>-3)
+                movimentation(angulo_max, camX, camZ, 0.028, walkZ, walkX, 0.028, walkZ_hide, walkX_hide, 0.028, deslisa);
+                if(asset.object.position.y>2.6)
                 {
-                    ListEscadas[id].inclinacao = 'positivo';
+                    ListEscadas[id].inclinacao = 'negativo';
                 }
             }
             else
             {
-                movimentation(angulo_max, camX, camZ, -0.024, walkZ, walkX, -0.024, walkZ_hide, walkX_hide, -0.024);
-                if(asset.object.position.y<-3)
+                movimentation(angulo_max, camX, camZ, -0.021, walkZ, walkX, -0.021, walkZ_hide, walkX_hide, -0.021, deslisa);
+                if(asset.object.position.y<-2.6)
                 {
-                    ListEscadas[id].inclinacao = 'negativo';
+                    ListEscadas[id].inclinacao = 'positivo';
                 }
             }
         }
     }
     else {
-        movimentation(angulo_max, 0, 0, 0, 0, walkZ_hide, -0.6);
+        movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, -0.6, 0, deslisa);
         collision = checkCollisions(bbcube, asset2);
-        if (collision) {
+        collision_door = checkCollisions(doors.box, asset2);
+        collision_portal = checkCollisions(bbportal, asset2);
+        var collision_cylinder = checkCollisions(bbcubeportal, asset2)
+        console.log(collision_cylinder)
+        if (collision || collision_door || (!collision_cylinder)) {
             asset2.object.position.x = asset.object.position.x
             asset2.object.position.z = asset.object.position.z
             asset2.object.position.y = 0;
             asset2.bb.setFromObject(asset2.object);
-            movimentation(angulo_max, 0, 0, 0, 0, walkZ_hide, 0.6);
+            movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, 0.6, 0, deslisa);
             collision = checkCollisions(bbcube, asset2);
-            if (collision) {
+            if (collision || collision_door || collision_portal) {
                 asset2.object.position.x = asset.object.position.x
                 asset2.object.position.z = asset.object.position.z
                 asset2.object.position.y = 0;
@@ -502,53 +620,80 @@ function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide
                 asset2.object.position.x = asset.object.position.x
                 asset2.object.position.z = asset.object.position.z
                 asset2.object.position.y = 0;
-                movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0);    
+                movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0, deslisa);
             }
         }
         else {
             asset2.object.position.x = asset.object.position.x
             asset2.object.position.z = asset.object.position.z
             asset2.object.position.y = 0;
-            movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0);
+            movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0, deslisa);
         }
     }
+    return collision
 }
 
 // COMANDOS DO TECLADO
 function keyboardUpdate() {
-    
+
     keyboard.update()
+    let aux_collision;
+
     if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
+        movimentation_colision(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
     }
     else if (keyboard.pressed("A") && keyboard.pressed("W") || keyboard.pressed("left") && keyboard.pressed("up")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
+        movimentation_colision(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
+        movimentation_colision(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
+        movimentation_colision(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
     }
     else if (keyboard.pressed("A") || keyboard.pressed("left")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
+        aux_collision = movimentation_colision(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        if(aux_collision)
+        {
+            movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+            movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+            movimentation_colision(315, 0, 0, 0, 0, 0, 0, true);
+        }
     }
     else if (keyboard.pressed("D") || keyboard.pressed("right")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
+        aux_collision = movimentation_colision(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        if(aux_collision)
+        {
+            movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+            movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+            movimentation_colision(135, 0, 0, 0, 0, 0, 0, true);
+        }
     }
     else if (keyboard.pressed("S") || keyboard.pressed("down")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
+        aux_collision = movimentation_colision(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        if(aux_collision)
+        {
+            movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+            movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+            movimentation_colision(45, 0, 0, 0, 0, 0, 0, true);
+        }
     }
     else if (keyboard.pressed("W") || keyboard.pressed("up")) {
         var rad = THREE.MathUtils.degToRad(anguloY);
-        movimentation_colision(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0);
+        aux_collision = movimentation_colision(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false);
+        if(aux_collision)
+        {
+            movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+            movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true);
+            movimentation_colision(225, 0, 0, 0, 0, 0, 0, true);
+        }
     }
     else {
         playAction = false;
@@ -600,6 +745,7 @@ function checkCollisions(object, man) {
         }
     }
     catch (e) {
+
         for (var i = 0; i < object.length; i++) {
             let collision = man.bb.intersectsBox(object[i]);
             if (collision) {
@@ -625,9 +771,13 @@ let colors = ["rgb(222,184,135)", "rgb(165,42,42)"]
 function render() {
     if(checkCollisions(doors.box , asset)){
     	let indexDoor = getColissionObjectId(doors.box , asset)
-    	lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -3.0, doors.obj[indexDoor].position.z)
-    	doors.obj[indexDoor].position.lerp(lerpConfig.destination, lerpConfig.alpha);
-	}
+        if(key[indexDoor])
+        {
+            lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -4.0, doors.obj[indexDoor].position.z)
+    	    doors.obj[indexDoor].position.lerp(lerpConfig.destination, lerpConfig.alpha);
+            doors.box[indexDoor] = new THREE.Box3().setFromObject(doors.obj[indexDoor]);
+        }
+    }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
         randomCube();
