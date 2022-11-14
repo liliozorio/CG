@@ -310,7 +310,7 @@ function insertPortal() {
 }
 
 
-//insertPortal()
+insertPortal()
 
 // CRIA AS PORTAS
 function makeDoor(rgb) {
