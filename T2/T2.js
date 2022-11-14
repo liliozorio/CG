@@ -66,7 +66,7 @@ const WALK_SIZE = 0.06;
 
 let cubeGeometry = new THREE.BoxGeometry(SIZE_TILE, 0.01, SIZE_TILE);
 let cubeGeometry2 = new THREE.BoxGeometry(1, 2, 1);
-let material1 = setDefaultMaterial("rgb(255,222,173)");
+
 
 var playAction;
 var mixer = new Array();
@@ -125,6 +125,7 @@ function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor 
 
 // CRIA CHÃO
 function makeFloor(p) {
+    let material1 = setDefaultMaterial(p.rgb);
     for (let x = p.x1; x <= p.x2; x += (SIZE_TILE * 1.08)) {
         for (let z = p.z1; z <= p.z2; z += (SIZE_TILE * 1.08)) {
             let cube = new THREE.Mesh(cubeGeometry, material1);
@@ -139,7 +140,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
     let aux1 = (coor.x + sizeX / 2);
     let aux2 = (coor.z + sizeZ / 2);
 
-    if (q.f1!=-1)
+    if (q.f1 != -1)
         for (let x = coor.x; x <= (coor.x + sizeX); x += 1.1) {
             if (q.f1 && x >= aux1 - dif && x <= aux1 + dif) {
                 x = aux1 + 2.5;
@@ -150,7 +151,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             bbcube.push(new THREE.Box3().setFromObject(cube));
             scene.add(cube);
         }
-    if (q.f2!=-1)
+    if (q.f2 != -1)
         for (let x = coor.x; x <= (coor.x + sizeX); x += 1.1) {
             if (q.f2 && x >= aux1 - dif && x <= aux1 + dif) {
                 x = aux1 + 2.5;
@@ -161,7 +162,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             bbcube.push(new THREE.Box3().setFromObject(cube));
             scene.add(cube);
         }
-    if (q.f3!=-1)
+    if (q.f3 != -1)
         for (let z = coor.z; z <= coor.z + sizeZ; z += 1.1) {
             if (q.f3 && z >= aux2 - dif && z <= aux2 + dif) {
                 z = aux2 + 2.5;
@@ -172,7 +173,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             bbcube.push(new THREE.Box3().setFromObject(cube));
             scene.add(cube);
         }
-    if (q.f4!=-1)
+    if (q.f4 != -1)
         for (let z = coor.z; z <= coor.z + sizeZ; z += 1.1) {
             if (q.f4 && z >= aux2 - dif && z <= aux2 + dif) {
                 z = aux2 + 2.5;
@@ -202,14 +203,14 @@ function createChambers() {
     }
 
     const auxCdnt = {
-        p0: { x1: pp.p0.x - (pp.p0.w / 2 - 0.5), x2: pp.p0.x + pp.p0.w / 2, z1: pp.p0.z - (pp.p0.h / 2 - 0.5), z2: pp.p0.z + (pp.p0.h / 2 - 0.5), y: 0.05 },
-        p1: { x1: pp.p1.x - (pp.p1.w / 2), x2: pp.p1.x + pp.p1.w / 2, z1: pp.p1.z - (pp.p1.h / 2), z2: pp.p1.z + (pp.p1.h / 2), y: -2.95 },
-        p2: { x1: pp.p2.x - (pp.p2.w / 2), x2: pp.p2.x + pp.p2.w / 2, z1: pp.p2.z - (pp.p2.h / 2), z2: pp.p2.z + (pp.p2.h / 2), y: 3.05 },
-        p3: { x1: pp.p3.x - (pp.p3.w / 2), x2: pp.p3.x + pp.p3.w / 2, z1: pp.p3.z - (pp.p3.h / 2), z2: pp.p3.z + (pp.p3.h / 2), y: -2.95 },
-        p4: { x1: pp.p4.x - (pp.p4.w / 2), x2: pp.p4.x + pp.p4.w / 2, z1: pp.p4.z - (pp.p4.h / 2), z2: pp.p4.z + (pp.p4.h / 2), y: 3.05 },
-        p5: { x1: pp.p5.x - (pp.p5.w / 2), x2: pp.p5.x + pp.p5.w / 2, z1: pp.p5.z - (pp.p5.h / 2), z2: pp.p5.z + (pp.p5.h / 2), y: -2.95 },
-        p6: { x1: pp.p6.x - (pp.p6.w / 2), x2: pp.p6.x + pp.p6.w / 2, z1: pp.p6.z - (pp.p6.h / 2), z2: pp.p6.z + (pp.p6.h / 2), y: 3.05 },
-        p7: { x1: pp.p7.x - (pp.p7.w / 2), x2: pp.p7.x + pp.p7.w / 2, z1: pp.p7.z - (pp.p7.h / 2), z2: pp.p7.z + (pp.p7.h / 2), y: -2.95 },
+        p0: { rgb: "rgb(255,222,173)", x1: pp.p0.x - (pp.p0.w / 2 - 0.5), x2: pp.p0.x + pp.p0.w / 2, z1: pp.p0.z - (pp.p0.h / 2 - 0.5), z2: pp.p0.z + (pp.p0.h / 2 - 0.5), y: 0.05 },
+        p1: { rgb: "rgb(173,216,230)", x1: pp.p1.x - (pp.p1.w / 2), x2: pp.p1.x + pp.p1.w / 2, z1: pp.p1.z - (pp.p1.h / 2), z2: pp.p1.z + (pp.p1.h / 2), y: -2.95 },
+        p2: { rgb: "rgb(250,128,114)", x1: pp.p2.x - (pp.p2.w / 2), x2: pp.p2.x + pp.p2.w / 2, z1: pp.p2.z - (pp.p2.h / 2), z2: pp.p2.z + (pp.p2.h / 2), y: 3.05 },
+        p3: { rgb: "rgb(240,230,140)", x1: pp.p3.x - (pp.p3.w / 2), x2: pp.p3.x + pp.p3.w / 2, z1: pp.p3.z - (pp.p3.h / 2), z2: pp.p3.z + (pp.p3.h / 2), y: -2.95 },
+        p4: { rgb: "rgb(152,251,152)", x1: pp.p4.x - (pp.p4.w / 2), x2: pp.p4.x + pp.p4.w / 2, z1: pp.p4.z - (pp.p4.h / 2), z2: pp.p4.z + (pp.p4.h / 2), y: 3.05 },
+        p5: { rgb: "rgb(173,216,230)", x1: pp.p5.x - (pp.p5.w / 2), x2: pp.p5.x + pp.p5.w / 2, z1: pp.p5.z - (pp.p5.h / 2), z2: pp.p5.z + (pp.p5.h / 2), y: -2.95 },
+        p6: { rgb: "rgb(250,128,114)", x1: pp.p6.x - (pp.p6.w / 2), x2: pp.p6.x + pp.p6.w / 2, z1: pp.p6.z - (pp.p6.h / 2), z2: pp.p6.z + (pp.p6.h / 2), y: 3.05 },
+        p7: { rgb: "rgb(240,230,140)", x1: pp.p7.x - (pp.p7.w / 2), x2: pp.p7.x + pp.p7.w / 2, z1: pp.p7.z - (pp.p7.h / 2), z2: pp.p7.z + (pp.p7.h / 2), y: -2.95 },
     }
     for (let i = 0; i < 8; i++) {
         makeFloor(auxCdnt["p" + i]);
@@ -309,7 +310,7 @@ function insertPortal() {
 }
 
 
-insertPortal()
+//insertPortal()
 
 // CRIA AS PORTAS
 function makeDoor(rgb) {
