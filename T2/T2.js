@@ -20,7 +20,7 @@ const ListEscadas = [];
 const bbcubeportal = []; 
 const doors = {box:[], obj:[]};
 const bbkey = [];
-const get_key = [true,false,false,false]
+const get_key = [true,true,false,false]
 const id_key = [];
 
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
@@ -115,9 +115,8 @@ let key3 = {
 loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false);
 loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false);
 loadGLTFFile(key1, './key.glb', true, 0, -2, -75, "rgb(72,61,139)", true);
-loadGLTFFile(key2, './key.glb', true, 0, 4, 70, "rgb(128,0,0)", true);
-loadGLTFFile(key3, './key.glb', true, 70, -2, 0, "rgb(255,215,0)", true);
-
+loadGLTFFile(key2, './key.glb', true, 70, -2, 0, "rgb(255,215,0)", true);
+loadGLTFFile(key3, './key.glb', true, 0, 4, 70, "rgb(128,0,0)", true);
 
 // CREATE PLANE
 function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor = null) {
@@ -323,6 +322,45 @@ function insertPortal() {
     bbportal.push(new THREE.Box3().setFromObject(portalFinal));
 	doors.box.push(new THREE.Box3().setFromObject(doorFinal));
 	doors.obj.push(doorFinal)
+
+    let portalkey1 = makePortal("rgb(46,139,87)");
+	let doorkey1 = makeDoor("rgb(0,0,0)");
+	portalkey1.position.set(0, 0, -66);
+	doorkey1.position.set(0, 0, -66);
+	scene.add(portalkey1);
+	scene.add(doorkey1);
+	doorkey1.name = "doorkey1";
+
+    bbportal.push(new THREE.Box3().setFromObject(portalkey1));
+	doors.box.push(new THREE.Box3().setFromObject(doorkey1));
+	doors.obj.push(doorkey1)
+
+    let portalkey2 = makePortal("rgb(25,25,112)");
+	let doorkey2 = makeDoor("rgb(0,0,0)");
+	portalkey2.position.set(0.5, 6, 62.5);
+	doorkey2.position.set(0.5, 6, 62.5);
+	scene.add(portalkey2);
+	scene.add(doorkey2);
+	doorkey2.name = "doorkey2";
+
+    bbportal.push(new THREE.Box3().setFromObject(portalkey2));
+	doors.box.push(new THREE.Box3().setFromObject(doorkey2));
+	doors.obj.push(doorkey2)
+
+    let portalkey3 = makePortal("rgb(165,42,42)");
+	let doorkey3 = makeDoor("rgb(0,0,0)");
+	portalkey3.position.set(62.3, 0, 0.5);
+	doorkey3.position.set(62.3, 0, 0.5);
+    portalkey3.rotateY(THREE.MathUtils.degToRad(90));
+	doorkey3.rotateY(THREE.MathUtils.degToRad(90));
+	scene.add(portalkey3);
+	scene.add(doorkey3);
+	doorkey3.name = "doorkey3";
+
+    bbportal.push(new THREE.Box3().setFromObject(portalkey3));
+	doors.box.push(new THREE.Box3().setFromObject(doorkey3));
+	doors.obj.push(doorkey3)
+
 }
 
 
@@ -595,6 +633,11 @@ function movimentation_stairs(angulo_max, camX, camZ, camY, walkZ, walkX, walkY,
         asset.object.position.y = 0
         asset2.object.position.y = 0
     }
+    else if(asset.object.position.y < 0 && asset.object.position.y > -0.025)
+    {
+        asset.object.position.y = 0
+        asset2.object.position.y = 0
+    }
     else if(asset.object.position.y < -3)
     {
         asset.object.position.y = -3
@@ -773,19 +816,19 @@ function keyboardUpdate() {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if(select_stairs == 0)
             {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
             else if(select_stairs == 1)
             {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
             if(select_stairs == 2)
             {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
             else if(select_stairs == 3)
             {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
         }
         else
@@ -806,19 +849,19 @@ function keyboardUpdate() {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if(select_stairs == 0)
             {
-                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
             else if(select_stairs == 1)
             {
-                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
             if(select_stairs == 2)
             {
-                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
             else if(select_stairs == 3)
             {
-                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
         }
         else
@@ -839,19 +882,19 @@ function keyboardUpdate() {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if(select_stairs == 0)
             {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
             else if(select_stairs == 1)
             {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
             if(select_stairs == 2)
             {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
             else if(select_stairs == 3)
             {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
         }
         else
@@ -872,19 +915,19 @@ function keyboardUpdate() {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if(select_stairs == 0)
             {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
             else if(select_stairs == 1)
             {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.015, WALK_SIZE, 0, -0.015, WALK_SIZE, 0, -0.015, false);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
             if(select_stairs == 2)
             {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
             else if(select_stairs == 3)
             {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.015, WALK_SIZE, 0, 0.015, WALK_SIZE, 0, 0.015, false);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
         }
         else
@@ -969,22 +1012,24 @@ function clickElement(events) {
     click = true;
 }
 
+let indexDoor
 let colors = ["rgb(222,184,135)", "rgb(165,42,42)"]
 function render() {
     if (checkCollisions(doors.box, asset)) {
-        let indexDoor = getColissionObjectId(doors.box , asset)
-        if(get_key[indexDoor])
+        indexDoor = getColissionObjectId(doors.box , asset)
+    }
+    if(get_key[indexDoor])
         {
             lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -4.0, doors.obj[indexDoor].position.z)
     	    doors.obj[indexDoor].position.lerp(lerpConfig.destination, lerpConfig.alpha);
             doors.box[indexDoor] = new THREE.Box3().setFromObject(doors.obj[indexDoor]);
         }
-    }
     if (checkCollisions(bbkey, asset))
     {
         let indexkey = getColissionObjectId(bbkey, asset)
         id_key[indexkey].removeFromParent()
-        get_key[indexkey] = true
+        get_key[indexkey+1] = true
+        console.log(get_key)
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
