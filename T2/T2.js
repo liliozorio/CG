@@ -213,7 +213,7 @@ function createChambers() {
         p2: { x: 0.0, y: 3, z: SIZE_PLANE + 6.5, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
         p3: { x: SIZE_PLANE + 6.4, y: -3, z: 0.0, w: SIZE_PLANE * 0.9, h: SIZE_PLANE * 0.7 },
         p4: { x: -SIZE_PLANE - 2.5, y: 3, z: 0.0, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.7 },
-        p5: { x: 0, y: -3, z: -SIZE_PLANE * 1.9, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
+        p5: { x: 0, y: -3, z: -SIZE_PLANE * 1.89, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
         p6: { x: 0, y: 3, z: SIZE_PLANE * 1.82, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
         p7: { x: SIZE_PLANE * 1.82, y: -3, z: 0, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
         p8: { x: 0, y: -3, z: -SIZE_PLANE / 2 - 7, w: 7, h: 2 },
@@ -223,8 +223,6 @@ function createChambers() {
     };
 
     for (let i = 0; i < 12; i++) {
-        
-
             let plane = createGroundPlaneXZ(pp["p" + i]);
             scene.add(plane);
         
@@ -248,6 +246,7 @@ function createChambers() {
         if (i == 1 || i == 5) {
             makeFloor(auxCdnt["p" + i]);
             randomCube(auxCdnt["p" + i], 6);
+            console.log(auxCdnt["p" + i])
         }
         else
             makeFloor(auxCdnt["p" + i]);
@@ -1122,7 +1121,9 @@ function render() {
                 if (clickeObjects.object[i].position.y > clickeObjects.floor[i]) {
 
                     lerpConfig.destination = new THREE.Vector3(clickeObjects.object[i].position.x, clickeObjects.floor[i], clickeObjects.object[i].position.z)
-                    clickeObjects.object[i].position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.3);
+                    clickeObjects.object[i].position.lerp(lerpConfig.destination, lerpConfig.alpha );
+                    let quat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(45));
+                    clickeObjects.object[i].quaternion.slerp(quat, lerpConfig.alpha)
                 } else {
                     clickeObjects.object.splice(i, 1);
                     clickeObjects.floor.splice(i, 1);
