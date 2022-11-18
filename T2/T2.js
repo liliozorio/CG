@@ -14,6 +14,7 @@ import {
 import { CSG } from '../libs/other/CSGMesh.js'
 
 const bbcube = [];
+const cubeS = [];
 const bbstairs = [];
 const bbportal = [];
 const ListEscadas = [];
@@ -22,7 +23,9 @@ const doors = { box: [], obj: [] };
 const bbkey = [];
 const get_key = [true,true,false,false]
 const id_key = [];
-
+const clickeObjects = { object: [], floor: [], top: [] }
+const invisibleBrigde = [];
+const blockElevationValue = 1.5;
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
 anguloY = 0;
 orthographic = true;
@@ -85,13 +88,15 @@ const lerpConfig = {
 let asset = {
     object: null,
     loaded: false,
-    bb: new THREE.Box3()
+    bb: new THREE.Box3(),
+    obj3D: new THREE.Object3D()
 }
 
 let asset2 = {
     object: null,
     loaded: false,
-    bb: new THREE.Box3()
+    bb: new THREE.Box3(),
+    obj3D: new THREE.Object3D()
 }
 
 let key1 = {
@@ -218,8 +223,11 @@ function createChambers() {
     };
 
     for (let i = 0; i < 12; i++) {
-        let plane = createGroundPlaneXZ(pp["p" + i]);
-        scene.add(plane);
+        
+
+            let plane = createGroundPlaneXZ(pp["p" + i]);
+            scene.add(plane);
+        
     }
 
     const auxCdnt = {
@@ -237,9 +245,13 @@ function createChambers() {
         p11: { rgb: "rgb(240,230,140)", x1: pp.p11.x - (pp.p11.w / 2) - 0.5, x2: pp.p11.x + pp.p11.w / 2 + 0.5, z1: pp.p11.z - (pp.p11.h / 2), z2: pp.p11.z + (pp.p11.h / 2), y: 3.05 },
     }
     for (let i = 0; i < 12; i++) {
-        makeFloor(auxCdnt["p" + i]);
+        if (i == 1 || i == 5) {
+            makeFloor(auxCdnt["p" + i]);
+            randomCube(auxCdnt["p" + i], 6);
+        }
+        else
+            makeFloor(auxCdnt["p" + i]);
     }
-
     makeEdges({ x: auxCdnt.p0.x1, y: 1, z: auxCdnt.p0.z1 }, pp.p0.w - 1, pp.p0.h - 1, 3, { f1: 1, f2: 1, f3: 1, f4: 1 })
     makeEdges({ x: auxCdnt.p1.x1, y: -2, z: auxCdnt.p1.z1 }, pp.p1.w, pp.p1.h, 3, { f1: 1, f2: 1, f3: 0, f4: 0 })
     makeEdges({ x: auxCdnt.p2.x1, y: 4, z: auxCdnt.p2.z1 }, pp.p2.w, pp.p2.h, 3, { f1: 1, f2: 1, f3: 0, f4: 0 })
@@ -255,6 +267,9 @@ function createChambers() {
 
 }
 
+let randomCoordinate = () => Math.floor((Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2)
+let randomCoordinate2 = () => (Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2
+let chooseCoordenate = () => Math.random()
 
 
 createChambers()
@@ -423,38 +438,35 @@ function insertStairs() {
 
 insertStairs();
 
-
-let randomCoordinate = () => Math.floor((Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2)
-let randomCoordinate2 = () => (Math.random() * AVAILABLE_SPACE) - AVAILABLE_SPACE / 2
-let chooseCoordenate = () => Math.random()
-
 //CRIA CUBOS EM LOCAIS ALEATORIOS
-function randomCube() {
+function randomCube(p, numB) {
     let c = new THREE.BoxGeometry(SIZE_OBSTACLE, SIZE_OBSTACLE, SIZE_OBSTACLE);
     let aux = {
         object: null,
         bb: new THREE.Box3()
     }
-    for (let i = 0; i < NUM_CUBES; i++) {
+    for (let i = 0; i < numB; i++) {
         let x;
         let z;
         if (chooseCoordenate() < 0.5) {
-            x = randomCoordinate2();
-            z = randomCoordinate();
+            x = p.x1 + Math.abs(randomCoordinate2(Math.abs(p.x1 - p.x2)));
+            z = p.z1 + Math.abs(randomCoordinate(Math.abs(p.z1 - p.z2)));
+
         } else {
-            x = randomCoordinate();
-            z = randomCoordinate2();
+            x = p.x1 + Math.abs(randomCoordinate(Math.abs(p.x1 - p.x2)));
+            z = p.z1 + Math.abs(randomCoordinate2(Math.abs(p.z1 - p.z2)));
         }
         let m = setDefaultMaterial("rgb(222,184,135)");
         let cube = new THREE.Mesh(c, m);
-        cube.position.set(x, 0.6, z);
+        cube.position.set(x, p.y + 0.6, z);
         aux.object = cube;
         aux.bb = new THREE.Box3().setFromObject(cube);
-        asset2.bb.setFromObject(asset2.object);
+        //asset2.bb.setFromObject(asset2.object);
 
-        if ((!checkCollisions(aux.bb, asset2)) && (!checkCollisions(bbcube, aux))) {
-            bbcube.push(new THREE.Box3().setFromObject(cube));
+        if ((!checkCollisions(bbcube, aux))) {
             cube.name = "randomCube";
+            bbcube.push(new THREE.Box3().setFromObject(cube));
+            cubeS.push(cube);
             scene.add(cube);
         } else {
             cube.remove();
@@ -487,6 +499,7 @@ function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey) {
 
         if (add_scene) {
             scene.add(obj);
+            scene.add(asset.obj3D);
         }
         asset.object = gltf.scene;
         if (iskey) {
@@ -532,6 +545,7 @@ function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_
         var rad = THREE.MathUtils.degToRad(5);
         asset.object.rotateY(rad);
         asset2.object.rotateY(rad);
+        asset.obj3D.rotateY(rad);
         if (anguloY > 360) {
             anguloY = anguloY - 360
         }
@@ -541,6 +555,7 @@ function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_
         var rad = THREE.MathUtils.degToRad(-5);
         asset.object.rotateY(rad);
         asset2.object.rotateY(rad);
+        asset.obj3D.rotateY(rad);
         if (anguloY > 360) {
             anguloY = anguloY - 360
         }
@@ -552,6 +567,7 @@ function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_
                 var rad = THREE.MathUtils.degToRad(1);
                 asset.object.rotateY(rad);
                 asset2.object.rotateY(rad);
+                asset.obj3D.rotateY(rad);
             }
         }
         if (anguloY > angulo_max) {
@@ -560,6 +576,7 @@ function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_
                 var rad = THREE.MathUtils.degToRad(-1);
                 asset.object.rotateY(rad);
                 asset2.object.rotateY(rad);
+                asset.obj3D.rotateY(rad);
             }
         }
     }
@@ -569,6 +586,9 @@ function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_
     asset.object.translateZ(walkZ);
     asset.object.translateX(walkX);
     asset.object.translateY(walkY);
+    asset.obj3D.translateZ(walkZ);
+    asset.obj3D.translateX(walkX);
+    asset.obj3D.translateY(walkY);
     asset2.object.translateZ(walkZ_hide);
     asset2.object.translateX(walkX_hide);
     asset2.object.translateY(walkY_hide);
@@ -939,11 +959,9 @@ function render() {
         let indexkey = getColissionObjectId(bbkey, asset)
         id_key[indexkey].removeFromParent()
         get_key[indexkey+1] = true
-        console.log(get_key)
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
-        randomCube();
         asset2.loaded = true;
         asset.loaded = true;
     }
@@ -959,17 +977,107 @@ function render() {
         renderer.render(scene, camera);
         raycaster.setFromCamera(pointer, camera);
         const intersects = raycaster.intersectObjects(scene.children);
+        // const test = raycaster.intersectObjects(scene.children)
+        const blockFromAsset = 2;
+        
+
         if (intersects[0].object.name === "randomCube") {
-            if (intersects[0].object.material.color.getHexString() == "deb887") {
+            let isNear = Math.pow(intersects[0].object.position.x - asset.object.position.x, 2) + Math.pow(intersects[0].object.position.z - asset.object.position.z, 2);
+            isNear = Math.sqrt(isNear);
+            if (intersects[0].object.material.color.getHexString() == "deb887" && isNear <=2) {
+                
+                cubeS.forEach((bloco, indexRandomBlock) => {
+                    if (bloco.uuid && bloco.uuid == intersects[0].object.uuid) {
+                        var indexCube = new THREE.Box3().setFromObject(bloco);
+                        let counter = 0;
+                        bbcube.forEach((bloco,indexbbCube)=>{
+                            counter++;
+                            if(bloco.max && bloco.min && bloco.max.x == indexCube.max.x && bloco.max.z == indexCube.max.z &&
+                                bloco.min.x == indexCube.min.x && bloco.min.x == indexCube.min.x){
+                                    cubeS.splice(indexRandomBlock,1)
+                                    bbcube.splice(indexbbCube,1)
+                            }
+                        })
+                    }
+                })
+                
+                
+                let sqrtPosition = Math.pow(intersects[0].object.position.x - cameraholder.position.x, 2) + Math.pow(intersects[0].object.position.z - cameraholder.position.z, 2);
+                sqrtPosition = Math.sqrt(sqrtPosition);
+                
+                
+                
+                
+                
+                intersects[0].object.rotation.set(0, 0, 0);
+                intersects[0].object.position.set(
+                    0,
+                    0.65,
+                    blockFromAsset,
+                );
+
+                asset.obj3D.add(intersects[0].object);
+                //jeito errado de selecionar blocos
+
+                //registra elemento(s) clicado(s) . Objetos que devem ser elevados
+                clickeObjects.object.push(intersects[0].object)
+                clickeObjects.floor.push(intersects[0].object.position.y)
+                clickeObjects.top.push(intersects[0].object.position.y + blockElevationValue)
+
+                //altera a cor ao clicar
                 intersects[0].object.material.color.set(colors[1]);
-            } else {
+            } else if (intersects[0].object.material.color.getHexString() != "deb887") {
                 intersects[0].object.material.color.set(colors[0]);
+                asset.obj3D.remove(intersects[0].object)
+
+                scene.add(intersects[0].object)
+                // cameraholder.remove(intersects[0].object)
+                intersects[0].object.position.set(
+                    asset.object.position.x + (blockFromAsset * Math.sin(THREE.MathUtils.degToRad(anguloY))),
+                    intersects[0].object.position.y + asset.object.position.y,
+                    asset.object.position.z + (blockFromAsset * Math.cos(THREE.MathUtils.degToRad(anguloY)))
+                )
+                intersects[0].object.rotateY(THREE.MathUtils.degToRad(anguloY));
+                bbcube.push(new THREE.Box3().setFromObject(intersects[0].object));
+                cubeS.push(intersects[0].object)
+                
+
+                //registra elemento(s) clicado(s) . Objetos que devem ser colocados no chao
+                clickeObjects.object.push(intersects[0].object)
+                clickeObjects.floor.push(intersects[0].object.position.y - blockElevationValue)
+                clickeObjects.top.push(intersects[0].object.position.y)
             }
         }
         click = false;
     }
-}
+    if (clickeObjects.object.length) {
+        console.log(clickeObjects)
+        for (i = 0; i < clickeObjects.object.length; i++) {
 
+            if (clickeObjects.object[i].material.color.getHexString() == "deb887") {
+                if (clickeObjects.object[i].position.y > clickeObjects.floor[i]) {
+
+                    lerpConfig.destination = new THREE.Vector3(clickeObjects.object[i].position.x, clickeObjects.floor[i], clickeObjects.object[i].position.z)
+                    clickeObjects.object[i].position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.3);
+                } else {
+                    clickeObjects.object.splice(i, 1);
+                    clickeObjects.floor.splice(i, 1);
+                    clickeObjects.top.splice(i, 1);
+                }
+            } else {
+                if (clickeObjects.object[i].position.y < clickeObjects.top[i]) {
+                    lerpConfig.destination = new THREE.Vector3(clickeObjects.object[i].position.x, clickeObjects.top[i], clickeObjects.object[i].position.z)
+                    clickeObjects.object[i].position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.3);
+                } else {
+                    clickeObjects.object.splice(i, 1);
+                    clickeObjects.floor.splice(i, 1);
+                    clickeObjects.top.splice(i, 1);
+                }
+            }
+        }
+
+    }
+}
 
 window.addEventListener('click', clickElement);
 
