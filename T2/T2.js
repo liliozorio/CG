@@ -24,7 +24,8 @@ const bbkey = [];
 const get_key = [true,true,false,false]
 const id_key = [];
 const clickeObjects = { object: [], floor: [], top: [] }
-const blockElevationValue = 1;
+const invisibleBrigde = [];
+const blockElevationValue = 1.5;
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
 anguloY = 0;
 orthographic = true;
@@ -222,8 +223,11 @@ function createChambers() {
     };
 
     for (let i = 0; i < 12; i++) {
-        let plane = createGroundPlaneXZ(pp["p" + i]);
-        scene.add(plane);
+        
+
+            let plane = createGroundPlaneXZ(pp["p" + i]);
+            scene.add(plane);
+        
     }
 
     const auxCdnt = {
@@ -241,7 +245,7 @@ function createChambers() {
         p11: { rgb: "rgb(240,230,140)", x1: pp.p11.x - (pp.p11.w / 2) - 0.5, x2: pp.p11.x + pp.p11.w / 2 + 0.5, z1: pp.p11.z - (pp.p11.h / 2), z2: pp.p11.z + (pp.p11.h / 2), y: 3.05 },
     }
     for (let i = 0; i < 12; i++) {
-        if (i == 0) {
+        if (i == 1 || i == 5) {
             makeFloor(auxCdnt["p" + i]);
             randomCube(auxCdnt["p" + i], 6);
         }
@@ -361,17 +365,17 @@ function insertPortal() {
 	doors.box.push(new THREE.Box3().setFromObject(doorFinal));
 	doors.obj.push(doorFinal)
 
-    let portalkey1 = makePortal("rgb(46,139,87)");
-	let doorkey1 = makeDoor("rgb(0,0,0)");
-	portalkey1.position.set(0, 0, -66);
-	doorkey1.position.set(0, 0, -66);
-	scene.add(portalkey1);
-	scene.add(doorkey1);
-	doorkey1.name = "doorkey1";
+    // let portalkey1 = makePortal("rgb(46,139,87)");
+	// let doorkey1 = makeDoor("rgb(0,0,0)");
+	// portalkey1.position.set(0, 0, -66);
+	// doorkey1.position.set(0, 0, -66);
+	// scene.add(portalkey1);
+	// scene.add(doorkey1);
+	// doorkey1.name = "doorkey1";
 
-    bbportal.push(new THREE.Box3().setFromObject(portalkey1));
-	doors.box.push(new THREE.Box3().setFromObject(doorkey1));
-	doors.obj.push(doorkey1)
+    // bbportal.push(new THREE.Box3().setFromObject(portalkey1));
+	// doors.box.push(new THREE.Box3().setFromObject(doorkey1));
+	// doors.obj.push(doorkey1)
 
     let portalkey2 = makePortal("rgb(25,25,112)");
 	let doorkey2 = makeDoor("rgb(0,0,0)");
@@ -1019,7 +1023,6 @@ function render() {
         let indexkey = getColissionObjectId(bbkey, asset)
         id_key[indexkey].removeFromParent()
         get_key[indexkey+1] = true
-        // console.log(get_key)
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
@@ -1044,47 +1047,22 @@ function render() {
         
 
         if (intersects[0].object.name === "randomCube") {
-            // console.log("intersects")
-            // console.log(intersects[0])
             let isNear = Math.pow(intersects[0].object.position.x - asset.object.position.x, 2) + Math.pow(intersects[0].object.position.z - asset.object.position.z, 2);
             isNear = Math.sqrt(isNear);
-            // console.log(bbcube[100]);
-
-
-
-
-            if (intersects[0].object.material.color.getHexString() == "deb887" /*&& isNear <=2*/) {
+            if (intersects[0].object.material.color.getHexString() == "deb887" && isNear <=2) {
                 
-                
-                // console.log(intersects[0].object.uuid);
-                // console.log(cubeS[cubeS.length-1]);
                 cubeS.forEach((bloco, indexRandomBlock) => {
                     if (bloco.uuid && bloco.uuid == intersects[0].object.uuid) {
                         var indexCube = new THREE.Box3().setFromObject(bloco);
-                        //var indexCube = cubeS.indexOf(bloco.uuid === intersects[0].object.uuid);
-                        // indexCube.uuid=bloco.uuid;
-                        // console.log(indexCube)
-                        // console.log(bbcube[bbcube.length-1])
                         let counter = 0;
                         bbcube.forEach((bloco,indexbbCube)=>{
                             counter++;
                             if(bloco.max && bloco.min && bloco.max.x == indexCube.max.x && bloco.max.z == indexCube.max.z &&
                                 bloco.min.x == indexCube.min.x && bloco.min.x == indexCube.min.x){
-                                    // console.log(bbcube.length)
                                     cubeS.splice(indexRandomBlock,1)
                                     bbcube.splice(indexbbCube,1)
-                                    // console.log("removed")
-                                    // console.log(bbcube.length)
                             }
                         })
-                        // console.log("counter: " + counter);
-                        
-                        //bbcube.splice(index, 1);
-                        //cubeS.splice(index, 1);
-                        // console.log("FOi")
-                        // console.log(index)
-                        // console.log("cube")
-                        // console.log(indexCube)
                     }
                 })
                 
@@ -1099,7 +1077,7 @@ function render() {
                 intersects[0].object.rotation.set(0, 0, 0);
                 intersects[0].object.position.set(
                     0,
-                    intersects[0].object.position.y,
+                    0.65,
                     blockFromAsset,
                 );
 
@@ -1121,17 +1099,13 @@ function render() {
                 // cameraholder.remove(intersects[0].object)
                 intersects[0].object.position.set(
                     asset.object.position.x + (blockFromAsset * Math.sin(THREE.MathUtils.degToRad(anguloY))),
-                    intersects[0].object.position.y,
+                    intersects[0].object.position.y + asset.object.position.y,
                     asset.object.position.z + (blockFromAsset * Math.cos(THREE.MathUtils.degToRad(anguloY)))
                 )
                 intersects[0].object.rotateY(THREE.MathUtils.degToRad(anguloY));
                 bbcube.push(new THREE.Box3().setFromObject(intersects[0].object));
                 cubeS.push(intersects[0].object)
                 
-                // console.log(bbcube[bbcube.length-1])
-                // console.log(cubeS[cubeS.length-1])
-                // console.log(new THREE.Box3().setFromObject(cubeS[cubeS.length-1]))
-                // scene.add(intersects[0].object)
 
                 //registra elemento(s) clicado(s) . Objetos que devem ser colocados no chao
                 clickeObjects.object.push(intersects[0].object)
@@ -1141,8 +1115,8 @@ function render() {
         }
         click = false;
     }
-
     if (clickeObjects.object.length) {
+        console.log(clickeObjects)
         for (i = 0; i < clickeObjects.object.length; i++) {
 
             if (clickeObjects.object[i].material.color.getHexString() == "deb887") {
@@ -1150,8 +1124,6 @@ function render() {
 
                     lerpConfig.destination = new THREE.Vector3(clickeObjects.object[i].position.x, clickeObjects.floor[i], clickeObjects.object[i].position.z)
                     clickeObjects.object[i].position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.3);
-                    //let quat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(45));
-                    //clickeObjects.object[i].quaternion.slerp(quat, lerpConfig.alpha+0.3)
                 } else {
                     clickeObjects.object.splice(i, 1);
                     clickeObjects.floor.splice(i, 1);
