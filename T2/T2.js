@@ -20,7 +20,7 @@ const ListEscadas = [];
 const bbcubeportal = [];
 const doors = { box: [], obj: [] };
 const bbkey = [];
-const get_key = [true,true,false,false]
+const get_key = [true, true, false, false]
 const id_key = [];
 
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
@@ -284,10 +284,10 @@ function makePortal(rgb) {
     return csgFinal;
 }
 
-function makeHiddenCube(p) {
+function makeHiddenCube(x, y, z) {
     let cubeGeometry = new THREE.BoxGeometry(0.8, 3, 0.8);
     let hiddenCube = new THREE.Mesh(cubeGeometry, material);
-    hiddenCube.position.set(p.x, p.y, p.z);
+    hiddenCube.position.set(x, y, z);
     bbcube.push(new THREE.Box3().setFromObject(hiddenCube));
     scene.add(hiddenCube);
 }
@@ -296,100 +296,38 @@ function makeHiddenCube(p) {
 
 // INSERE OS PORTAIS EM SUAS DEVIDAS POSIÇÕES
 function insertPortal() {
-    let portalAreal = makePortal("rgb(46,139,87)");
-    let doorAreal = makeDoor("rgb(0,0,0)");
-    portalAreal.position.set(0, 0, -28.5);
-    doorAreal.position.set(0, 0, -28.5);
-    scene.add(portalAreal);
-    scene.add(doorAreal);
-    makeHiddenCube({ x: -2.5, y: -1.5, z: -28.5 })
-    makeHiddenCube({ x: 2.5, y: -1.5, z: -28.5 })
+    const posPortal = {
+        p1: { x: 0, y: 0, z: -28.5, color: "rgb(46,139,87)", rotation: 0 },
+        p2: { x: 0, y: 6, z: 28.4, color: "rgb(25,25,112)", rotation: 0 },
+        p3: { x: 28.5, y: 0, z: 0, color: "rgb(165,42,42)", rotation: 90 },
+        p4: { x: -28.4, y: 6, z: 0, color: "rgb(255,215,0)", rotation: 90 },
+        p5: { x: 0, y: 0, z: -68, color: "rgb(46,139,87)", rotation: 0 },
+        p6: { x: 0, y: 6, z: 64.5, color: "rgb(25,25,112)", rotation: 0 },
+        p7: { x: 64.3, y: 0, z: 0, color: "rgb(165,42,42)", rotation: 90 },
+    }
 
-    bbportal.push(new THREE.Box3().setFromObject(portalAreal));
-    doors.box.push(new THREE.Box3().setFromObject(doorAreal));
-    doors.obj.push(doorAreal)
-
-    let portalArea2 = makePortal("rgb(25,25,112)");
-    let doorAreal2 = makeDoor("rgb(0,0,0)");
-    portalArea2.position.set(0, 6, 28.4);
-    doorAreal2.position.set(0, 6, 28.4);
-    scene.add(portalArea2);
-    scene.add(doorAreal2);
-    makeHiddenCube({ x: -2.5, y: 4.5, z: 28.4 })
-    makeHiddenCube({ x: 2.5, y: 4.5, z: 28.4 })
-
-    bbportal.push(new THREE.Box3().setFromObject(portalArea2));
-    doors.box.push(new THREE.Box3().setFromObject(doorAreal2));
-    doors.obj.push(doorAreal2)
-
-    let portalArea3 = makePortal("rgb(165,42,42)");
-    let doorAreal3 = makeDoor("rgb(0,0,0)");
-    portalArea3.position.set(28.5, 0, 0);
-    doorAreal3.position.set(28.5, 0, 0);
-    portalArea3.rotateY(THREE.MathUtils.degToRad(90));
-    doorAreal3.rotateY(THREE.MathUtils.degToRad(90));
-    scene.add(portalArea3);
-    scene.add(doorAreal3);
-    makeHiddenCube({ x: 28.5, y: -1.5, z: 0 })
-    makeHiddenCube({ x: 28.5, y: -1.5, z: 0 })
-
-    bbportal.push(new THREE.Box3().setFromObject(portalArea3));
-    doors.box.push(new THREE.Box3().setFromObject(doorAreal3));
-    doors.obj.push(doorAreal3)
-
-    let portalFinal = makePortal("rgb(255,215,0)");
-    let doorFinal = makeDoor("rgb(0,0,0)");
-    portalFinal.position.set(-28.4, 6, 0);
-    doorFinal.position.set(-28.4, 6, 0);
-    portalFinal.rotateY(THREE.MathUtils.degToRad(90));
-    doorFinal.rotateY(THREE.MathUtils.degToRad(90));
-    scene.add(portalFinal);
-    scene.add(doorFinal);
-
-    bbportal.push(new THREE.Box3().setFromObject(portalFinal));
-	doors.box.push(new THREE.Box3().setFromObject(doorFinal));
-	doors.obj.push(doorFinal)
-
-    let portalkey1 = makePortal("rgb(46,139,87)");
-	let doorkey1 = makeDoor("rgb(0,0,0)");
-	portalkey1.position.set(0, 0, -66);
-	doorkey1.position.set(0, 0, -66);
-	scene.add(portalkey1);
-	scene.add(doorkey1);
-	doorkey1.name = "doorkey1";
-
-    bbportal.push(new THREE.Box3().setFromObject(portalkey1));
-	doors.box.push(new THREE.Box3().setFromObject(doorkey1));
-	doors.obj.push(doorkey1)
-
-    let portalkey2 = makePortal("rgb(25,25,112)");
-	let doorkey2 = makeDoor("rgb(0,0,0)");
-	portalkey2.position.set(0.5, 6, 62.5);
-	doorkey2.position.set(0.5, 6, 62.5);
-	scene.add(portalkey2);
-	scene.add(doorkey2);
-	doorkey2.name = "doorkey2";
-
-    bbportal.push(new THREE.Box3().setFromObject(portalkey2));
-	doors.box.push(new THREE.Box3().setFromObject(doorkey2));
-	doors.obj.push(doorkey2)
-
-    let portalkey3 = makePortal("rgb(165,42,42)");
-	let doorkey3 = makeDoor("rgb(0,0,0)");
-	portalkey3.position.set(62.3, 0, 0.5);
-	doorkey3.position.set(62.3, 0, 0.5);
-    portalkey3.rotateY(THREE.MathUtils.degToRad(90));
-	doorkey3.rotateY(THREE.MathUtils.degToRad(90));
-	scene.add(portalkey3);
-	scene.add(doorkey3);
-	doorkey3.name = "doorkey3";
-
-    bbportal.push(new THREE.Box3().setFromObject(portalkey3));
-	doors.box.push(new THREE.Box3().setFromObject(doorkey3));
-	doors.obj.push(doorkey3)
-
+    for (let i = 1; i < 8; i++) {
+        let portalArea = makePortal(posPortal["p" + i].color);
+        let doorArea = makeDoor("rgb(0,0,0)");
+        portalArea.position.set(posPortal["p" + i].x, posPortal["p" + i].y, posPortal["p" + i].z);
+        doorArea.position.set(posPortal["p" + i].x, posPortal["p" + i].y, posPortal["p" + i].z);
+        portalArea.rotateY(THREE.MathUtils.degToRad(posPortal["p" + i].rotation));
+        doorArea.rotateY(THREE.MathUtils.degToRad(posPortal["p" + i].rotation));
+        scene.add(portalArea);
+        scene.add(doorArea);
+        if (posPortal["p" + i].x == 0) {
+            makeHiddenCube(posPortal["p" + i].x - 2.5, posPortal["p" + i].y - 1.5, posPortal["p" + i].z)
+            makeHiddenCube(posPortal["p" + i].x + 2.5, posPortal["p" + i].y - 1.5, posPortal["p" + i].z)
+        }
+        else {
+            makeHiddenCube(posPortal["p" + i].x, posPortal["p" + i].y - 1.5, posPortal["p" + i].z - 2.5)
+            makeHiddenCube(posPortal["p" + i].x, posPortal["p" + i].y - 1.5, posPortal["p" + i].z + 2.5)
+        }
+        bbportal.push(new THREE.Box3().setFromObject(portalArea));
+        doors.box.push(new THREE.Box3().setFromObject(doorArea));
+        doors.obj.push(doorArea)
+    }
 }
-
 
 insertPortal()
 
@@ -560,7 +498,7 @@ function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey) {
         var mixerLocal = new THREE.AnimationMixer(obj);
         mixerLocal.clipAction(gltf.animations[0]).play();
         mixer.push(mixerLocal);
-    }, () => {}, () => {});
+    }, () => { }, () => { });
 }
 
 
@@ -648,13 +586,11 @@ function movimentation_stairs(angulo_max, camX, camZ, camY, walkZ, walkX, walkY,
         asset.object.position.y = 0
         asset2.object.position.y = 0
     }
-    else if(asset.object.position.y < 0 && asset.object.position.y > -0.025)
-    {
+    else if (asset.object.position.y < 0 && asset.object.position.y > -0.025) {
         asset.object.position.y = 0
         asset2.object.position.y = 0
     }
-    else if(asset.object.position.y < -3)
-    {
+    else if (asset.object.position.y < -3) {
         asset.object.position.y = -3
         asset2.object.position.y = -3
     }
@@ -802,20 +738,16 @@ function keyboardUpdate() {
         var rad = THREE.MathUtils.degToRad(anguloY);
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
-            if(select_stairs == 0)
-            {
+            if (select_stairs == 0) {
                 movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
-            else if(select_stairs == 1)
-            {
+            else if (select_stairs == 1) {
                 movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
-            if(select_stairs == 2)
-            {
+            if (select_stairs == 2) {
                 movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
-            else if(select_stairs == 3)
-            {
+            else if (select_stairs == 3) {
                 movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
         }
@@ -832,20 +764,16 @@ function keyboardUpdate() {
         var rad = THREE.MathUtils.degToRad(anguloY);
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
-            if(select_stairs == 0)
-            {
+            if (select_stairs == 0) {
                 movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
-            else if(select_stairs == 1)
-            {
+            else if (select_stairs == 1) {
                 movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
-            if(select_stairs == 2)
-            {
+            if (select_stairs == 2) {
                 movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
-            else if(select_stairs == 3)
-            {
+            else if (select_stairs == 3) {
                 movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
         }
@@ -862,20 +790,16 @@ function keyboardUpdate() {
         var rad = THREE.MathUtils.degToRad(anguloY);
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
-            if(select_stairs == 0)
-            {
+            if (select_stairs == 0) {
                 movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
-            else if(select_stairs == 1)
-            {
+            else if (select_stairs == 1) {
                 movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
-            if(select_stairs == 2)
-            {
+            if (select_stairs == 2) {
                 movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
-            else if(select_stairs == 3)
-            {
+            else if (select_stairs == 3) {
                 movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
         }
@@ -892,20 +816,16 @@ function keyboardUpdate() {
         var rad = THREE.MathUtils.degToRad(anguloY);
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
-            if(select_stairs == 0)
-            {
+            if (select_stairs == 0) {
                 movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
-            else if(select_stairs == 1)
-            {
+            else if (select_stairs == 1) {
                 movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
             }
-            if(select_stairs == 2)
-            {
+            if (select_stairs == 2) {
                 movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
-            else if(select_stairs == 3)
-            {
+            else if (select_stairs == 3) {
                 movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
             }
         }
@@ -1002,7 +922,7 @@ function render() {
     if (checkCollisions(bbkey, asset)) {
         let indexkey = getColissionObjectId(bbkey, asset)
         id_key[indexkey].removeFromParent()
-        get_key[indexkey+1] = true
+        get_key[indexkey + 1] = true
         console.log(get_key)
     }
     if (asset2.object && !asset2.loaded) {
