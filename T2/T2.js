@@ -475,9 +475,6 @@ function randomCube(p, numB) {
     }
 }
 
-
-
-
 // INICIALIZA PERSONEGEM
 function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey) {
     var loader = new GLTFLoader();
