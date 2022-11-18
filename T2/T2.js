@@ -1026,7 +1026,6 @@ function render() {
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
-        randomCube();
         asset2.loaded = true;
         asset.loaded = true;
     }
