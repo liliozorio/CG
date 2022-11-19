@@ -9,22 +9,27 @@ import {
     initDefaultBasicLight,
     setDefaultMaterial,
     getMaxSize,
-    onWindowResize
+    onWindowResize,
+    radiansToDegrees
 } from "../libs/util/util.js";
 import { CSG } from '../libs/other/CSGMesh.js'
+import { MaterialLoader } from '../build/three.module.js';
 
 const bbcube = [];
 const cubeS = [];
 const bbstairs = [];
 const bbportal = [];
 const ListEscadas = [];
-const bbcubeportal = [];
+const objectsArea3 = [];
 const doors = { box: [], obj: [] };
 const bbkey = [];
 const get_key = [true, true, true, true];
 const id_key = [];
 var clickeObjects = { object: undefined, floor: undefined, top: undefined }
-const invisibleBrigde = [];
+// const open_door = [true,false,false,false,true,false,false]
+const open_door = [true, true, true, false, true, false, false]
+const light_switch = [];
+const spotLight_on = [];
 const blockElevationValue = 1.5;
 var platforms = { object: [], box: [], pressed: [false, false, false] };
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
@@ -58,7 +63,26 @@ scene.add(cameraholder);
 
 
 material = setDefaultMaterial("rgb(205,133,63)");
-light = initDefaultBasicLight(scene);
+
+let ambientColor = "rgb(80,80,80)";
+let ambientLight = new THREE.AmbientLight(ambientColor, 0.5);
+scene.add(ambientLight)
+
+let lightColor = "rgb(255,255,255)";
+let positionDirectional = new THREE.Vector3(0, 3, 0)
+let dirLight = new THREE.DirectionalLight(lightColor, 0.8)
+dirLight.position.copy(positionDirectional);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.width = 1024;
+dirLight.shadow.mapSize.height = 256;
+dirLight.shadow.camera.near = .1;
+dirLight.shadow.camera.far = 6;
+dirLight.shadow.camera.left = -2.5;
+dirLight.shadow.camera.right = 2.5;
+dirLight.shadow.camera.bottom = -2.5;
+dirLight.shadow.camera.top = 2.5;
+cameraholder.add(dirLight.target)
+cameraholder.add(dirLight)
 
 keyboard = new KeyboardState();
 var clock = new THREE.Clock();
@@ -120,10 +144,73 @@ let key3 = {
 
 loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false);
 loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false);
+
 loadGLTFFile(key1, './key.glb', true, 0, -2, -77, "rgb(72,61,139)", true);
 loadGLTFFile(key2, './key.glb', true, 0, 4, 72, "rgb(128,0,0)", true);
-loadGLTFFile(key3, './key.glb', true, 72, -2, 0, "rgb(255,215,0)", true);
+loadGLTFFile(key3, './key.glb', true, 80, -2, 0, "rgb(255,215,0)", true);
 
+// CREATE LIGHT SWITCH
+
+function createLightSwitch(x, y, z, z_c) {
+    let cubeGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    let materialEmissive = setDefaultMaterial("rgb(255,215,0)");
+    materialEmissive.emissive.set("rgb(255,215,0)")
+    let cubeTest = new THREE.Mesh(cubeGeometry, materialEmissive);
+    cubeTest.position.set(x, y, z);
+    scene.add(cubeTest)
+    let geometry = new THREE.CircleGeometry(3, 32);
+    let materialCircle = new THREE.MeshBasicMaterial();
+    let circle = new THREE.Mesh(geometry, materialCircle);
+    circle.position.set(x, y, z_c)
+    circle.rotateX(THREE.MathUtils.degToRad(90))
+    light_switch.push(new THREE.Box3().setFromObject(circle));
+    scene.add(circle)
+}
+
+createLightSwitch(33, -1.26, 7.5, 6)
+createLightSwitch(43, -1.26, 7.5, 6)
+createLightSwitch(53, -1.26, 7.5, 6)
+createLightSwitch(63, -1.26, 7.5, 6)
+createLightSwitch(33, -1.26, -7.5, -6)
+createLightSwitch(43, -1.26, -7.5, -6)
+createLightSwitch(53, -1.26, -7.5, -6)
+createLightSwitch(63, -1.26, -7.5, -6)
+
+// CREATE SPOTLIGHT
+function createSpotLight(x, y, z) {
+    let cubeGeometry3 = new THREE.BoxGeometry(0.01, 0.01, 0.01);
+    let lightPosition = new THREE.Vector3(0, 5, 0);
+    let cubeTest = new THREE.Mesh(cubeGeometry3, material);
+    cubeTest.position.set(x, y, z);
+    scene.add(cubeTest)
+    let spotLight = new THREE.SpotLight("rgb(255,255,255)", 0);
+    spotLight.position.copy(lightPosition);
+
+    spotLight.distance = 0;
+    spotLight.castShadow = true;
+    spotLight.decay = 2;
+    spotLight.penumbra = 0.5;
+    spotLight.angle = THREE.MathUtils.degToRad(40);
+
+    spotLight.shadow.mapSize.width = 512;
+    spotLight.shadow.mapSize.height = 512;
+    spotLight.shadow.camera.fov = radiansToDegrees(spotLight.angle);
+    spotLight.shadow.camera.near = .2;
+    spotLight.shadow.camera.far = 20.0;
+    spotLight_on.push(spotLight);
+    cubeTest.add(spotLight);
+    cubeTest.add(spotLight.target)
+}
+
+createSpotLight(33, 0, 5)
+createSpotLight(43, 0, 5)
+createSpotLight(53, 0, 5)
+createSpotLight(63, 0, 5)
+createSpotLight(33, 0, -5)
+createSpotLight(43, 0, -5)
+createSpotLight(53, 0, -5)
+createSpotLight(63, 0, -5)
+createSpotLight(80, 0, 0)
 
 // CREATE PLANE
 function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor = null) {
@@ -151,6 +238,8 @@ function makeFloor(p) {
     for (let x = p.x1; x <= p.x2; x += (SIZE_TILE * 1.08)) {
         for (let z = p.z1; z <= p.z2; z += (SIZE_TILE * 1.08)) {
             let cube = new THREE.Mesh(cubeGeometry, material1);
+            cube.receiveShadow = true;
+            cube.receiveShadow = true;
             cube.position.set(x, p.y, z);
             scene.add(cube);
         }
@@ -161,16 +250,20 @@ function makeFloor(p) {
 function makeEdges(coor, sizeX, sizeZ, dif, q) {
     let aux1 = (coor.x + sizeX / 2);
     let aux2 = (coor.z + sizeZ / 2);
-
+    let materialEmissive = setDefaultMaterial("rgb(205,133,63)");
+    materialEmissive.emissive.set("rgb(205,133,63)")
     if (q.f1 != -1)
         for (let x = coor.x; x <= (coor.x + sizeX); x += 1.1) {
             if (q.f1 && x >= aux1 - dif && x <= aux1 + dif) {
                 x = aux1 + 2.5;
                 continue;
             }
-            let cube = new THREE.Mesh(cubeGeometry2, material);
+            let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(x, coor.y, coor.z);
+            cube.receiveShadow = true;
+            cube.receiveShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
+            cubeS.push(cube);
             scene.add(cube);
         }
     if (q.f2 != -1)
@@ -179,9 +272,12 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
                 x = aux1 + 2.5;
                 continue;
             }
-            let cube = new THREE.Mesh(cubeGeometry2, material);
+            let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(x, coor.y, coor.z + sizeZ);
+            cube.receiveShadow = true;
+            cube.receiveShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
+            cubeS.push(cube);
             scene.add(cube);
         }
     if (q.f3 != -1)
@@ -190,9 +286,12 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
                 z = aux2 + 2.5;
                 continue;
             }
-            let cube = new THREE.Mesh(cubeGeometry2, material);
+            let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(coor.x, coor.y, z);
+            cube.receiveShadow = true;
+            cube.receiveShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
+            cubeS.push(cube);
             scene.add(cube);
         }
     if (q.f4 != -1)
@@ -201,9 +300,12 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
                 z = aux2 + 2.5;
                 continue;
             }
-            let cube = new THREE.Mesh(cubeGeometry2, material);
+            let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(coor.x + sizeX, coor.y, z);
+            cube.receiveShadow = true;
+            cube.receiveShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
+            cubeS.push(cube);
             scene.add(cube);
         }
 }
@@ -212,11 +314,11 @@ function createChambers() {
         p0: { x: 0.0, y: -0.1, z: 0.0, w: SIZE_PLANE + 1, h: SIZE_PLANE + 1 },
         p1: { x: 0, y: -3, z: -SIZE_PLANE - 6.4, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
         p2: { x: 0.0, y: 3, z: SIZE_PLANE + 6.5, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.9 },
-        p3: { x: SIZE_PLANE + 6.4, y: -3, z: 0.0, w: SIZE_PLANE * 0.9, h: SIZE_PLANE * 0.7 },
-        p4: { x: -SIZE_PLANE - 2.5, y: 3, z: 0.0, w: SIZE_PLANE * 0.7, h: SIZE_PLANE * 0.7 },
-        p5: { x: 0, y: -3, z: -SIZE_PLANE * 1.9, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
+        p3: { x: SIZE_PLANE + 10.6, y: -3, z: 0.0, w: SIZE_PLANE * 1.1, h: SIZE_PLANE * 0.4 },
+        p4: { x: -SIZE_PLANE + 3, y: 3, z: 0.0, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
+        p5: { x: 0, y: -3, z: -SIZE_PLANE * 1.89, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
         p6: { x: 0, y: 3, z: SIZE_PLANE * 1.82, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
-        p7: { x: SIZE_PLANE * 1.82, y: -3, z: 0, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
+        p7: { x: SIZE_PLANE * 2, y: -3, z: 0, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
         p8: { x: 0, y: -3, z: -SIZE_PLANE / 2 - 7, w: 7, h: 2 },
         p9: { x: 0, y: 3, z: SIZE_PLANE / 2 + 8, w: 7, h: 2 },
         p10: { x: SIZE_PLANE / 2 + 8, y: -3, z: 0, w: 2, h: 7 },
@@ -224,11 +326,8 @@ function createChambers() {
     };
 
     for (let i = 0; i < 12; i++) {
-
-
         let plane = createGroundPlaneXZ(pp["p" + i]);
         scene.add(plane);
-
     }
 
     const auxCdnt = {
@@ -246,13 +345,9 @@ function createChambers() {
         p11: { rgb: "rgb(240,230,140)", x1: pp.p11.x - (pp.p11.w / 2) - 0.5, x2: pp.p11.x + pp.p11.w / 2 + 0.5, z1: pp.p11.z - (pp.p11.h / 2), z2: pp.p11.z + (pp.p11.h / 2), y: 3.05 },
     }
     for (let i = 0; i < 12; i++) {
-        if (i == 1 || i == 5) {
-            makeFloor(auxCdnt["p" + i]);
-            randomCube(auxCdnt["p" + i], 6);
-        }
-        else
-            makeFloor(auxCdnt["p" + i]);
+        makeFloor(auxCdnt["p" + i]);
     }
+    randomCube(auxCdnt.p1, 6)
     randomCube(auxCdnt.p2, 6)
 
     makeEdges({ x: auxCdnt.p0.x1, y: 1, z: auxCdnt.p0.z1 }, pp.p0.w - 1, pp.p0.h - 1, 3, { f1: 1, f2: 1, f3: 1, f4: 1 })
@@ -299,6 +394,7 @@ function makePortal(rgb) {
     csgObject = csgObject.subtract(sphereCSG);
     let csgFinal = CSG.toMesh(csgObject, new THREE.Matrix4());
     csgFinal.material = new THREE.MeshPhongMaterial({ color: rgb });
+    csgFinal.material.emissive.set(rgb)
     return csgFinal;
 }
 
@@ -307,6 +403,7 @@ function makeHiddenCube(x, y, z) {
     let hiddenCube = new THREE.Mesh(cubeGeometry, material);
     hiddenCube.position.set(x, y, z);
     bbcube.push(new THREE.Box3().setFromObject(hiddenCube));
+    cubeS.push(hiddenCube)
     scene.add(hiddenCube);
 }
 
@@ -317,18 +414,22 @@ function insertPortal() {
         p2: { x: 0, y: 6, z: 28.4, color: "rgb(25,25,112)", rotation: 0 },
         p3: { x: 28.5, y: 0, z: 0, color: "rgb(165,42,42)", rotation: 90 },
         p4: { x: -28.4, y: 6, z: 0, color: "rgb(255,215,0)", rotation: 90 },
-        p5: { x: 0, y: 0, z: -68, color: "rgb(46,139,87)", rotation: 0 },
-        p6: { x: 0, y: 6, z: 64.6, color: "rgb(25,25,112)", rotation: 0 },
-        p7: { x: 64.3, y: 0, z: 0, color: "rgb(165,42,42)", rotation: 90 },
+        p5: { x: 0, y: 0, z: -67.5, color: "rgb(46,139,87)", rotation: 0 },
+        p6: { x: 0, y: 6, z: 64.4, color: "rgb(25,25,112)", rotation: 0 },
+        p7: { x: 72.5, y: 0, z: 0, color: "rgb(165,42,42)", rotation: 90 },
     }
 
     for (let i = 1; i < 8; i++) {
         let portalArea = makePortal(posPortal["p" + i].color);
-        let doorArea = makeDoor("rgb(0,0,0)");
+        let doorArea = makeDoor("rgb(119,136,153)");
         portalArea.position.set(posPortal["p" + i].x, posPortal["p" + i].y, posPortal["p" + i].z);
         doorArea.position.set(posPortal["p" + i].x, posPortal["p" + i].y, posPortal["p" + i].z);
         portalArea.rotateY(THREE.MathUtils.degToRad(posPortal["p" + i].rotation));
         doorArea.rotateY(THREE.MathUtils.degToRad(posPortal["p" + i].rotation));
+        doorArea.receiveShadow = true;
+        doorArea.receiveShadow = true;
+        portalArea.receiveShadow = true;
+        portalArea.receiveShadow = true;
         scene.add(portalArea);
         scene.add(doorArea);
         if (posPortal["p" + i].x == 0) {
@@ -349,8 +450,8 @@ insertPortal()
 
 // CRIA AS PORTAS
 function makeDoor(rgb) {
-    let cube2 = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 1));
-    let cylinder = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 1, 32));
+    let cube2 = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 0.5));
+    let cylinder = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 0.5, 32));
 
     cube2.position.set(0, -1, 0);
     cube2.matrixAutoUpdate = false;
@@ -366,6 +467,7 @@ function makeDoor(rgb) {
     let csgObject = cubeCSG2.union(sphereCSG);
     let csgFinal = CSG.toMesh(csgObject, new THREE.Matrix4());
     csgFinal.material = new THREE.MeshPhongMaterial({ color: rgb });
+    csgFinal.material.emissive.set(rgb)
     return csgFinal;
 }
 
@@ -441,20 +543,24 @@ function insertStairs() {
 insertStairs();
 
 // CRIA OS BLOCOS QUE SERÃO ABAIXADOS PARA ACIONAMENTO DA PORTA
-function makePlatforms() {
-    let geometry = new THREE.BoxGeometry(1.5, 0.5, 1.5);
-    for (let i = 0, x = -8; i < 3; i++, x += 8) {
+function makePlatforms(p, n, area) {
+    let geometry = new THREE.BoxGeometry(1, 0.5, 1);
+    for (let i = 0; i < n; i++, p.x += 8) {
         let material = setDefaultMaterial("rgb(255,99,71)");
         let ptfm = new THREE.Mesh(geometry, material)
-        ptfm.position.set(x, 3.25, SIZE_PLANE * 1.4);
+        ptfm.position.set(p.x, p.y, p.z);
         bbcube.push(new THREE.Box3().setFromObject(ptfm));
         platforms.box.push(new THREE.Box3().setFromObject(ptfm));
         platforms.object.push(ptfm);
+        if (area == 3) {
+            ptfm.visible = false;
+            objectsArea3.push(ptfm);
+        }
         scene.add(ptfm);
     }
 
 }
-makePlatforms();
+makePlatforms({ x: -8, y: 3.25, z: SIZE_PLANE * 1.4 }, 3, 2);
 
 //CRIA CUBOS EM LOCAIS ALEATORIOS
 function randomCube(p, numB) {
@@ -493,8 +599,104 @@ function randomCube(p, numB) {
     }
 }
 
+// function shuffle(unshuffled) {
+//     let shuffled = unshuffled
+//         .map(value => ({ value, sort: Math.random() }))
+//         .sort((a, b) => a.sort - b.sort)
+//         .map(({ value }) => value)
+//     return shuffled
+// }
+
+// // CREATE BARRIER
+// function create_barrier(x,y,z,rotationX, rotationY,tamx, tamy, tamz)
+// {
+//     let material1 = setDefaultMaterial("rgb(0,0,0)");
+//     let cubeGeometry1 = new THREE.BoxGeometry(tamx, tamy, tamz);
+
+//     let position = new THREE.Vector3(x ,y,z)
+//     let plano = new THREE.Mesh(cubeGeometry1, material1);
+//     plano.position.copy(position);
+//     plano.rotateX(THREE.MathUtils.degToRad(rotationX))
+//     plano.rotateY(THREE.MathUtils.degToRad(rotationY))
+//     bbcube.push(new THREE.Box3().setFromObject(plano));
+//     cubeS.push(plano);
+//     scene.add(plano)
+// }
+
+// create_barrier(0,-3,-66,0, 0,4,0.1,2)
+
+// // CREATE PLATAFORMS AREA Final
+// function plataformsAreaFinal()
+// {
+//     let material1 = setDefaultMaterial("rgb(255,215,0)");
+//     let cubeGeometry1 = new THREE.BoxGeometry(5, 0.1, 5);
+
+//     let position = new THREE.Vector3(-38 ,3.05, 0)
+//     let plataform1 = new THREE.Mesh(cubeGeometry1, material1);
+//     plataform1.position.copy(position);
+//     plataform1.castShadow = true
+//     scene.add(plataform1)
+// }
+
+// plataformsAreaFinal()
+
+// CREATE CUBES AND PLATAFORMS AREA 3
+function cubesArea3() {
+    let positionCubes = {
+        area3_0: new THREE.Vector3(33, -2.5, 4.5),
+        area3_1: new THREE.Vector3(43, -2.5, 4.5),
+        area3_2: new THREE.Vector3(53, -2.5, 4.5),
+        area3_3: new THREE.Vector3(63, -2.5, 4.5),
+        area3_4: new THREE.Vector3(33, -2.5, -4.5),
+        area3_5: new THREE.Vector3(43, -2.5, -4.5),
+        area3_6: new THREE.Vector3(53, -2.5, -4.5),
+        area3_7: new THREE.Vector3(63, -2.5, -4.5)
+    }
+    let positions = [];
+    for (let i = 0; i < 4;) {
+        let a = Math.floor(Math.random() * 8)
+        if (positions.indexOf(a) == -1) {
+            positions.push(a);
+            i++;
+        }
+    }
+    makePlatforms(positionCubes["area3_" + positions[0]], 1, 3)
+    makePlatforms(positionCubes["area3_" + positions[1]], 1, 3)
+    let cubeGeometry1 = new THREE.BoxGeometry(1, 1, 1);
+    for (let i = 2; i < 4; i++) {
+        let material1 = setDefaultMaterial("rgb(222,184,135)");
+        let cube = new THREE.Mesh(cubeGeometry1, material1);
+        cube.position.copy(positionCubes["area3_" + positions[i]]);
+        cube.castShadow = true;
+        cube.name = "randomCube";
+        bbcube.push(new THREE.Box3().setFromObject(cube));
+        cubeS.push(cube);
+        cube.visible = false;
+        objectsArea3.push(cube);
+        scene.add(cube);
+    }
+}
+cubesArea3();
 
 
+let spotLightMan = new THREE.SpotLight("rgb(255,255,255)", 0);
+let lightPositionMan = new THREE.Vector3(0, 7, 0);
+
+spotLightMan.position.copy(lightPositionMan);
+spotLightMan.distance = 0;
+spotLightMan.castShadow = true;
+spotLightMan.decay = 2;
+spotLightMan.penumbra = 0.5;
+spotLightMan.angle = THREE.MathUtils.degToRad(7);
+
+spotLightMan.shadow.mapSize.width = 512;
+spotLightMan.shadow.mapSize.height = 512;
+spotLightMan.shadow.camera.fov = radiansToDegrees(spotLightMan.angle);
+spotLightMan.shadow.camera.near = .2;
+spotLightMan.shadow.camera.far = 40.0;
+
+cameraholder.add(spotLightMan)
+cameraholder.add(spotLightMan.target)
 
 // INICIALIZA PERSONEGEM
 function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey) {
@@ -509,6 +711,7 @@ function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey) {
                 }
             }
         });
+        iluminaMan(0, obj)
         obj = normalizeAndRescale(obj, 2);
         obj.updateMatrixWorld(true);
         obj.position.x = x
@@ -517,9 +720,9 @@ function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey) {
 
         if (add_scene) {
             scene.add(obj);
-            scene.add(asset.obj3D); 
+            scene.add(asset.obj3D)
         }
-        asset.object = gltf.scene;
+        asset.object = obj;
         if (iskey) {
             bbkey.push(new THREE.Box3().setFromObject(asset.object));
             id_key.push(asset.object)
@@ -539,6 +742,28 @@ function normalizeAndRescale(obj, newScale) {
         newScale * (1.0 / scale),
         newScale * (1.0 / scale));
     return obj;
+}
+
+// ILUMINA PERSONAGEM
+function iluminaMan(intensity, obj) {
+    obj.traverse(function (child) {
+        if (child.isMesh) {
+            let colorMan = child.material.color
+            child.material.emissive.set(colorMan)
+            child.material.emissiveIntensity = intensity
+        }
+    });
+}
+
+// GETT INTENSITY OF EMISSIVE
+function getIntensityEmissive(obj) {
+    let intensity = 0
+    obj.traverse(function (child) {
+        if (child.isMesh) {
+            intensity = child.material.emissiveIntensity
+        }
+    });
+    return intensity
 }
 
 // GERA O MOVIMENTO DO PERSONAGEM
@@ -618,21 +843,32 @@ function movimentation_stairs(angulo_max, camX, camZ, camY, walkZ, walkX, walkY,
     playAction = true;
     let id = getColissionObjectId(bbstairs, asset)
     movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa);
-    if (asset.object.position.y > 0 && asset.object.position.y < 0.025) {
+    let collision = checkCollisions(bbstairs, asset)
+    if (asset.object.position.y > 0 && asset.object.position.y < 1 && !collision) {
         asset.object.position.y = 0
         asset2.object.position.y = 0
+        cameraholder.position.y = 0
+        dirLight.intensity = 0.8
+        ambientLight.intensity = 0.5
+        iluminaMan(0, asset.object)
     }
-    else if (asset.object.position.y < 0 && asset.object.position.y > -0.025) {
+    else if (asset.object.position.y < 0 && asset.object.position.y > -1 && !collision) {
         asset.object.position.y = 0
         asset2.object.position.y = 0
+        cameraholder.position.y = 0
+        dirLight.intensity = 0.8
+        ambientLight.intensity = 0.5
+        iluminaMan(0, asset.object)
     }
-    else if (asset.object.position.y < -3) {
+    else if (asset.object.position.y < -2 && !collision) {
         asset.object.position.y = -3
         asset2.object.position.y = -3
+        cameraholder.position.y = -3
     }
-    else if (asset.object.position.y > 3) {
+    else if (asset.object.position.y > 2 && !collision) {
         asset.object.position.y = 3
         asset2.object.position.y = 3
+        cameraholder.position.y = 3
     }
 }
 
@@ -691,10 +927,10 @@ function keyboardUpdate() {
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if (select_stairs == 0) {
-                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
             }
             else if (select_stairs == 1) {
-                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
             }
             if (select_stairs == 2) {
                 movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
@@ -718,10 +954,18 @@ function keyboardUpdate() {
                 movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
             }
             if (select_stairs == 2) {
-                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
+                dirLight.intensity = dirLight.intensity + 0.01
+                ambientLight.intensity = ambientLight.intensity + 0.01
+                if (spotLightMan.intensity > 0) {
+                    spotLightMan.intensity = spotLightMan.intensity - 0.01
+                }
+                if (getIntensityEmissive(asset.object) > 0) {
+                    iluminaMan(getIntensityEmissive(asset.object) - 0.01, asset.object)
+                }
             }
             else if (select_stairs == 3) {
-                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
             }
         }
         else {
@@ -739,10 +983,18 @@ function keyboardUpdate() {
                 movimentation_stairs(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
             }
             if (select_stairs == 2) {
-                movimentation_stairs(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
+                dirLight.intensity = dirLight.intensity - 0.01
+                ambientLight.intensity = ambientLight.intensity - 0.01
+                if (spotLightMan.intensity < 1) {
+                    spotLightMan.intensity = spotLightMan.intensity + 0.01
+                }
+                if (getIntensityEmissive(asset.object) < 0.15) {
+                    iluminaMan(getIntensityEmissive(asset.object) + 0.01, asset.object)
+                }
             }
             else if (select_stairs == 3) {
-                movimentation_stairs(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
             }
         }
         else {
@@ -754,10 +1006,10 @@ function keyboardUpdate() {
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if (select_stairs == 0) {
-                movimentation_stairs(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
             }
             else if (select_stairs == 1) {
-                movimentation_stairs(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
             }
             if (select_stairs == 2) {
                 movimentation_stairs(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false);
@@ -775,16 +1027,24 @@ function keyboardUpdate() {
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if (select_stairs == 0) {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
             }
             else if (select_stairs == 1) {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
             }
             if (select_stairs == 2) {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
+                dirLight.intensity = dirLight.intensity + 0.01
+                ambientLight.intensity = ambientLight.intensity + 0.01
+                if (spotLightMan.intensity > 0) {
+                    spotLightMan.intensity = spotLightMan.intensity - 0.01
+                }
+                if (getIntensityEmissive(asset.object) > 0) {
+                    iluminaMan(getIntensityEmissive(asset.object) - 0.01, asset.object)
+                }
             }
             else if (select_stairs == 3) {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
             }
         }
         else {
@@ -801,16 +1061,24 @@ function keyboardUpdate() {
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if (select_stairs == 0) {
-                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
             }
             else if (select_stairs == 1) {
-                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
             }
             if (select_stairs == 2) {
-                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
+                dirLight.intensity = dirLight.intensity - 0.01
+                ambientLight.intensity = ambientLight.intensity - 0.01
+                if (spotLightMan.intensity < 1) {
+                    spotLightMan.intensity = spotLightMan.intensity + 0.01
+                }
+                if (getIntensityEmissive(asset.object) < 0.15) {
+                    iluminaMan(getIntensityEmissive(asset.object) + 0.01, asset.object)
+                }
             }
             else if (select_stairs == 3) {
-                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
             }
         }
         else {
@@ -827,16 +1095,24 @@ function keyboardUpdate() {
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if (select_stairs == 0) {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
             }
             else if (select_stairs == 1) {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
             }
             if (select_stairs == 2) {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
+                dirLight.intensity = dirLight.intensity - 0.01
+                ambientLight.intensity = ambientLight.intensity - 0.01
+                if (spotLightMan.intensity < 1) {
+                    spotLightMan.intensity = spotLightMan.intensity + 0.01
+                }
+                if (getIntensityEmissive(asset.object) < 0.15) {
+                    iluminaMan(getIntensityEmissive(asset.object) + 0.01, asset.object)
+                }
             }
             else if (select_stairs == 3) {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
             }
         }
         else {
@@ -853,16 +1129,24 @@ function keyboardUpdate() {
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if (select_stairs == 0) {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
             }
             else if (select_stairs == 1) {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.03, WALK_SIZE, 0, -0.03, WALK_SIZE, 0, -0.03, false);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.025, WALK_SIZE, 0, -0.025, WALK_SIZE, 0, -0.025, false);
             }
             if (select_stairs == 2) {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
+                dirLight.intensity = dirLight.intensity + 0.01
+                ambientLight.intensity = ambientLight.intensity + 0.01
+                if (spotLightMan.intensity > 0) {
+                    spotLightMan.intensity = spotLightMan.intensity - 0.01
+                }
+                if (getIntensityEmissive(asset.object) > 0) {
+                    iluminaMan(getIntensityEmissive(asset.object) - 0.01, asset.object)
+                }
             }
             else if (select_stairs == 3) {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.03, WALK_SIZE, 0, 0.03, WALK_SIZE, 0, 0.03, false);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false);
             }
         }
         else {
@@ -935,10 +1219,16 @@ function checkCollisions(object, man) {
     return false
 }
 
-function checkOpenDoorRoom() {
-    return platforms.pressed.filter(x => x === true).length == 3;
+// Verifica se as plataformas estão pressionadas
+// Tanto para as da sala 2 quanto as sala 3 
+function checkOpenDoorRoom(i, f) {
+    for(; i<f; i++){
+        if(!platforms.pressed[i])
+            return false;
+    }
+    // return platforms.pressed.filter(x => x === true).length == 3;
+    return true
 }
-
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -950,20 +1240,65 @@ function clickElement(events) {
     click = true;
 }
 
+function lightTrasition() {
+    let desceuPlataform3 = [false, false]
+    let open6 = true
+    for (let i = 0; i < desceuPlataform3.length; i++) {
+        if (!desceuPlataform3[i]) {
+            open6 = false
+        }
+    }
+    if (checkOpenDoorRoom(3, 5)) {
+        for (let i = 0; i < spotLight_on.length; i++) {
+            spotLight_on[i].intensity = 1;
+        }
+    }
+    else if (checkCollisions(light_switch, asset)) {
+        let idLightSwitch = getColissionObjectId(light_switch, asset)
+        for (let i = 0; i < spotLight_on.length; i++) {
+            if (idLightSwitch == i) {
+                spotLight_on[idLightSwitch].intensity = 1;
+                spotLightMan.intensity = 0;
+            }
+            else {
+                spotLight_on[i].intensity = 0;
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < spotLight_on.length; i++) {
+            spotLight_on[i].intensity = 0;
+            if (asset.object != null) {
+                if (asset.object.position.y == -3) {
+                    spotLightMan.intensity = 1;
+                }
+            }
+        }
+    }
+}
+
 let colors = ["rgb(222,184,135)", "rgb(165,42,42)", "rgb(102,205,170)", "rgb(60,179,113)"];
 function render() {
     if (checkCollisions(doors.box, asset)) {
         let indexDoor = getColissionObjectId(doors.box, asset);
-        if (get_key[indexDoor] || (checkOpenDoorRoom() && indexDoor === 5)) {
-            lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -6.0, doors.obj[indexDoor].position.z)
+        if (get_key[indexDoor] || (checkOpenDoorRoom(0, 3) && indexDoor === 5) || (checkOpenDoorRoom(3, 5) && indexDoor === 6)) {
+            lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -9.0, doors.obj[indexDoor].position.z)
             doors.obj[indexDoor].position.lerp(lerpConfig.destination, lerpConfig.alpha);
             doors.box[indexDoor] = new THREE.Box3().setFromObject(doors.obj[indexDoor]);
         }
+        if (indexDoor == 2) {
+            objectsArea3.map((x) => {
+                x.visible = true;
+            })
+        }
     }
+
+    lightTrasition();
+
     if (checkCollisions(bbkey, asset)) {
         let indexkey = getColissionObjectId(bbkey, asset)
         id_key[indexkey].removeFromParent()
-        get_key[indexkey + 1] = true
+        open_door[indexkey + 1] = true
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
@@ -977,7 +1312,7 @@ function render() {
     if (playAction) {
         for (var i = 0; i < mixer.length; i++)
             mixer[i].update(delta * 2.3);
-    };
+    }
     if (click) {
         renderer.render(scene, camera);
         raycaster.setFromCamera(pointer, camera);
