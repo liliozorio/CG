@@ -13,7 +13,6 @@ import {
     radiansToDegrees
 } from "../libs/util/util.js";
 import { CSG } from '../libs/other/CSGMesh.js'
-import { MaterialLoader } from '../build/three.module.js';
 
 const bbcube = [];
 const cubeS = [];
@@ -27,11 +26,12 @@ const get_key = [true, true, true, true];
 const id_key = [];
 var clickeObjects = { object: undefined, floor: undefined, top: undefined }
 // const open_door = [true,false,false,false,true,false,false]
-const open_door = [true, true, true, false, true, false, false]
+const open_door = [true, true, true, true, true, false, false]
 const light_switch = [];
 const spotLight_on = [];
 const blockElevationValue = 1.5;
-var platforms = { object: [], box: [], pressed: [false, false, false] };
+var finalPlatform;
+var platforms = { object: [], box: [], pressed: [false, false, false]};
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
 anguloY = 0;
 orthographic = true;
@@ -239,7 +239,6 @@ function makeFloor(p) {
         for (let z = p.z1; z <= p.z2; z += (SIZE_TILE * 1.08)) {
             let cube = new THREE.Mesh(cubeGeometry, material1);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
             cube.position.set(x, p.y, z);
             scene.add(cube);
         }
@@ -261,7 +260,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(x, coor.y, coor.z);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
+            cube.castShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cubeS.push(cube);
             scene.add(cube);
@@ -275,7 +274,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(x, coor.y, coor.z + sizeZ);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
+            cube.castShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cubeS.push(cube);
             scene.add(cube);
@@ -289,7 +288,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(coor.x, coor.y, z);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
+            cube.castShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cubeS.push(cube);
             scene.add(cube);
@@ -303,7 +302,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(coor.x + sizeX, coor.y, z);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
+            cube.castShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cubeS.push(cube);
             scene.add(cube);
@@ -427,9 +426,9 @@ function insertPortal() {
         portalArea.rotateY(THREE.MathUtils.degToRad(posPortal["p" + i].rotation));
         doorArea.rotateY(THREE.MathUtils.degToRad(posPortal["p" + i].rotation));
         doorArea.receiveShadow = true;
-        doorArea.receiveShadow = true;
+        doorArea.castShadow = true;
         portalArea.receiveShadow = true;
-        portalArea.receiveShadow = true;
+        portalArea.castShadow = true;
         scene.add(portalArea);
         scene.add(doorArea);
         if (posPortal["p" + i].x == 0) {
@@ -549,6 +548,8 @@ function makePlatforms(p, n, area) {
         let material = setDefaultMaterial("rgb(255,99,71)");
         let ptfm = new THREE.Mesh(geometry, material)
         ptfm.position.set(p.x, p.y, p.z);
+        ptfm.castShadow = true;
+        ptfm.receiveShadow = true;
         bbcube.push(new THREE.Box3().setFromObject(ptfm));
         platforms.box.push(new THREE.Box3().setFromObject(ptfm));
         platforms.object.push(ptfm);
@@ -599,58 +600,33 @@ function randomCube(p, numB) {
     }
 }
 
-// function shuffle(unshuffled) {
-//     let shuffled = unshuffled
-//         .map(value => ({ value, sort: Math.random() }))
-//         .sort((a, b) => a.sort - b.sort)
-//         .map(({ value }) => value)
-//     return shuffled
-// }
-
-// // CREATE BARRIER
-// function create_barrier(x,y,z,rotationX, rotationY,tamx, tamy, tamz)
-// {
-//     let material1 = setDefaultMaterial("rgb(0,0,0)");
-//     let cubeGeometry1 = new THREE.BoxGeometry(tamx, tamy, tamz);
-
-//     let position = new THREE.Vector3(x ,y,z)
-//     let plano = new THREE.Mesh(cubeGeometry1, material1);
-//     plano.position.copy(position);
-//     plano.rotateX(THREE.MathUtils.degToRad(rotationX))
-//     plano.rotateY(THREE.MathUtils.degToRad(rotationY))
-//     bbcube.push(new THREE.Box3().setFromObject(plano));
-//     cubeS.push(plano);
-//     scene.add(plano)
-// }
-
-// create_barrier(0,-3,-66,0, 0,4,0.1,2)
 
 // // CREATE PLATAFORMS AREA Final
-// function plataformsAreaFinal()
-// {
-//     let material1 = setDefaultMaterial("rgb(255,215,0)");
-//     let cubeGeometry1 = new THREE.BoxGeometry(5, 0.1, 5);
+function plataformsAreaFinal()
+{
+    let material1 = setDefaultMaterial("rgb(255,215,0)");
+    let cubeGeometry1 = new THREE.BoxGeometry(5, 0.1, 5);
+    let plataform1 = new THREE.Mesh(cubeGeometry1, material1);
+    plataform1.position.set(-38 ,3.05, 0);
+    plataform1.receiveShadow = true;
+    plataform1.name = "final"
+    finalPlatform = new THREE.Box3().setFromObject(plataform1)
+    scene.add(plataform1);
+}
 
-//     let position = new THREE.Vector3(-38 ,3.05, 0)
-//     let plataform1 = new THREE.Mesh(cubeGeometry1, material1);
-//     plataform1.position.copy(position);
-//     plataform1.castShadow = true
-//     scene.add(plataform1)
-// }
-
-// plataformsAreaFinal()
+plataformsAreaFinal()
 
 // CREATE CUBES AND PLATAFORMS AREA 3
 function cubesArea3() {
     let positionCubes = {
-        area3_0: new THREE.Vector3(33, -2.5, 4.5),
-        area3_1: new THREE.Vector3(43, -2.5, 4.5),
-        area3_2: new THREE.Vector3(53, -2.5, 4.5),
-        area3_3: new THREE.Vector3(63, -2.5, 4.5),
-        area3_4: new THREE.Vector3(33, -2.5, -4.5),
-        area3_5: new THREE.Vector3(43, -2.5, -4.5),
-        area3_6: new THREE.Vector3(53, -2.5, -4.5),
-        area3_7: new THREE.Vector3(63, -2.5, -4.5)
+        area3_0: new THREE.Vector3(33, -2.75, 4.5),
+        area3_1: new THREE.Vector3(43, -2.75, 4.5),
+        area3_2: new THREE.Vector3(53, -2.75, 4.5),
+        area3_3: new THREE.Vector3(63, -2.75, 4.5),
+        area3_4: new THREE.Vector3(33, -2.75, -4.5),
+        area3_5: new THREE.Vector3(43, -2.75, -4.5),
+        area3_6: new THREE.Vector3(53, -2.75, -4.5),
+        area3_7: new THREE.Vector3(63, -2.75, -4.5)
     }
     let positions = [];
     for (let i = 0; i < 4;) {
@@ -1406,6 +1382,10 @@ function render() {
                 clickeObjects.top = undefined;
             }
         }
+
+    }
+    if(checkCollisions(finalPlatform,asset)){
+        document.getElementById("hidden").id = "end_game";
     }
 }
 
