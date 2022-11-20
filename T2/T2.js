@@ -4,16 +4,12 @@ import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js'
 import {
     initRenderer,
-    SecondaryBox,
-    initCamera,
-    initDefaultBasicLight,
     setDefaultMaterial,
     getMaxSize,
     onWindowResize,
     radiansToDegrees
 } from "../libs/util/util.js";
 import { CSG } from '../libs/other/CSGMesh.js'
-import { MaterialLoader } from '../build/three.module.js';
 
 const bbcube = [];
 const cubeS = [];
@@ -26,11 +22,12 @@ const bbkey = [];
 const get_key = [true, true, true, true];
 const id_key = [];
 var clickeObjects = { object: undefined, floor: undefined, top: undefined }
-const invisibleWayBlocks = {box: [], cube: [], selected: []};
+const invisibleWayBlocks = { box: [], cube: [], selected: [] };
 // const open_door = [true,false,false,false,true,false,false]
-const open_door = [true, true, true, false, true, false, false]
+const open_door = [true, false, false, false, false, false, false]
 const light_switch = [];
 const spotLight_on = [];
+var finalPlatform;
 const blockElevationValue = 1.5;
 var platforms = { object: [], box: [], pressed: [false, false, false] };
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
@@ -42,7 +39,8 @@ renderer = initRenderer();
 
 
 var lookAtVec = new THREE.Vector3(0.0, 0.0, 0.0);
-var camPosition = new THREE.Vector3(13, 12, 13);
+// var camPosition = new THREE.Vector3(13, 12, 13); 
+var camPosition = new THREE.Vector3(9, 6, 7);
 var upVec = new THREE.Vector3(0.0, 1.0, 0.0);
 var s = 105;
 camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
@@ -240,7 +238,6 @@ function makeFloor(p) {
         for (let z = p.z1; z <= p.z2; z += (SIZE_TILE * 1.08)) {
             let cube = new THREE.Mesh(cubeGeometry, material1);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
             cube.position.set(x, p.y, z);
             scene.add(cube);
         }
@@ -262,7 +259,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(x, coor.y, coor.z);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
+            cube.castShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cubeS.push(cube);
             scene.add(cube);
@@ -276,7 +273,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(x, coor.y, coor.z + sizeZ);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
+            cube.castShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cubeS.push(cube);
             scene.add(cube);
@@ -290,7 +287,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(coor.x, coor.y, z);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
+            cube.castShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cubeS.push(cube);
             scene.add(cube);
@@ -304,7 +301,7 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
             let cube = new THREE.Mesh(cubeGeometry2, materialEmissive);
             cube.position.set(coor.x + sizeX, coor.y, z);
             cube.receiveShadow = true;
-            cube.receiveShadow = true;
+            cube.castShadow = true;
             bbcube.push(new THREE.Box3().setFromObject(cube));
             cubeS.push(cube);
             scene.add(cube);
@@ -314,15 +311,13 @@ function makeEdges(coor, sizeX, sizeZ, dif, q) {
 function invisibleWay(p) {
     let c = new THREE.BoxGeometry(SIZE_OBSTACLE, SIZE_OBSTACLE, SIZE_OBSTACLE);
     let m = setDefaultMaterial("rgb(222,184,135)");
-    
-    let material1 = setDefaultMaterial(p.rgb);
     for (let x = p.x1; x <= p.x2; x += (SIZE_TILE * 1.08)) {
         for (let z = p.z1; z <= p.z2; z += (SIZE_TILE * 1.08)) {
             let cube = new THREE.Mesh(c, m);
-            cube.position.set(x, p.y+0.65+blockElevationValue, z);
+            cube.position.set(x, p.y + 0.65 + blockElevationValue, z);
             invisibleWayBlocks.cube.push(cube);
             bbcube.push(new THREE.Box3().setFromObject(cube));
-            invisibleWayBlocks.box.push(bbcube[bbcube.length-1]);
+            invisibleWayBlocks.box.push(bbcube[bbcube.length - 1]);
             invisibleWayBlocks.selected.push(false);
             //scene.add(cube);
         }
@@ -451,9 +446,9 @@ function insertPortal() {
         portalArea.rotateY(THREE.MathUtils.degToRad(posPortal["p" + i].rotation));
         doorArea.rotateY(THREE.MathUtils.degToRad(posPortal["p" + i].rotation));
         doorArea.receiveShadow = true;
-        doorArea.receiveShadow = true;
+        doorArea.castShadow = true;
         portalArea.receiveShadow = true;
-        portalArea.receiveShadow = true;
+        portalArea.castShadow = true;
         scene.add(portalArea);
         scene.add(doorArea);
         if (posPortal["p" + i].x == 0) {
@@ -573,6 +568,8 @@ function makePlatforms(p, n, area) {
         let material = setDefaultMaterial("rgb(255,99,71)");
         let ptfm = new THREE.Mesh(geometry, material)
         ptfm.position.set(p.x, p.y, p.z);
+        ptfm.castShadow = true;
+        ptfm.receiveShadow = true;
         bbcube.push(new THREE.Box3().setFromObject(ptfm));
         platforms.box.push(new THREE.Box3().setFromObject(ptfm));
         platforms.object.push(ptfm);
@@ -597,16 +594,18 @@ function randomCube(p, numB) {
         let x;
         let z;
         if (chooseCoordenate() < 0.5) {
-            x = p.x1 + Math.abs(randomCoordinate2(Math.abs(p.x1 - p.x2)));
-            z = p.z1 + Math.abs(randomCoordinate(Math.abs(p.z1 - p.z2)));
+            x = p.x1 + Math.abs(randomCoordinate2(Math.abs(p.x1 - p.x2))) + 1;
+            z = p.z1 + Math.abs(randomCoordinate(Math.abs(p.z1 - p.z2))) + 1;
 
         } else {
-            x = p.x1 + Math.abs(randomCoordinate(Math.abs(p.x1 - p.x2)));
-            z = p.z1 + Math.abs(randomCoordinate2(Math.abs(p.z1 - p.z2)));
+            x = p.x1 + Math.abs(randomCoordinate(Math.abs(p.x1 - p.x2))) + 1;
+            z = p.z1 + Math.abs(randomCoordinate2(Math.abs(p.z1 - p.z2))) + 1;
         }
         let m = setDefaultMaterial("rgb(222,184,135)");
         let cube = new THREE.Mesh(c, m);
-        cube.position.set(x, p.y + 0.6, z);
+        cube.position.set(x, p.y + 0.4, z);
+        cube.receiveShadow = true;
+        cube.castShadow = true;
         aux.object = cube;
         aux.bb = new THREE.Box3().setFromObject(cube);
         //asset2.bb.setFromObject(asset2.object);
@@ -623,58 +622,31 @@ function randomCube(p, numB) {
     }
 }
 
-// function shuffle(unshuffled) {
-//     let shuffled = unshuffled
-//         .map(value => ({ value, sort: Math.random() }))
-//         .sort((a, b) => a.sort - b.sort)
-//         .map(({ value }) => value)
-//     return shuffled
-// }
-
-// // CREATE BARRIER
-// function create_barrier(x,y,z,rotationX, rotationY,tamx, tamy, tamz)
-// {
-//     let material1 = setDefaultMaterial("rgb(0,0,0)");
-//     let cubeGeometry1 = new THREE.BoxGeometry(tamx, tamy, tamz);
-
-//     let position = new THREE.Vector3(x ,y,z)
-//     let plano = new THREE.Mesh(cubeGeometry1, material1);
-//     plano.position.copy(position);
-//     plano.rotateX(THREE.MathUtils.degToRad(rotationX))
-//     plano.rotateY(THREE.MathUtils.degToRad(rotationY))
-//     bbcube.push(new THREE.Box3().setFromObject(plano));
-//     cubeS.push(plano);
-//     scene.add(plano)
-// }
-
-// create_barrier(0,-3,-66,0, 0,4,0.1,2)
-
 // // CREATE PLATAFORMS AREA Final
-// function plataformsAreaFinal()
-// {
-//     let material1 = setDefaultMaterial("rgb(255,215,0)");
-//     let cubeGeometry1 = new THREE.BoxGeometry(5, 0.1, 5);
+function plataformsAreaFinal() {
+    let material1 = setDefaultMaterial("rgb(255,215,0)");
+    let cubeGeometry1 = new THREE.BoxGeometry(5, 0.1, 5);
+    let plataform1 = new THREE.Mesh(cubeGeometry1, material1);
+    plataform1.position.set(-38, 3.05, 0);
+    plataform1.receiveShadow = true;
+    plataform1.name = "final"
+    finalPlatform = new THREE.Box3().setFromObject(plataform1)
+    scene.add(plataform1);
+}
 
-//     let position = new THREE.Vector3(-38 ,3.05, 0)
-//     let plataform1 = new THREE.Mesh(cubeGeometry1, material1);
-//     plataform1.position.copy(position);
-//     plataform1.castShadow = true
-//     scene.add(plataform1)
-// }
-
-// plataformsAreaFinal()
+plataformsAreaFinal()
 
 // CREATE CUBES AND PLATAFORMS AREA 3
 function cubesArea3() {
     let positionCubes = {
-        area3_0: new THREE.Vector3(33, -2.5, 4.5),
-        area3_1: new THREE.Vector3(43, -2.5, 4.5),
-        area3_2: new THREE.Vector3(53, -2.5, 4.5),
-        area3_3: new THREE.Vector3(63, -2.5, 4.5),
-        area3_4: new THREE.Vector3(33, -2.5, -4.5),
-        area3_5: new THREE.Vector3(43, -2.5, -4.5),
-        area3_6: new THREE.Vector3(53, -2.5, -4.5),
-        area3_7: new THREE.Vector3(63, -2.5, -4.5)
+        area3_0: new THREE.Vector3(33, -2.75, 4.5),
+        area3_1: new THREE.Vector3(43, -2.75, 4.5),
+        area3_2: new THREE.Vector3(53, -2.75, 4.5),
+        area3_3: new THREE.Vector3(63, -2.75, 4.5),
+        area3_4: new THREE.Vector3(33, -2.75, -4.5),
+        area3_5: new THREE.Vector3(43, -2.75, -4.5),
+        area3_6: new THREE.Vector3(53, -2.75, -4.5),
+        area3_7: new THREE.Vector3(63, -2.75, -4.5)
     }
     let positions = [];
     for (let i = 0; i < 4;) {
@@ -779,7 +751,7 @@ function iluminaMan(intensity, obj) {
     });
 }
 
-// GETT INTENSITY OF EMISSIVE
+// GET INTENSITY OF EMISSIVE
 function getIntensityEmissive(obj) {
     let intensity = 0
     obj.traverse(function (child) {
@@ -1198,7 +1170,8 @@ function keyboardUpdate() {
             orthographic = false;
         }
         else {
-            camPosition = new THREE.Vector3(13, 12, 13);
+            // camPosition = new THREE.Vector3(13, 12, 13);
+            camPosition = new THREE.Vector3(9, 6, 7);
             camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
                 window.innerHeight / s, window.innerHeight / -s, -s, s);
             camera.position.copy(camPosition);
@@ -1246,8 +1219,8 @@ function checkCollisions(object, man) {
 // Verifica se as plataformas estão pressionadas
 // Tanto para as da sala 2 quanto as sala 3 
 function checkOpenDoorRoom(i, f) {
-    for(; i<f; i++){
-        if(!platforms.pressed[i])
+    for (; i < f; i++) {
+        if (!platforms.pressed[i])
             return false;
     }
     // return platforms.pressed.filter(x => x === true).length == 3;
@@ -1334,7 +1307,8 @@ function render() {
     }
     var delta = clock.getDelta();
     requestAnimationFrame(render);
-    keyboardUpdate();
+    if(asset.loaded)
+        keyboardUpdate();
     renderer.render(scene, camera) // Render scene
     if (playAction) {
         for (var i = 0; i < mixer.length; i++)
@@ -1368,11 +1342,11 @@ function render() {
                 intersects[0].object.rotation.set(0, 0, 0);
                 intersects[0].object.position.set(
                     0,
-                    0.65,
+                    0.5,
                     blockFromAsset,
                 );
                 asset.obj3D.add(intersects[0].object);
-                //jeito errado de selecionar blocos
+
                 //registra elemento(s) clicado(s) . Objetos que devem ser elevados
                 clickeObjects.object = intersects[0].object;
                 clickeObjects.floor = intersects[0].object.position.y;
@@ -1408,21 +1382,22 @@ function render() {
         if (clickeObjects.object.material.color.getHexString() == "deb887") {
             if (clickeObjects.object.position.y > clickeObjects.floor + 0.001) {
                 lerpConfig.destination = new THREE.Vector3(clickeObjects.object.position.x, clickeObjects.floor, clickeObjects.object.position.z)
-                clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.3);
+                clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
+
                 let c = getColissionObjectId(platforms.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) })
                 let isInvisibleSelected = invisibleWayBlocks.selected.indexOf(true);
                 if (c != -1) {
-                    lerpConfig.destination = new THREE.Vector3(platforms.object[c].position.x, asset.object.position.y - 0.15, platforms.object[c].position.z)
+                    lerpConfig.destination = new THREE.Vector3(platforms.object[c].position.x, asset.object.position.y - 0.2, platforms.object[c].position.z)
                     platforms.object[c].position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.1);
                     platforms.pressed[c] = true;
                     clickeObjects.object.name = "";
                     platforms.object[c].material.color.set(colors[2]);
-                }else if(checkCollisions(invisibleWayBlocks.box,{bb: new THREE.Box3().setFromObject(clickeObjects.object)}) || isInvisibleSelected!=-1){
 
-                    let indexWay = getColissionObjectId(invisibleWayBlocks.box,{bb: new THREE.Box3().setFromObject(clickeObjects.object)});
+                } else if (checkCollisions(invisibleWayBlocks.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) }) || isInvisibleSelected != -1) {
 
-                    if(indexWay!=undefined){
-                        if(invisibleWayBlocks.selected[indexWay] == false){
+                    let indexWay = getColissionObjectId(invisibleWayBlocks.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) });
+                    if (indexWay != undefined) {
+                        if (invisibleWayBlocks.selected[indexWay] == false) {
                             clickeObjects.floor = clickeObjects.floor - 1;
                             clickeObjects.name = "";
                         }
@@ -1432,36 +1407,32 @@ function render() {
                     isInvisibleSelected = invisibleWayBlocks.selected.indexOf(true);
                     lerpConfig.destination = new THREE.Vector3(invisibleWayBlocks.cube[isInvisibleSelected].position.x, clickeObjects.floor, invisibleWayBlocks.cube[isInvisibleSelected].position.z)
                     clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
-
                     let quat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(180));
-                    clickeObjects.object.quaternion.slerp(quat, lerpConfig.alpha+0.5)
-                    // clickeObjects.object.quaternion.slerp(quat, lerpConfig.alpha)
+                    clickeObjects.object.quaternion.slerp(quat, lerpConfig.alpha + 0.3)
+
                 }
             } else {
 
                 let indexSelected = invisibleWayBlocks.selected.indexOf(true);
-                if(indexSelected!=-1){
-                    
+                if (indexSelected != -1) {
 
-                    let indexToRemove  = bbcube.indexOf(invisibleWayBlocks.box[indexSelected]);
+                    let indexToRemove = bbcube.indexOf(invisibleWayBlocks.box[indexSelected]);
                     bbcube.splice(indexToRemove, 1);
                     clickeObjects.object.name = "";
                     bbcube.pop();
-                    invisibleWayBlocks.selected.splice(indexSelected, 1)
-                    invisibleWayBlocks.cube.splice(indexSelected, 1)
-                    invisibleWayBlocks.box.splice(indexSelected, 1)
-                    }
-
-
-                    clickeObjects.object = undefined;
-                    clickeObjects.floor = undefined;
-                    clickeObjects.top = undefined;
+                    invisibleWayBlocks.selected.splice(indexSelected, 1);
+                    invisibleWayBlocks.cube.splice(indexSelected, 1);
+                    invisibleWayBlocks.box.splice(indexSelected, 1);
+                }
+                clickeObjects.object = undefined;
+                clickeObjects.floor = undefined;
+                clickeObjects.top = undefined;
             }
         }
         else {
             if (clickeObjects.object.position.y < clickeObjects.top) {
                 lerpConfig.destination = new THREE.Vector3(clickeObjects.object.position.x, clickeObjects.top, clickeObjects.object.position.z)
-                clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.3);
+                clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
             } else {
                 clickeObjects.object = undefined;
                 clickeObjects.floor = undefined;
