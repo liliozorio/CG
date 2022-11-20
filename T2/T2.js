@@ -574,6 +574,7 @@ function makePlatforms(p, n, area) {
         platforms.object.push(ptfm);
         if (area == 3) {
             ptfm.visible = false;
+            ptfm.position.y =  ptfm.position.y - 0.25 ;
             objectsArea3.push(ptfm);
         }
         scene.add(ptfm);
@@ -638,14 +639,14 @@ plataformsAreaFinal()
 // CREATE CUBES AND PLATAFORMS AREA 3
 function cubesArea3() {
     let positionCubes = {
-        area3_0: new THREE.Vector3(33, -2.75, 4.5),
-        area3_1: new THREE.Vector3(43, -2.75, 4.5),
-        area3_2: new THREE.Vector3(53, -2.75, 4.5),
-        area3_3: new THREE.Vector3(63, -2.75, 4.5),
-        area3_4: new THREE.Vector3(33, -2.75, -4.5),
-        area3_5: new THREE.Vector3(43, -2.75, -4.5),
-        area3_6: new THREE.Vector3(53, -2.75, -4.5),
-        area3_7: new THREE.Vector3(63, -2.75, -4.5)
+        area3_0: new THREE.Vector3(33, -2.5, 4.5),
+        area3_1: new THREE.Vector3(43, -2.5, 4.5),
+        area3_2: new THREE.Vector3(53, -2.5, 4.5),
+        area3_3: new THREE.Vector3(63, -2.5, 4.5),
+        area3_4: new THREE.Vector3(33, -2.5, -4.5),
+        area3_5: new THREE.Vector3(43, -2.5, -4.5),
+        area3_6: new THREE.Vector3(53, -2.5, -4.5),
+        area3_7: new THREE.Vector3(63, -2.5, -4.5)
     }
     let positions = [];
     for (let i = 0; i < 4;) {
@@ -1296,9 +1297,8 @@ function render() {
 
     if (checkCollisions(bbkey, asset)) {
         let indexkey = getColissionObjectId(bbkey, asset);
-        console.log(indexkey);
-        id_key[indexkey].removeFromParent()
-        open_door[indexkey + 1] = true
+        id_key[indexkey].removeFromParent();
+        open_door[indexkey + 1] = true;
         get_key[indexkey + 1] = true;
     }
     if (asset2.object && !asset2.loaded) {
