@@ -23,7 +23,7 @@ const get_key = [true, false, false, false];
 const id_key = [];
 var clickeObjects = { object: undefined, floor: undefined, top: undefined }
 const invisibleWayBlocks = { box: [], cube: [], selected: [] };
-const open_door = [true, false, false, false, false, false, false]
+const open_door = [true, false, false, false, false, false, false];
 const light_switch = [];
 const spotLight_on = [];
 var finalPlatform;
@@ -51,7 +51,7 @@ camera.lookAt(lookAtVec);
 
 
 // GIRAR COM MOUSE
-new OrbitControls(camera, renderer.domElement); // Enable mouse rotation, pan, zoom etc.
+// new OrbitControls(camera, renderer.domElement); // Enable mouse rotation, pan, zoom etc.
 
 
 
@@ -1321,7 +1321,7 @@ function render() {
         const intersects = raycaster.intersectObjects(scene.children);
         const blockFromAsset = 2;
 
-        if (intersects[0].object.name === "randomCube") {
+        if (intersects[0].object.name === "randomCube" && (clickeObjects.object==undefined || intersects[0].object.material.color.getHexString() != "deb887")) {
             let isNear = Math.pow(intersects[0].object.position.x - asset.object.position.x, 2) + Math.pow(intersects[0].object.position.z - asset.object.position.z, 2);
             isNear = Math.sqrt(isNear);
             if (intersects[0].object.material.color.getHexString() == "deb887" && isNear <= 2) {
@@ -1440,6 +1440,10 @@ function render() {
                 clickeObjects.top = undefined;
             }
         }
+    }
+    if(checkCollisions(finalPlatform,asset) && document.getElementById("hidden")!=null){
+        let element = document.getElementById("hidden");
+        element.setAttribute('id', 'end_game')
     }
 }
 
