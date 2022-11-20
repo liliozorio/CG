@@ -19,11 +19,10 @@ const ListEscadas = [];
 const objectsArea3 = [];
 const doors = { box: [], obj: [] };
 const bbkey = [];
-const get_key = [true, true, true, true];
+const get_key = [true, false, false, false];
 const id_key = [];
 var clickeObjects = { object: undefined, floor: undefined, top: undefined }
 const invisibleWayBlocks = { box: [], cube: [], selected: [] };
-// const open_door = [true,false,false,false,true,false,false]
 const open_door = [true, false, false, false, false, false, false]
 const light_switch = [];
 const spotLight_on = [];
@@ -1296,9 +1295,11 @@ function render() {
     lightTrasition();
 
     if (checkCollisions(bbkey, asset)) {
-        let indexkey = getColissionObjectId(bbkey, asset)
+        let indexkey = getColissionObjectId(bbkey, asset);
+        console.log(indexkey);
         id_key[indexkey].removeFromParent()
         open_door[indexkey + 1] = true
+        get_key[indexkey + 1] = true;
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
