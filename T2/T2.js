@@ -384,7 +384,7 @@ function createChambers() {
     makeEdges({ x: auxCdnt.p11.x1 + 1.5, y: 4, z: auxCdnt.p11.z1 }, pp.p11.w, pp.p11.h, 3, { f1: 0, f2: 0, f3: -1, f4: -1 })
 
     const invisibleBlocks = {
-        i: {rgb: "rgb(152,251,152)", x1: -1, x2: 0.5, z1: auxCdnt["p5"].z2+0.7, z2: auxCdnt["p1"].z1-0.5, y: -2.95 }
+        i: {rgb: "rgb(152,251,152)", x1: -0.5, x2: 1, z1: auxCdnt["p5"].z2+0.7, z2: auxCdnt["p1"].z1-0.5, y: -2.95 }
     }
     invisibleWay(invisibleBlocks["i"]);
 }
@@ -1305,10 +1305,13 @@ let colors = ["rgb(222,184,135)", "rgb(165,42,42)", "rgb(102,205,170)", "rgb(60,
 function render() {
     if (checkCollisions(doors.box, asset)) {
         let indexDoor = getColissionObjectId(doors.box, asset);
-        if (get_key[indexDoor] || (checkOpenDoorRoom(0, 3) && indexDoor === 5) || (checkOpenDoorRoom(3, 5) && indexDoor === 6)) {
+        if (get_key[indexDoor] || (checkOpenDoorRoom(0, 3) && indexDoor === 5) || (checkOpenDoorRoom(3, 5) && indexDoor === 6) || indexDoor==4) {
             lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -9.0, doors.obj[indexDoor].position.z)
             doors.obj[indexDoor].position.lerp(lerpConfig.destination, lerpConfig.alpha);
             doors.box[indexDoor] = new THREE.Box3().setFromObject(doors.obj[indexDoor]);
+            if(doors.obj[indexDoor].position.y<=asset.object.position.y-2.75){
+                doors.obj[indexDoor].visible = false;
+            }
         }
         if (indexDoor == 2) {
             objectsArea3.map((x) => {
@@ -1428,7 +1431,7 @@ function render() {
 
                     isInvisibleSelected = invisibleWayBlocks.selected.indexOf(true);
                     lerpConfig.destination = new THREE.Vector3(invisibleWayBlocks.cube[isInvisibleSelected].position.x, clickeObjects.floor, invisibleWayBlocks.cube[isInvisibleSelected].position.z)
-                    clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.3);
+                    clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
 
                     let quat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(180));
                     clickeObjects.object.quaternion.slerp(quat, lerpConfig.alpha+0.5)
