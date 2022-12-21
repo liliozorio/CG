@@ -1,9 +1,12 @@
 // CHECK IF HAVE COLLISION
 export function checkCollisions(object, man) {
     try {
-        let collision = man.bb.intersectsBox(object);
-        if (collision) {
-            return true;
+        if(object != null && man.bb != null)
+            {
+            let collision = man.bb.intersectsBox(object);
+            if (collision) {
+                return true;
+            }
         }
     }
     catch (e) {
@@ -22,9 +25,26 @@ export function checkCollisions(object, man) {
 
 // CHECK IF PLATAFORMS ARE PRESSED 
 export function checkOpenDoorRoom(i, f, platforms) {
-    for (; i < f; i++) {
-        if (!platforms.pressed[i])
-            return false;
+    try
+    {
+        for (; i < f; i++) {
+            if (!platforms.pressed[i])
+                return false;
+        }
+        return true
     }
-    return true
+    catch (e) {
+
+    }
+}
+
+// CATCHES THE OBJECT THAT COLLIDED
+export function getColissionObjectId(object, man) {
+    for (var i = 0; i < object.length; i++) {
+        let collision = man.bb.intersectsBox(object[i]);
+        if (collision) {
+            return i;
+        }
+    }
+    return -1;
 }

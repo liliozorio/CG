@@ -1,57 +1,61 @@
-import {checkCollisions,
-} from './check.js';
 import * as THREE from 'three';
+import {
+    checkCollisions
+} from './check.js'
+import{
+    iluminaMan
+} from './light.js'
 
 // GENERATES THE MOVEMENT OF THE CHARACTER
-export function  movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, asset, asset2, anguloY, cameraholder) {
+export function movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, asset, asset2, anguloY, cameraholder) {
     if(asset.object != null)
-    {if (angulo_max > anguloY) {
-        var dif = angulo_max - anguloY
-        var dif2 = 360 - angulo_max + anguloY
+    {if (angulo_max > anguloY.Y) {
+        var dif = angulo_max - anguloY.Y
+        var dif2 = 360 - angulo_max + anguloY.Y
         if (dif2 < dif) {
-            anguloY = anguloY + 360
+            anguloY.Y = anguloY.Y + 360
         }
     }
     else {
-        var dif = anguloY - angulo_max
-        var dif2 = 360 - anguloY + angulo_max
+        var dif = anguloY.Y - angulo_max
+        var dif2 = 360 - anguloY.Y + angulo_max
         if (dif2 < dif) {
             angulo_max = angulo_max + 360
         }
     }
-    if (anguloY < angulo_max && !deslisa) {
-        anguloY = anguloY + 5;
+    if (anguloY.Y < angulo_max && !deslisa) {
+        anguloY.Y = anguloY.Y + 5;
         var rad = THREE.MathUtils.degToRad(5);
         asset.object.rotateY(rad);
         asset2.object.rotateY(rad);
         asset.obj3D.rotateY(rad);
-        if (anguloY > 360) {
-            anguloY = anguloY - 360
+        if (anguloY.Y > 360) {
+            anguloY.Y = anguloY.Y - 360
         }
     }
-    else if (anguloY > angulo_max && !deslisa) {
-        anguloY = anguloY - 5;
+    else if (anguloY.Y > angulo_max && !deslisa) {
+        anguloY.Y = anguloY.Y - 5;
         var rad = THREE.MathUtils.degToRad(-5);
         asset.object.rotateY(rad);
         asset2.object.rotateY(rad);
         asset.obj3D.rotateY(rad);
-        if (anguloY > 360) {
-            anguloY = anguloY - 360
+        if (anguloY.Y > 360) {
+            anguloY.Y = anguloY.Y - 360
         }
     }
     else if (deslisa) {
-        if (anguloY < angulo_max) {
-            while (anguloY < angulo_max) {
-                anguloY = anguloY + 1;
+        if (anguloY.Y < angulo_max) {
+            while (anguloY.Y < angulo_max) {
+                anguloY.Y = anguloY.Y + 1;
                 var rad = THREE.MathUtils.degToRad(1);
                 asset.object.rotateY(rad);
                 asset2.object.rotateY(rad);
                 asset.obj3D.rotateY(rad);
             }
         }
-        if (anguloY > angulo_max) {
-            while (anguloY > angulo_max) {
-                anguloY = anguloY - 1;
+        if (anguloY.Y > angulo_max) {
+            while (anguloY.Y > angulo_max) {
+                anguloY.Y = anguloY.Y - 1;
                 var rad = THREE.MathUtils.degToRad(-1);
                 asset.object.rotateY(rad);
                 asset2.object.rotateY(rad);
@@ -76,15 +80,15 @@ export function  movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY
     }
 }
 
-export function movimentation_stairs(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, asset, asset2, cameraholder) {
-    playAction = true;
+export function movimentation_stairs(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs) {
+    playAction.play = true;
     var collision = checkCollisions(bbcube, asset)
     var collision_door = checkCollisions(doors.box, asset)
     if (!collision && !collision_door) {
-        movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, asset, asset2, cameraholder);
+        movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, asset, asset2, anguloY, cameraholder);
     }
     else {
-        movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, -0.6, 0, deslisa, asset, asset2, cameraholder);
+        movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, -0.6, 0, deslisa,asset, asset2, anguloY, cameraholder);
         collision = checkCollisions(bbcube, asset2);
         collision_door = checkCollisions(doors.box, asset2);
         if (collision || collision_door) {
@@ -92,7 +96,7 @@ export function movimentation_stairs(angulo_max, camX, camZ, camY, walkZ, walkX,
             asset2.object.position.z = asset.object.position.z
             asset2.object.position.y = asset.object.position.y;
             asset2.bb.setFromObject(asset2.object);
-            movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, 0.6, 0, deslisa, asset, asset2, cameraholder);
+            movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, 0.6, 0, deslisa, asset, asset2, anguloY, cameraholder);
             collision = checkCollisions(bbcube, asset2);
             if (collision || collision_door) {
                 asset2.object.position.x = asset.object.position.x
@@ -104,14 +108,14 @@ export function movimentation_stairs(angulo_max, camX, camZ, camY, walkZ, walkX,
                 asset2.object.position.x = asset.object.position.x
                 asset2.object.position.z = asset.object.position.z
                 asset2.object.position.y = asset.object.position.y;
-                movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, asset, asset2, cameraholder);
+                movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, asset, asset2, anguloY, cameraholder);
             }
         }
         else {
             asset2.object.position.x = asset.object.position.x
             asset2.object.position.z = asset.object.position.z
             asset2.object.position.y = asset.object.position.y;
-            movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, asset, asset2, cameraholder);
+            movimentation(angulo_max, camX, camZ, camY, walkZ, walkX, walkY, walkZ_hide, walkX_hide, walkY_hide, deslisa, asset, asset2, anguloY, cameraholder);
         }
     }
     collision = checkCollisions(bbstairs, asset)
@@ -144,8 +148,8 @@ export function movimentation_stairs(angulo_max, camX, camZ, camY, walkZ, walkX,
 }
 
 // TREAT MOVEMENTS WITH CHARACTER COLLISION
-export function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide, deslisa, playAction, bbcube, asset, asset2, doors, anguloY, cameraholder) {
-    playAction = true;
+export function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, walkZ_hide, walkX_hide, deslisa, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder) {
+    playAction.play = true;
     var collision = checkCollisions(bbcube, asset)
     var collision_door = checkCollisions(doors.box, asset)
     if (!collision && !collision_door) {
