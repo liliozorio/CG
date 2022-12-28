@@ -278,3 +278,5 @@ export function keyboardUpdate(keyboard, bbcube, bbstairs, doors, asset, asset2,
         }
     }
 }
+
+export {keyboardUpdate}

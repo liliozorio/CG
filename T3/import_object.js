@@ -9,7 +9,7 @@ import{
 } from './light.js'
 
 // INITIALIZE CHARACTER
-export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, index, scene, bbkey, id_key, mixer) {
+export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, index, scene, bbkey, id_key, mixer,sound = null) {
     var loader = new GLTFLoader();
     loader.load(file, function (gltf) {
         var obj = gltf.scene;
@@ -27,7 +27,7 @@ export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, inde
         obj.position.x = x
         obj.position.y = y
         obj.position.z = z
-
+        if(sound) obj.add( sound );
         if (add_scene) {
             scene.add(obj);
             scene.add(asset.obj3D)

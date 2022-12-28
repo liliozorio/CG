@@ -333,6 +333,7 @@ function createChambers() {
         p5: { x: 0, y: -3, z: -SIZE_PLANE * 1.89, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
         p6: { x: 0, y: 3, z: SIZE_PLANE * 1.82, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
         p7: { x: SIZE_PLANE * 2, y: -3, z: 0, w: SIZE_PLANE * 0.4, h: SIZE_PLANE * 0.4 },
+        //
         p8: { x: 0, y: -3, z: -SIZE_PLANE / 2 - 7, w: 7, h: 2 },
         p9: { x: 0, y: 3, z: SIZE_PLANE / 2 + 8, w: 7, h: 2 },
         p10: { x: SIZE_PLANE / 2 + 8, y: -3, z: 0, w: 2, h: 7 },
@@ -344,7 +345,7 @@ function createChambers() {
         scene.add(plane);
     }
 
-    const auxCdnt = {
+    const auxCdnt = { // aux cordinate
         p0: { rgb: "rgb(255,222,173)", x1: pp.p0.x - (pp.p0.w / 2 - 0.5), x2: pp.p0.x + pp.p0.w / 2, z1: pp.p0.z - (pp.p0.h / 2 - 0.5), z2: pp.p0.z + (pp.p0.h / 2 - 0.5), y: 0.05 },
         p1: { rgb: "rgb(152,251,152)", x1: pp.p1.x - (pp.p1.w / 2), x2: pp.p1.x + pp.p1.w / 2, z1: pp.p1.z - (pp.p1.h / 2), z2: pp.p1.z + (pp.p1.h / 2), y: -2.95 },
         p2: { rgb: "rgb(173,216,230)", x1: pp.p2.x - (pp.p2.w / 2), x2: pp.p2.x + pp.p2.w / 2, z1: pp.p2.z - (pp.p2.h / 2), z2: pp.p2.z + (pp.p2.h / 2), y: 3.05 },
@@ -353,6 +354,7 @@ function createChambers() {
         p5: { rgb: "rgb(152,251,152)", x1: pp.p5.x - (pp.p5.w / 2), x2: pp.p5.x + pp.p5.w / 2, z1: pp.p5.z - (pp.p5.h / 2), z2: pp.p5.z + (pp.p5.h / 2), y: -2.95 },
         p6: { rgb: "rgb(173,216,230)", x1: pp.p6.x - (pp.p6.w / 2), x2: pp.p6.x + pp.p6.w / 2, z1: pp.p6.z - (pp.p6.h / 2), z2: pp.p6.z + (pp.p6.h / 2), y: 3.05 },
         p7: { rgb: "rgb(250,128,114)", x1: pp.p7.x - (pp.p7.w / 2), x2: pp.p7.x + pp.p7.w / 2, z1: pp.p7.z - (pp.p7.h / 2), z2: pp.p7.z + (pp.p7.h / 2), y: -2.95 },
+        //
         p8: { rgb: "rgb(152,251,152)", x1: pp.p8.x - (pp.p8.w / 2), x2: pp.p8.x + pp.p8.w / 2, z1: pp.p8.z - (pp.p8.h / 2), z2: pp.p8.z + (pp.p8.h / 2), y: -2.95 },
         p9: { rgb: "rgb(173,216,230)", x1: pp.p9.x - (pp.p9.w / 2), x2: pp.p9.x + pp.p9.w / 2, z1: pp.p9.z - (pp.p9.h / 2), z2: pp.p9.z + (pp.p9.h / 2), y: 3.05 },
         p10: { rgb: "rgb(250,128,114)", x1: pp.p10.x - (pp.p10.w / 2), x2: pp.p10.x + pp.p10.w / 2, z1: pp.p10.z - (pp.p10.h / 2), z2: pp.p10.z + (pp.p10.h / 2), y: -2.95 },
@@ -504,7 +506,7 @@ function makeStairs(rgb) {
     let cubeCSG = CSG.fromMesh(cube);
     let rectangleCSG = CSG.fromMesh(rectangle);
     let csgObject;
-    let z = -2.25, y = 2.88;
+    let z = -2.25;
     for (let aux = 2.88; aux >= 0; aux -= 0.25) {
         for (let y = 2.88; y >= aux; y -= 0.25) {
             rectangle.position.set(0, y, z)
@@ -535,6 +537,7 @@ function insertStairs() {
     bbstairs.push(new THREE.Box3().setFromObject(escadaArea1.object));
     ListEscadas.push(escadaArea1);
     scene.add(escadaArea1.object);
+
     let escadaArea2 = makeStairs("rgb(72,61,139)");
     escadaArea2.object.rotateY(THREE.MathUtils.degToRad(180));
     escadaArea2.object.position.set(0, 0, 23.5);
@@ -542,6 +545,7 @@ function insertStairs() {
     bbstairs.push(new THREE.Box3().setFromObject(escadaArea2.object));
     ListEscadas.push(escadaArea2);
     scene.add(escadaArea2.object);
+
     let escadaArea3 = makeStairs("rgb(128,0,0)");
     escadaArea3.object.rotateY(THREE.MathUtils.degToRad(90));
     escadaArea3.object.position.set(23.5, -3, 0);
@@ -549,6 +553,7 @@ function insertStairs() {
     bbstairs.push(new THREE.Box3().setFromObject(escadaArea3.object));
     ListEscadas.push(escadaArea3);
     scene.add(escadaArea3.object);
+
     let escadaFinal = makeStairs("rgb(255,215,0)");
     escadaFinal.object.rotateY(THREE.MathUtils.degToRad(90));
     escadaFinal.object.position.set(-SIZE_PLANE / 2 - 3.5, 0, 0);
@@ -561,7 +566,7 @@ function insertStairs() {
 insertStairs();
 
 // CRIA OS BLOCOS QUE SERÃO ABAIXADOS PARA ACIONAMENTO DA PORTA
-function makePlatforms(p, n, area) {
+function makePlatforms(p, n, area) { 
     let geometry = new THREE.BoxGeometry(1, 0.5, 1);
     for (let i = 0; i < n; i++, p.x += 8) {
         let material = setDefaultMaterial("rgb(255,99,71)");
@@ -1385,6 +1390,7 @@ function render() {
                 lerpConfig.destination = new THREE.Vector3(clickeObjects.object.position.x, clickeObjects.floor, clickeObjects.object.position.z)
                 clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
 
+                // PLATAFORMA
                 let c = getColissionObjectId(platforms.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) })
                 let isInvisibleSelected = invisibleWayBlocks.selected.indexOf(true);
                 if (c != -1) {
@@ -1393,6 +1399,7 @@ function render() {
                     platforms.pressed[c] = true;
                     clickeObjects.object.name = "";
                     platforms.object[c].material.color.set(colors[2]);
+                    //
 
                 } else if (checkCollisions(invisibleWayBlocks.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) }) || isInvisibleSelected != -1) {
 

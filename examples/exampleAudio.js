@@ -169,7 +169,7 @@ function buildInterface()
       { // Execute only once
         playAction = !playAction;        
         sound.play();
-        windmillSound.play();
+        // windmillSound.play();
         firstPlay = false;
       }
     };    
