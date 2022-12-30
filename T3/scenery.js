@@ -203,15 +203,15 @@ export function createBarrier(tamx, tamy, tamz, x, y, z, rotateX, rotateY, rotat
 }
 
 // CREATE PLATAFORMS FINAL AREA
-export function plataformsAreaFinal(finalPlatform, scene) {
+export function plataformsAreaFinal(scene) {
     let material1 = setDefaultMaterial("rgb(255,215,0)");
     let cubeGeometry1 = new THREE.BoxGeometry(5, 0.1, 5);
     let plataform1 = new THREE.Mesh(cubeGeometry1, material1);
     plataform1.position.set(-38, 3.05, 0);
     plataform1.receiveShadow = true;
-    plataform1.name = "final"
-    finalPlatform = new THREE.Box3().setFromObject(plataform1)
+    plataform1.name = "final";
     scene.add(plataform1);
+    return new THREE.Box3().setFromObject(plataform1);
 }
 
 // CREATE CUBES AND PLATAFORMS AREA 3

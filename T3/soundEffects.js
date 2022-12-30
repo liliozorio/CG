@@ -7,22 +7,23 @@ function trilhaSonora(listener) {
     audioLoader.load('./sounds/trilha_sonora.mp3', function (buffer) {
         trilha_sonora.setBuffer(buffer);
         trilha_sonora.setLoop(true);
-        trilha_sonora.setVolume(0.3);
-        //sound.play(); // Will play when start button is pressed
+        trilha_sonora.setVolume(0.1);
     });
     return trilha_sonora
-    // trilhaSonora.play();
 }
-
-
 
 function effects(name_sound,listener) {
     const sound = new THREE.Audio(listener);
-    audioLoader.load(`./sounds/${name_sound}.mp3`, function (buffer) {
+    audioLoader.load(`./sounds/${name_sound}`, function (buffer) {
         sound.setBuffer(buffer);
         // sound.setLoop(true);
-        // sound.setVolume(0.7);
+        sound.setVolume(0.8);
     });
     return sound;
 }
-export { trilhaSonora, effects}
+
+function playSound(sound){
+    if(!sound.isPlaying)
+        sound.play();
+}
+export { trilhaSonora, effects, playSound };
