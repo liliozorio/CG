@@ -8,9 +8,19 @@ import { CSG } from '../libs/other/CSGMesh.js'
 
 // CREATE PLANE
 export function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor = null) {
-    if (!gcolor) gcolor = "rgb(210,180,140)";
+    //cif (!gcolor) gcolor = "rgb(210,180,140)";
     let planeGeometry = new THREE.PlaneGeometry(p.w + 1, p.h + 1, widthSegments, heightSegments);
     let planeMaterial = new THREE.MeshLambertMaterial({ color: gcolor, side: THREE.DoubleSide });
+
+    //adicionatextura
+    var textureLoader = new THREE.TextureLoader();
+    var floorTexture = textureLoader.load(`./textures/${p.textureName}`);
+
+    planeMaterial.map = floorTexture;
+    planeMaterial.map.wrapS = THREE.RepeatWrapping;
+    planeMaterial.map.wrapT = THREE.RepeatWrapping;
+    planeMaterial.map.repeat.set(p.w/0.8, p.h/0.8);
+
 
     let mat4 = new THREE.Matrix4();
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -27,12 +37,17 @@ export function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, 
 }
 
 // CREATE EDGES
-export function makeEdges(coor, sizeX, sizeZ, dif, q, bbcube, cubeS, scene) {
+export function makeEdges(coor, sizeX, sizeZ, dif, q, bbcube, cubeS, scene, textureName) {
     let cubeGeometry = new THREE.BoxGeometry(1, 1.5, 1);
     let aux1 = (coor.x + sizeX / 2);
     let aux2 = (coor.z + sizeZ / 2);
-    let materialEmissive = setDefaultMaterial("rgb(205,133,63)");
-    materialEmissive.emissive.set("rgb(205,133,63)")
+    let materialEmissive = new THREE.MeshLambertMaterial(); //lambert?
+    materialEmissive.emissive.set()
+    var textureLoader = new THREE.TextureLoader();
+    var floorTexture = textureLoader.load(`./textures/${textureName}`);
+    //adicionatextura
+    materialEmissive.map = floorTexture;
+    
     if (q.f1 != -1)
         for (let x = coor.x; x <= (coor.x + sizeX); x += 1.1) {
             if (q.f1 && x >= aux1 - dif && x <= aux1 + dif) {
