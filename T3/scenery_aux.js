@@ -47,7 +47,7 @@ export function makeEdges(coor, sizeX, sizeZ, dif, q, bbcube, cubeS, scene, text
     var floorTexture = textureLoader.load(`./textures/${textureName}`);
     //adicionatextura
     materialEmissive.map = floorTexture;
-    
+
     if (q.f1 != -1)
         for (let x = coor.x; x <= (coor.x + sizeX); x += 1.1) {
             if (q.f1 && x >= aux1 - dif && x <= aux1 + dif) {
@@ -185,8 +185,14 @@ export function makePortal(rgb) {
     let csgObject = cubeCSG1.subtract(cubeCSG2);
     csgObject = csgObject.subtract(sphereCSG);
     let csgFinal = CSG.toMesh(csgObject, new THREE.Matrix4());
-    csgFinal.material = new THREE.MeshPhongMaterial({ color: rgb });
-    csgFinal.material.emissive.set(rgb)
+    csgFinal.material = new THREE.MeshLambertMaterial();
+    csgFinal.material.emissive.set()
+
+    //adicionatextura
+    var textureLoader = new THREE.TextureLoader();
+    var floorTexture = textureLoader.load(`./textures/brickPortal.jpg`);
+    csgFinal.material.map = floorTexture;
+    console.log(csgFinal)
     return csgFinal;
 }
 
