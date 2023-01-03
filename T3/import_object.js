@@ -9,7 +9,7 @@ import{
 } from './light.js'
 
 // INITIALIZE CHARACTER
-export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, index, scene, bbkey, id_key, mixer) {
+export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, index, scene, bbkey, id_key, mixer, animation) {
     var loader = new GLTFLoader();
     loader.load(file, function (gltf) {
         var obj = gltf.scene;
@@ -22,6 +22,9 @@ export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, inde
             }
         });
         iluminaMan(0, obj)
+        if(animation)
+        obj = normalizeAndRescale(obj, 1);
+        else
         obj = normalizeAndRescale(obj, 2);
         obj.updateMatrixWorld(true);
         obj.position.x = x
@@ -33,9 +36,11 @@ export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, inde
         }
         asset.object = obj;
         if (iskey) {
+            console.log("asset.object")
+            console.log(asset.object)
             bbkey[index] = new THREE.Box3().setFromObject(asset.object);
             id_key[index] = asset.object
-        } else {
+        } else if(!animation){
             var mixerLocal = new THREE.AnimationMixer(obj);
             mixerLocal.clipAction(gltf.animations[0]).play();
             mixer.push(mixerLocal);

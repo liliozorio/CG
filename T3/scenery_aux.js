@@ -5,7 +5,10 @@ import {
 import {checkCollisions,
 } from './check.js';
 import { CSG } from '../libs/other/CSGMesh.js'
-
+import {
+    loadGLTFFile,
+} from './import_object.js'
+import { CompressedTextureLoader } from '../build/three.module.js';
 // CREATE PLANE
 export function createGroundPlaneXZ(p, widthSegments = 10, heightSegments = 10, gcolor = null) {
     //cif (!gcolor) gcolor = "rgb(210,180,140)";
@@ -164,6 +167,38 @@ export function randomCube(p, numB, size_obstacle, available_space, bbcube, cube
     }
 }
 
+export function randomGLTF(p, numB, size_obstacle, available_space, bbcube, cubeS, scene, bbBox, id_key, mixer) {
+    let randomCoordinate = () => Math.floor((Math.random() * available_space) - available_space / 2)
+    let randomCoordinate2 = () => (Math.random() * available_space) - available_space / 2
+    let chooseCoordenate = () => Math.random()
+    let aux_bbBox = [];
+    
+    for (let i = 0; i < numB; i++) {
+        let assetT = {
+            object: null,
+            loaded: false,
+            bb: new THREE.Box3(),
+            obj3D: new THREE.Object3D(),
+            selected: false
+        }
+        let x;
+        let z;
+        if (chooseCoordenate() < 0.5) {
+            x = p.x1 + Math.abs(randomCoordinate2(Math.abs(p.x1 - p.x2))) + 1;
+            z = p.z1 + Math.abs(randomCoordinate(Math.abs(p.z1 - p.z2))) + 1;
+
+        } else {
+            x = p.x1 + Math.abs(randomCoordinate(Math.abs(p.x1 - p.x2))) + 1;
+            z = p.z1 + Math.abs(randomCoordinate2(Math.abs(p.z1 - p.z2))) + 1;
+        }
+
+        
+        
+        loadGLTFFile(assetT, './asset/redFox.glb', true, x, p.y - 0.14, z, '', false, null, scene, [], id_key, mixer, true);
+        aux_bbBox.push(assetT);
+    }
+    return aux_bbBox;
+}
 // CREATE PORTAL
 export function makePortal(rgb) {
     let cube1 = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 1));
@@ -192,7 +227,6 @@ export function makePortal(rgb) {
     var textureLoader = new THREE.TextureLoader();
     var floorTexture = textureLoader.load(`./textures/brickPortal.jpg`);
     csgFinal.material.map = floorTexture;
-    console.log(csgFinal)
     return csgFinal;
 }
 

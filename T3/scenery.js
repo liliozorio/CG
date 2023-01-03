@@ -6,7 +6,8 @@ import {
     createGroundPlaneXZ,
     makeEdges,
     invisibleWay,
-    randomCube, 
+    randomCube,
+    randomGLTF,
     makePortal,
     makeHiddenCube,
     makeDoor, 
@@ -14,7 +15,7 @@ import {
 } from './scenery_aux.js';
 
 // CREATE CHAMBERS
-export function createChambers(size_plane, size_obstacle, size_tile, available_space, scene, bbcube, cubeS, blockElevationValue, invisibleWayBlocks) {
+export function createChambers(size_plane, size_obstacle, size_tile, available_space, scene, bbcube, cubeS, bbBox, blockElevationValue, invisibleWayBlocks, id_key, mixer) {
     const pp = {
         p0: { x: 0.0, y: -0.1, z: 0.0, w: size_plane + 1, h: size_plane + 1, textureName:"outdoor_floor_borders.jpg" }, //outdoor_floor_borders
         p1: { x: 0, y: -3, z: -size_plane - 6.4, w: size_plane * 0.7, h: size_plane * 0.9, textureName:"brickFloorBorders.jpg" }, //brickFloor2
@@ -49,8 +50,8 @@ export function createChambers(size_plane, size_obstacle, size_tile, available_s
         p10: { rgb: "rgb(250,128,114)", x1: pp.p10.x - (pp.p10.w / 2), x2: pp.p10.x + pp.p10.w / 2, z1: pp.p10.z - (pp.p10.h / 2), z2: pp.p10.z + (pp.p10.h / 2), y: -2.95 },
         p11: { rgb: "rgb(240,230,140)", x1: pp.p11.x - (pp.p11.w / 2) - 0.5, x2: pp.p11.x + pp.p11.w / 2 + 0.5, z1: pp.p11.z - (pp.p11.h / 2), z2: pp.p11.z + (pp.p11.h / 2), y: 3.05 },
     }
-    randomCube(auxCdnt.p1, 6, size_obstacle, available_space, bbcube, cubeS, scene)
-    randomCube(auxCdnt.p2, 6, size_obstacle, available_space, bbcube, cubeS, scene)
+    randomCube(auxCdnt.p1, 6, size_obstacle, available_space, bbcube, cubeS, scene, id_key, mixer)
+    bbBox = randomGLTF(auxCdnt.p2, 6, size_obstacle, available_space, bbcube, bbBox, scene, id_key, mixer) //p2
 
     makeEdges({ x: auxCdnt.p0.x1, y: 0.75, z: auxCdnt.p0.z1 }, pp.p0.w - 1, pp.p0.h - 1, 3, { f1: 1, f2: 1, f3: 1, f4: 1 },bbcube, cubeS, scene, "mainWall.jpeg")
     makeEdges({ x: auxCdnt.p1.x1, y: -2.25, z: auxCdnt.p1.z1 }, pp.p1.w, pp.p1.h, 3, { f1: 1, f2: 1, f3: 0, f4: 0 }, bbcube, cubeS, scene, "brickWall.jpeg")
@@ -69,6 +70,7 @@ export function createChambers(size_plane, size_obstacle, size_tile, available_s
         i: {rgb: "rgb(152,251,152)", x1: -0.5, x2: 1, z1: auxCdnt["p5"].z2+0.7, z2: auxCdnt["p1"].z1-0.5, y: -2.95 }
     }
     invisibleWay(invisibleBlocks["i"], size_obstacle, size_tile, blockElevationValue, invisibleWayBlocks, bbcube);
+    return bbBox;
 }
 
 // CREATE LIGHT SWITCH
