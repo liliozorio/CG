@@ -4,7 +4,7 @@
 <head>
   <title>Trabalho 3</title>
   <link rel="shortcut icon" href="../favicon.ico">
-  <link rel="stylesheet" href="../html/resources/default.css">
+  <link rel="stylesheet" href="./loading.css">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./styles/style.css">
   </style>
@@ -16,12 +16,13 @@
   <script type="importmap">
     {"imports": {"three": "../build/three.module.js"}} 
   </script>
-  <div id="viewport">
-    <!-- <img src="./imgs/blue_key.png" alt="key image" cla="key"/>
-    <img src="./imgs/red_key.png" alt="key image" id="key" />
-    <img src="./imgs/key.png" alt="key image" id="key" /> -->
-  </div>
+  <div id="viewport"></div>
   <div id="hidden">Fim de Jogo</div>
+  <section id="loading-screen">
+    <div id="loader"></div>
+    <button class="button" id="myBtn">Loading...</button>
+  </section>
+
   <div id="webgl-output">
     <script type="module" src="movimentation.js"></script>
     <script type="module" src="T3.js"></script>

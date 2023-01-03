@@ -167,7 +167,7 @@ export function randomCube(p, numB, size_obstacle, available_space, bbcube, cube
     }
 }
 
-export function randomGLTF(p, numB, size_obstacle, available_space, bbcube, cubeS, scene, bbBox, id_key, mixer) {
+export function randomGLTF(loadingManager, p, numB, size_obstacle, available_space, bbcube, cubeS, scene, bbBox, id_key, mixer) {
     let randomCoordinate = () => Math.floor((Math.random() * available_space) - available_space / 2)
     let randomCoordinate2 = () => (Math.random() * available_space) - available_space / 2
     let chooseCoordenate = () => Math.random()
@@ -194,7 +194,7 @@ export function randomGLTF(p, numB, size_obstacle, available_space, bbcube, cube
 
         
         
-        loadGLTFFile(assetT, './asset/redFox.glb', true, x, p.y - 0.14, z, '', false, null, scene, [], id_key, mixer, true);
+        loadGLTFFile(loadingManager, assetT, './asset/redFox.glb', true, x, p.y - 0.14, z, '', false, null, scene, [], id_key, mixer, true);
         aux_bbBox.push(assetT);
     }
     return aux_bbBox;
@@ -227,6 +227,7 @@ export function makePortal(rgb) {
     var textureLoader = new THREE.TextureLoader();
     var floorTexture = textureLoader.load(`./textures/brickPortal.jpg`);
     csgFinal.material.map = floorTexture;
+    
     return csgFinal;
 }
 
