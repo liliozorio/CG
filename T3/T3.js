@@ -66,6 +66,7 @@ anguloY = { Y: 0 };
 orthographic = true;
 scene = new THREE.Scene();
 renderer = initRenderer();
+renderer.setClearColor("rgb(60, 60, 80)");
 
 let doorsSounds = [0, 1, 2, 3, 4, 5, 6]
 
@@ -171,12 +172,36 @@ let assetT = {
     obj3D: new THREE.Object3D()
 }
 
-loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
-loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
+const loadingManager = new THREE.LoadingManager( () => {
+    let loadingScreen = document.getElementById( 'loading-screen' );
+    loadingScreen.transition = 0;
+    loadingScreen.style.setProperty('--speed1', '0');  
+    loadingScreen.style.setProperty('--speed2', '0');  
+    loadingScreen.style.setProperty('--speed3', '0');      
+  
+    let button  = document.getElementById("myBtn")
+    button.style.backgroundColor = 'Goldenrod';
+    button.innerHTML = 'Iniciar';
+    button.addEventListener("click", onButtonPressed);
+  });
 
-loadGLTFFile(key1, './asset/key.glb', true, 0, -2, -77, "rgb(72,61,139)", true, 0, scene, bbkey, id_key, mixer);
-loadGLTFFile(key2, './asset/key.glb', true, 0, 4, 72, "rgb(128,0,0)", true, 1, scene, bbkey, id_key, mixer);
-loadGLTFFile(key3, './asset/key.glb', true, 80, -2, 0, "rgb(255,215,0)", true, 2, scene, bbkey, id_key, mixer);
+function onButtonPressed() {
+    const loadingScreen = document.getElementById( 'loading-screen' );
+    loadingScreen.transition = 0;
+    loadingScreen.classList.add( 'fade-out' );
+    loadingScreen.addEventListener( 'transitionend', (e) => {
+      const element = e.target;
+      element.remove();  
+    });  
+}
+  
+  
+loadGLTFFile(loadingManager, asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
+loadGLTFFile(loadingManager, asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
+
+loadGLTFFile(loadingManager, key1, './asset/key.glb', true, 0, -2, -77, "rgb(72,61,139)", true, 0, scene, bbkey, id_key, mixer);
+loadGLTFFile(loadingManager, key2, './asset/key.glb', true, 0, 4, 72, "rgb(128,0,0)", true, 1, scene, bbkey, id_key, mixer);
+loadGLTFFile(loadingManager, key3, './asset/key.glb', true, 80, -2, 0, "rgb(255,215,0)", true, 2, scene, bbkey, id_key, mixer);
 
 
 onWindowResize(camera, renderer)
@@ -200,7 +225,7 @@ createSpotLight(53, 0, -5, scene, spotLight_on)
 createSpotLight(63, 0, -5, scene, spotLight_on)
 createSpotLight(80, 0, 0, scene, spotLight_on)
 
-createChambers(SIZE_PLANE, SIZE_OBSTACLE, SIZE_TILE, AVAILABLE_SPACE, scene, bbcube, cubeS, bbBox, blockElevationValue, invisibleWayBlocks,id_key,mixer).forEach(
+createChambers(loadingManager, SIZE_PLANE, SIZE_OBSTACLE, SIZE_TILE, AVAILABLE_SPACE, scene, bbcube, cubeS, bbBox, blockElevationValue, invisibleWayBlocks,id_key,mixer).forEach(
     returnedBox =>{
         bbBox.push(returnedBox);
     }
