@@ -92,17 +92,41 @@ scene.add(cameraholder);
 
 material = setDefaultMaterial("rgb(205,133,63)");
 
+const loadingManager = new THREE.LoadingManager( () => {
+    let loadingScreen = document.getElementById( 'loading-screen' );
+    loadingScreen.transition = 0;
+    loadingScreen.style.setProperty('--speed1', '0');  
+    loadingScreen.style.setProperty('--speed2', '0');  
+    loadingScreen.style.setProperty('--speed3', '0');      
+  
+    let button  = document.getElementById("myBtn")
+    button.style.backgroundColor = 'Goldenrod';
+    button.innerHTML = 'Iniciar';
+    button.addEventListener("click", onButtonPressed);
+  });
+
+
 var listener = new THREE.AudioListener();
 camera.add(listener);
 
+var audioLoader = new THREE.AudioLoader(loadingManager);
+const trilha_sonora = trilhaSonora(listener, audioLoader);
+const pegar_chave = effects("pegar_chave.mp3", listener, audioLoader);
+const abrir_porta = effects("closing door.ogg", listener, audioLoader);
+const acionar_plataforma = effects("plataforma.ogg", listener, audioLoader);
+const monta_ponte = effects("monta_ponte.mp3", listener, audioLoader);
+const fimjogo = effects("fimjogo.ogg", listener, audioLoader);
 
-const trilha_sonora = trilhaSonora(listener);
-const pegar_chave = effects("pegar_chave.mp3", listener);
-const abrir_porta = effects("closing door.ogg", listener);
-const acionar_plataforma = effects("plataforma.ogg", listener);
-const monta_ponte = effects("monta_ponte.mp3", listener);
-const fimjogo = effects("fimjogo.ogg", listener);
-
+function onButtonPressed() {
+    const loadingScreen = document.getElementById( 'loading-screen' );
+    loadingScreen.transition = 0;
+    loadingScreen.classList.add( 'fade-out' );
+    loadingScreen.addEventListener( 'transitionend', (e) => {
+      const element = e.target;
+      element.remove();  
+    });  
+    trilha_sonora.play()
+}
 
 // GIRAR COM MOUSE
 new OrbitControls(camera, renderer.domElement); // Enable mouse rotation, pan, zoom etc.
@@ -170,29 +194,6 @@ let assetT = {
     loaded: false,
     bb: new THREE.Box3(),
     obj3D: new THREE.Object3D()
-}
-
-const loadingManager = new THREE.LoadingManager( () => {
-    let loadingScreen = document.getElementById( 'loading-screen' );
-    loadingScreen.transition = 0;
-    loadingScreen.style.setProperty('--speed1', '0');  
-    loadingScreen.style.setProperty('--speed2', '0');  
-    loadingScreen.style.setProperty('--speed3', '0');      
-  
-    let button  = document.getElementById("myBtn")
-    button.style.backgroundColor = 'Goldenrod';
-    button.innerHTML = 'Iniciar';
-    button.addEventListener("click", onButtonPressed);
-  });
-
-function onButtonPressed() {
-    const loadingScreen = document.getElementById( 'loading-screen' );
-    loadingScreen.transition = 0;
-    loadingScreen.classList.add( 'fade-out' );
-    loadingScreen.addEventListener( 'transitionend', (e) => {
-      const element = e.target;
-      element.remove();  
-    });  
 }
   
   
@@ -580,7 +581,6 @@ function render() {
         asset2.bb.setFromObject(asset2.object);
         asset2.loaded = true;
         asset.loaded = true;
-        trilha_sonora.play()
     }
 
     if(bbBox[bbBox.length - 1] && bbBox[bbBox.length - 1].object!=null && !bbBox[bbBox.length -1].loaded){
