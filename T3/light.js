@@ -5,7 +5,8 @@ import {
 } from "../libs/util/util.js";
 import {
     checkOpenDoorRoom,
-    checkCollisions
+    checkCollisions, 
+    getColissionObjectId
 } from './check.js'
 
 // CREATE DIRECTIONAL LIGHT
@@ -110,7 +111,7 @@ export function getIntensityEmissive(obj) {
     return intensity
 }
 
-export function lightTrasition(light_switch, asset, spotLight_on) {
+export function lightTrasition(light_switch, asset, spotLight_on, spotLightMan) {
     let desceuPlataform3 = [false, false]
     let open6 = true
     for (let i = 0; i < desceuPlataform3.length; i++) {

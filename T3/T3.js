@@ -534,7 +534,7 @@ function render() {
         })
     }
 
-    lightTrasition(light_switch, asset, spotLight_on);
+    lightTrasition(light_switch, asset, spotLight_on, spotLightMan);
 
     if (checkCollisions(bbkey, asset)) {
         let indexkey = getColissionObjectId(bbkey, asset);
