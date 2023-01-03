@@ -194,7 +194,7 @@ export function randomGLTF(p, numB, size_obstacle, available_space, bbcube, cube
 
         
         
-        loadGLTFFile(assetT, './asset/redFox.glb', true, x, p.y - 0.14, z, '', false, null, scene, [], id_key, mixer, true);
+        loadGLTFFile(assetT, "./asset/redFox.glb", true, x, p.y - 0.14, z, '', false, null, scene, [], id_key, mixer, true, 1);
         aux_bbBox.push(assetT);
     }
     return aux_bbBox;

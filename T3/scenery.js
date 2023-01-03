@@ -13,7 +13,9 @@ import {
     makeDoor, 
     makeStairs
 } from './scenery_aux.js';
-
+import {
+    loadGLTFFile,
+} from './import_object.js'
 // CREATE CHAMBERS
 export function createChambers(size_plane, size_obstacle, size_tile, available_space, scene, bbcube, cubeS, bbBox, blockElevationValue, invisibleWayBlocks, id_key, mixer) {
     const pp = {
@@ -51,7 +53,7 @@ export function createChambers(size_plane, size_obstacle, size_tile, available_s
         p11: { rgb: "rgb(240,230,140)", x1: pp.p11.x - (pp.p11.w / 2) - 0.5, x2: pp.p11.x + pp.p11.w / 2 + 0.5, z1: pp.p11.z - (pp.p11.h / 2), z2: pp.p11.z + (pp.p11.h / 2), y: 3.05 },
     }
     randomCube(auxCdnt.p1, 6, size_obstacle, available_space, bbcube, cubeS, scene, id_key, mixer)
-    bbBox = randomGLTF(auxCdnt.p2, 6, size_obstacle, available_space, bbcube, bbBox, scene, id_key, mixer) //p2
+    bbBox = randomGLTF(auxCdnt.p2, 6, size_obstacle, available_space, bbcube, bbBox, scene, id_key, mixer)
 
     makeEdges({ x: auxCdnt.p0.x1, y: 0.75, z: auxCdnt.p0.z1 }, pp.p0.w - 1, pp.p0.h - 1, 3, { f1: 1, f2: 1, f3: 1, f4: 1 },bbcube, cubeS, scene, "mainWall.jpeg")
     makeEdges({ x: auxCdnt.p1.x1, y: -2.25, z: auxCdnt.p1.z1 }, pp.p1.w, pp.p1.h, 3, { f1: 1, f2: 1, f3: 0, f4: 0 }, bbcube, cubeS, scene, "brickWall.jpeg")
@@ -217,7 +219,7 @@ export function plataformsAreaFinal(scene) {
 }
 
 // CREATE CUBES AND PLATAFORMS AREA 3
-export function cubesArea3(bbcube, platforms, scene, objectsArea3, cubeS) 
+export function cubesArea3(bbcube, platforms, scene, objectsArea3, bbBox, id_key, mixer) 
 {
     let positionCubes = {
         area3_0: new THREE.Vector3(33, -2.5, 4.5),
@@ -239,17 +241,31 @@ export function cubesArea3(bbcube, platforms, scene, objectsArea3, cubeS)
     }
     makePlatforms(positionCubes["area3_" + positions[0]], 1, 3, bbcube, platforms, scene, objectsArea3)
     makePlatforms(positionCubes["area3_" + positions[1]], 1, 3, bbcube, platforms, scene, objectsArea3)
-    let cubeGeometry1 = new THREE.BoxGeometry(1, 1, 1);
+    // let cubeGeometry1 = new THREE.BoxGeometry(1, 1, 1);
+    // let aux_bbBox = [];
     for (let i = 2; i < 4; i++) {
-        let material1 = setDefaultMaterial("rgb(222,184,135)");
-        let cube = new THREE.Mesh(cubeGeometry1, material1);
-        cube.position.copy(positionCubes["area3_" + positions[i]]);
-        cube.castShadow = true;
-        cube.name = "randomCube";
-        bbcube.push(new THREE.Box3().setFromObject(cube));
-        cubeS.push(cube);
-        cube.visible = false;
-        objectsArea3.push(cube);
-        scene.add(cube);
+        // let material1 = setDefaultMaterial("rgb(222,184,135)");
+        // let cube = new THREE.Mesh(cubeGeometry1, material1);
+        // cube.position.copy(positionCubes["area3_" + positions[i]]);
+        // cube.castShadow = true;
+        // cube.name = "randomCube";
+        // bbcube.push(new THREE.Box3().setFromObject(cube));
+        // cubeS.push(cube);
+        // cube.visible = false;
+        // objectsArea3.push(cube);
+        // scene.add(cube);
+        // console.log(positionCubes["area3_" + positions[i]]);
+
+        let assetT = {
+            object: null,
+            loaded: false,
+            bb: new THREE.Box3(),
+            obj3D: new THREE.Object3D(),
+            selected: false
+        }
+
+        loadGLTFFile(assetT, "./asset/totoro.glb", true, positionCubes["area3_" + positions[i]].x, positionCubes["area3_" + positions[i]].y - 0.6, positionCubes["area3_" + positions[i]].z, '', false, null, scene, [], id_key, mixer, true, 1.5);
+        bbBox.push(assetT);
     }
+    
 }

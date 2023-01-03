@@ -160,20 +160,12 @@ let key3 = {
     bb: new THREE.Box3()
 }
 
-let assetT = {
-    object: null,
-    loaded: false,
-    bb: new THREE.Box3(),
-    obj3D: new THREE.Object3D()
-}
-
 loadGLTFFile(asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
 loadGLTFFile(asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
 
 loadGLTFFile(key1, './asset/key.glb', true, 0, -2, -77, "rgb(72,61,139)", true, 0, scene, bbkey, id_key, mixer);
 loadGLTFFile(key2, './asset/key.glb', true, 0, 4, 72, "rgb(128,0,0)", true, 1, scene, bbkey, id_key, mixer);
 loadGLTFFile(key3, './asset/key.glb', true, 80, -2, 0, "rgb(255,215,0)", true, 2, scene, bbkey, id_key, mixer);
-
 
 onWindowResize(camera, renderer)
 
@@ -220,7 +212,7 @@ createBarrier(4, 1, 3, -3, -3, -66, 0, 0, 0, bbcube, cubeS)
 
 finalPlatform =  plataformsAreaFinal(scene)
 
-cubesArea3(bbcube, platforms, scene, objectsArea3, cubeS);
+cubesArea3(bbcube, platforms, scene, objectsArea3, bbBox, id_key, mixer);
 
 let spotLightMan = spotLightM(cameraholder)
 
@@ -551,8 +543,18 @@ function render() {
         asset.loaded = true;
         trilha_sonora.play()
     }
-
-    if(bbBox[bbBox.length - 1] && bbBox[bbBox.length - 1].object!=null && !bbBox[bbBox.length -1].loaded){
+    let allLoaded = true;
+    if(!bbBox[0].loaded){
+        bbBox.forEach(box =>{
+            if(bbBox.object==null){
+                allLoaded = false;
+            
+        }});
+        if(allLoaded == true){
+            bbBox[0].loaded = true;
+        }
+    }
+    if(allLoaded){
         bbBox.forEach((loadedBox, index) =>{
             bbBox[index].bb = new THREE.Box3().setFromObject(loadedBox.object);
             bbBox[index].loaded = true;
@@ -578,9 +580,7 @@ function render() {
         const intersects = raycaster.intersectObjects(scene.children);
         const blockFromAsset = 2;
         let GLTFremove;
-        console.log("intersects[0]")
-        console.log(intersects[0])
-        if(intersects[0].object.name!="randomCube"){
+        if(intersects[0] && intersects[0].object && intersects[0].object.name!="randomCube"){
             bbBox.forEach( (searchUUID, index) =>{
                 searchUUID.object.children.forEach(child =>{
                     if(child.uuid == intersects[0].object.uuid){
@@ -591,11 +591,10 @@ function render() {
                 })
             })
         };
-        if ((intersects[0].object.name === "randomCube" && (clickeObjects.object == undefined || intersects[0].object.material.color.getHexString() != "deb887")) || (isGLTF)) {
+        if ((intersects[0] && intersects[0].object.name === "randomCube" && (clickeObjects.object == undefined || intersects[0].object.material.color.getHexString() != "deb887")) || (isGLTF)) {
             let isNear = Math.pow(intersects[0].object.position.x - asset.object.position.x, 2) + Math.pow(intersects[0].object.position.z - asset.object.position.z, 2);
             isNear = Math.sqrt(isNear);
             if ((intersects[0].object.material && intersects[0].object.material.color.getHexString() == "deb887") || (isGLTF && clickeObjects.direction == "up")) /*&& isNear <= 2*/ { //== "deb887"
-                console.log("UP")
                 if(isGLTF){
                     bbBox[GLTFremove].selected = true;
                 }else{
@@ -617,7 +616,6 @@ function render() {
                 sqrtPosition = Math.sqrt(sqrtPosition);
 
                 intersects[0].object.rotation.set(0, 0, 0);
-                console.log(intersects[0].object.position.y)
                 if(isGLTF){
                     intersects[0].object.position.set(
                         0,
@@ -641,14 +639,10 @@ function render() {
                 //Change color on click
                 if(intersects[0].object.material)
                 intersects[0].object.material.color.set(colors[1]);
-                console.log("clickeObjects")
-                console.log(clickeObjects)
 
             } else if ((intersects[0].object.material && intersects[0].object.material.color.getHexString() != "deb887") || (isGLTF && clickeObjects.direction == "down")) {
                 if(intersects[0].object.material)
                 intersects[0].object.material.color.set(colors[0]);
-                console.log("intersects[0].object")
-                console.log(intersects[0].object)
                 asset.obj3D.remove(intersects[0].object);
 
                 scene.add(intersects[0].object)
@@ -671,28 +665,19 @@ function render() {
                 clickeObjects.object = intersects[0].object;
                 clickeObjects.floor = intersects[0].object.position.y - blockElevationValue;
                 clickeObjects.top = intersects[0].object.position.y + asset.object.position.y;
-                
-                console.log("clickeObjects")
-                console.log(clickeObjects)
             }
         }
         click = false;
     }
     if (clickeObjects.object != undefined) {
         if ((clickeObjects.object.material && clickeObjects.object.material.color.getHexString() == "deb887") || (clickeObjects.direction =="down")) {
-            console.log("ENTRO")
             if (clickeObjects.object.position.y > clickeObjects.floor + 0.001) {
-
-                console.log("ENTRO2")
-                console.log("clickeObjects.floor")
-                console.log(clickeObjects.floor)
                 lerpConfig.destination = new THREE.Vector3(clickeObjects.object.position.x, clickeObjects.floor, clickeObjects.object.position.z)
                 clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
 
                 let c = getColissionObjectId(platforms.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) })
                 let isInvisibleSelected = invisibleWayBlocks.selected.indexOf(true);
                 if (c != -1) {
-                    console.log("ENTRO3")
                     lerpConfig.destination = new THREE.Vector3(platforms.object[c].position.x, asset.object.position.y - 0.2, platforms.object[c].position.z)
                     platforms.object[c].position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.1);
                     platforms.pressed[c] = true;
@@ -702,12 +687,9 @@ function render() {
                     playSound(acionar_plataforma);
 
                 } else if (checkCollisions(invisibleWayBlocks.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) }) || isInvisibleSelected != -1) {
-                    console.log("ENTRO4")
                     let indexWay = getColissionObjectId(invisibleWayBlocks.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) });
                     if (indexWay != undefined) {
-                        console.log("ENTRO5")
                         if (invisibleWayBlocks.selected[indexWay] == false) {
-                            console.log("ENTRO6")
                             clickeObjects.floor = clickeObjects.floor - 1;
                             clickeObjects.name = "";
                         }
@@ -721,13 +703,9 @@ function render() {
                     clickeObjects.object.quaternion.slerp(quat, lerpConfig.alpha + 0.3)
 
                 }
-                console.log(clickeObjects.direction)
             } else {
-                console.log("ENTRO7")
-
                 let indexSelected = invisibleWayBlocks.selected.indexOf(true);
                 if (indexSelected != -1) {
-                    console.log("ENTRO8")
                     let indexToRemove = bbcube.indexOf(invisibleWayBlocks.box[indexSelected]);
                     bbcube.splice(indexToRemove, 1);
                     clickeObjects.object.name = "";
@@ -741,32 +719,23 @@ function render() {
                 clickeObjects.top = undefined;
                 if(clickeObjects.direction =="up"){
                     clickeObjects.direction = "down"; 
-                    console.log("opa2")
                 }else{
                     clickeObjects.direction = "up"; 
-                    console.log("opa")
                 }
             }
         }
         else if(clickeObjects.direction =="up"){
-            console.log("ENTRO9")
             if (clickeObjects.object.position.y < clickeObjects.top - 0.001) {
-                console.log("ENTRO10")
                 lerpConfig.destination = new THREE.Vector3(clickeObjects.object.position.x, clickeObjects.top, clickeObjects.object.position.z)
                 clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
-                console.log("nuncapara")
             } else {
-                console.log("ENTRO11")
                 clickeObjects.object = undefined;
                 clickeObjects.floor = undefined;
                 clickeObjects.top = undefined;
-                console.log("terminou de subir")
                 if(clickeObjects.direction =="up"){
                     clickeObjects.direction = "down"; 
-                    console.log("opa")
                 }else{
                     clickeObjects.direction = "up"; 
-                    console.log("opa2")
                 }
             }
         }
