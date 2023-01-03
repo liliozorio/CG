@@ -21,7 +21,7 @@ import {
     makePlatforms,
     createBarrier,
     plataformsAreaFinal,
-    cubesArea3
+    cubesArea3, 
 } from './scenery.js';
 import {
     directionalLight,
@@ -101,6 +101,13 @@ const abrir_porta = effects("closing door.ogg", listener);
 const acionar_plataforma = effects("plataforma.ogg", listener);
 const monta_ponte = effects("monta_ponte.mp3", listener);
 const fimjogo = effects("fimjogo.ogg", listener);
+function viewportAddKey(idkey){
+    const img = document.createElement("img");
+    img.src = `./imgs/key_${idkey}.png`;
+    img.className = "key";
+    document.getElementById("viewport").appendChild(img);
+}
+
 
 
 // GIRAR COM MOUSE
@@ -502,7 +509,10 @@ function keyboardUpdate() {
         }
     }
     if (keyboard.down("T")) {
-        get_key = [true, true, true, true]
+        for(let i = 0; i<2; i++){
+            get_key[i+1]= true;
+            viewportAddKey(i);
+        }
     }
 }
 
@@ -549,7 +559,7 @@ function render() {
         bbkey.splice(indexkey, 1)
         get_key[indexkey + 1] = true;
         playSound(pegar_chave)
-
+        viewportAddKey(indexkey);
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);

@@ -36,8 +36,6 @@ export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, inde
         }
         asset.object = obj;
         if (iskey) {
-            console.log("asset.object")
-            console.log(asset.object)
             bbkey[index] = new THREE.Box3().setFromObject(asset.object);
             id_key[index] = asset.object
         } else if(!animation){
