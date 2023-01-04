@@ -21,7 +21,7 @@ import {
     makePlatforms,
     createBarrier,
     plataformsAreaFinal,
-    cubesArea3, 
+    cubesArea3,
 } from './scenery.js';
 import {
     directionalLight,
@@ -60,7 +60,10 @@ const light_switch = [];
 const spotLight_on = [];
 var finalPlatform;
 const blockElevationValue = 1.5;
-var platforms = { object: [], box: [], pressed: [false, false, false, false, false] };
+var platforms = {
+    object: [], box: [], pressed: [false, false, false, false, false]
+    , sound: [false, false, false, false, false]
+};
 let scene, renderer, camera, material, light, keyboard, orthographic, anguloY, aux_anguloY;
 anguloY = { Y: 0 };
 orthographic = true;
@@ -78,8 +81,8 @@ var s = 105;
 camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
     window.innerHeight / s, window.innerHeight / -s, -s, s);
 
-camera.position.setFromSphericalCoords( 
-    92, 
+camera.position.setFromSphericalCoords(
+    85,
     Math.PI / 2.9, // 60 degrees from positive Y-axis and 30 degrees to XZ-plane
     Math.PI / 1.3  // 45 degrees, between positive X and Z axes, thus on XZ-plane
 );
@@ -92,18 +95,18 @@ scene.add(cameraholder);
 
 material = setDefaultMaterial("rgb(205,133,63)");
 
-const loadingManager = new THREE.LoadingManager( () => {
-    let loadingScreen = document.getElementById( 'loading-screen' );
+const loadingManager = new THREE.LoadingManager(() => {
+    let loadingScreen = document.getElementById('loading-screen');
     loadingScreen.transition = 0;
-    loadingScreen.style.setProperty('--speed1', '0');  
-    loadingScreen.style.setProperty('--speed2', '0');  
-    loadingScreen.style.setProperty('--speed3', '0');      
-  
-    let button  = document.getElementById("myBtn")
+    loadingScreen.style.setProperty('--speed1', '0');
+    loadingScreen.style.setProperty('--speed2', '0');
+    loadingScreen.style.setProperty('--speed3', '0');
+
+    let button = document.getElementById("myBtn")
     button.style.backgroundColor = 'Goldenrod';
     button.innerHTML = 'Iniciar';
     button.addEventListener("click", onButtonPressed);
-  });
+});
 
 
 var listener = new THREE.AudioListener();
@@ -117,14 +120,26 @@ const acionar_plataforma = effects("plataforma.ogg", listener, audioLoader);
 const monta_ponte = effects("monta_ponte.mp3", listener, audioLoader);
 const fimjogo = effects("fimjogo.ogg", listener, audioLoader);
 
+function viewportAddKey(idkey) {
+
+    if (document.getElementsByClassName('key').length < 3) {
+        const img = document.createElement("img");
+        img.src = `./imgs/key_${idkey}.png`;
+        img.className = "key";
+        img.id = "idkey";
+        document.getElementById("viewport").appendChild(img);
+    }
+}
+
+
 function onButtonPressed() {
-    const loadingScreen = document.getElementById( 'loading-screen' );
+    const loadingScreen = document.getElementById('loading-screen');
     loadingScreen.transition = 0;
-    loadingScreen.classList.add( 'fade-out' );
-    loadingScreen.addEventListener( 'transitionend', (e) => {
-      const element = e.target;
-      element.remove();  
-    });  
+    loadingScreen.classList.add('fade-out');
+    loadingScreen.addEventListener('transitionend', (e) => {
+        const element = e.target;
+        element.remove();
+    });
     trilha_sonora.play()
 }
 
@@ -217,8 +232,8 @@ createSpotLight(53, 0, -5, scene, spotLight_on)
 createSpotLight(63, 0, -5, scene, spotLight_on)
 createSpotLight(80, 0, 0, scene, spotLight_on)
 
-createChambers(loadingManager, SIZE_PLANE, SIZE_OBSTACLE, SIZE_TILE, AVAILABLE_SPACE, scene, bbcube, cubeS, bbBox, blockElevationValue, invisibleWayBlocks,id_key,mixer).forEach(
-    returnedBox =>{
+createChambers(loadingManager, SIZE_PLANE, SIZE_OBSTACLE, SIZE_TILE, AVAILABLE_SPACE, scene, bbcube, cubeS, bbBox, blockElevationValue, invisibleWayBlocks, id_key, mixer).forEach(
+    returnedBox => {
         bbBox.push(returnedBox);
     }
 )
@@ -239,7 +254,7 @@ createBarrier(0.25, 6, 7, 23, -1, 3, 0, 90, 0, bbcube, cubeS)
 createBarrier(3, 1, 3, 3, -3, -66, 0, 0, 0, bbcube, cubeS)
 createBarrier(4, 1, 3, -3, -3, -66, 0, 0, 0, bbcube, cubeS)
 
-finalPlatform =  plataformsAreaFinal(scene)
+finalPlatform = plataformsAreaFinal(scene)
 
 cubesArea3(loadingManager, bbcube, platforms, scene, objectsArea3, bbBox, id_key, mixer);
 
@@ -269,7 +284,7 @@ function keyboardUpdate() {
             }
         }
         else {
-            movimentation_colision(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+            movimentation_colision(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
         }
     }
     else if (keyboard.pressed("D") && keyboard.pressed("W") || keyboard.pressed("right") && keyboard.pressed("up")) {
@@ -298,7 +313,7 @@ function keyboardUpdate() {
             }
         }
         else {
-            movimentation_colision(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+            movimentation_colision(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
         }
     }
     else if (keyboard.pressed("A") && keyboard.pressed("S") || keyboard.pressed("left") && keyboard.pressed("down")) {
@@ -327,7 +342,7 @@ function keyboardUpdate() {
             }
         }
         else {
-            movimentation_colision(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+            movimentation_colision(90, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
         }
     }
     else if (keyboard.pressed("D") && keyboard.pressed("S") || keyboard.pressed("right") && keyboard.pressed("down")) {
@@ -348,7 +363,7 @@ function keyboardUpdate() {
             }
         }
         else {
-            movimentation_colision(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+            movimentation_colision(180, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
         }
     }
     else if (keyboard.pressed("W") || keyboard.pressed("up")) {
@@ -377,11 +392,11 @@ function keyboardUpdate() {
             }
         }
         else {
-            aux_collision = movimentation_colision(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+            aux_collision = movimentation_colision(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
             if (aux_collision) {
-                movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
-                movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
-                movimentation_colision(315, 0, 0, 0, 0, 0, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+                movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
+                movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
+                movimentation_colision(315, 0, 0, 0, 0, 0, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
             }
         }
     }
@@ -411,11 +426,11 @@ function keyboardUpdate() {
             }
         }
         else {
-            aux_collision = movimentation_colision(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+            aux_collision = movimentation_colision(135, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
             if (aux_collision) {
-                movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
-                movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
-                movimentation_colision(135, 0, 0, 0, 0, 0, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+                movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
+                movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
+                movimentation_colision(135, 0, 0, 0, 0, 0, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
             }
         }
     }
@@ -445,11 +460,11 @@ function keyboardUpdate() {
             }
         }
         else {
-            aux_collision = movimentation_colision(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+            aux_collision = movimentation_colision(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
             if (aux_collision) {
-                movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
-                movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
-                movimentation_colision(45, 0, 0, 0, 0, 0, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+                movimentation_colision(0, Math.sin(THREE.MathUtils.degToRad(0)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(0)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
+                movimentation_colision(90, Math.sin(THREE.MathUtils.degToRad(90)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(90)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
+                movimentation_colision(45, 0, 0, 0, 0, 0, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
             }
         }
     }
@@ -479,11 +494,11 @@ function keyboardUpdate() {
             }
         }
         else {
-            aux_collision = movimentation_colision(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+            aux_collision = movimentation_colision(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, false, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
             if (aux_collision) {
-                movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
-                movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
-                movimentation_colision(225, 0, 0, 0, 0, 0, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected==false).map(box2 => box2.bb));
+                movimentation_colision(270, Math.sin(THREE.MathUtils.degToRad(270)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(270)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
+                movimentation_colision(180, Math.sin(THREE.MathUtils.degToRad(180)) * WALK_SIZE, Math.cos(THREE.MathUtils.degToRad(180)) * WALK_SIZE, WALK_SIZE, 0, WALK_SIZE, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
+                movimentation_colision(225, 0, 0, 0, 0, 0, 0, true, playAction, asset, asset2, anguloY, bbcube, doors, cameraholder, bbBox.filter(box => box.selected == false).map(box2 => box2.bb));
             }
         }
     }
@@ -505,8 +520,8 @@ function keyboardUpdate() {
         else {
             camera = new THREE.OrthographicCamera(-window.innerWidth / s, window.innerWidth / s,
                 window.innerHeight / s, window.innerHeight / -s, -s, s);
-            camera.position.setFromSphericalCoords( 
-                92, 
+            camera.position.setFromSphericalCoords(
+                85,
                 Math.PI / 2.9, // 60 degrees from positive Y-axis and 30 degrees to XZ-plane
                 Math.PI / 1.3  // 45 degrees, between positive X and Z axes, thus on XZ-plane
             );
@@ -519,9 +534,12 @@ function keyboardUpdate() {
         }
     }
     if (keyboard.down("T")) {
-        for(let i = 0; i<2; i++){
-            get_key[i+1]= true;
-            viewportAddKey(i);
+        for (let i = 0; i < 3; i++) {
+            id_key[i].removeFromParent();
+            bbkey.splice(i, 1)
+            get_key[i + 1] = true;
+            viewportAddKey(i, true);
+
         }
     }
 }
@@ -543,7 +561,7 @@ function render() {
         indexDoor = getColissionObjectId(doors.box, asset)
     }
     if (get_key[indexDoor] || (checkOpenDoorRoom(0, 3, platforms) && indexDoor == 4) || (checkOpenDoorRoom(3, 5, platforms) && indexDoor == 5)) {
-        lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -12.0, doors.obj[indexDoor].position.z)
+        lerpConfig.destination = new THREE.Vector3(doors.obj[indexDoor].position.x, -15.0, doors.obj[indexDoor].position.z)
         doors.obj[indexDoor].position.lerp(lerpConfig.destination, lerpConfig.alpha);
         doors.box[indexDoor] = new THREE.Box3().setFromObject(doors.obj[indexDoor]);
 
@@ -569,7 +587,7 @@ function render() {
         bbkey.splice(indexkey, 1)
         get_key[indexkey + 1] = true;
         playSound(pegar_chave)
-        viewportAddKey(indexkey);
+        viewportAddKey(indexkey, false);
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
@@ -593,7 +611,7 @@ function render() {
             bbBox[index].loaded = true;
             bbBox[index].object.name = "randomGLTF"
         });
-        
+
     }
 
     var delta = clock.getDelta();
@@ -619,7 +637,7 @@ function render() {
                 searchUUID.object.children.forEach(child =>{
                     if(child.uuid == intersects[0].object.uuid){
                         isGLTF = true;
-                        intersects[0].object=searchUUID.object;
+                        intersects[0].object = searchUUID.object;
                         GLTFremove = index;
                     }
                 })
@@ -629,16 +647,16 @@ function render() {
             let isNear = Math.pow(intersects[0].object.position.x - asset.object.position.x, 2) + Math.pow(intersects[0].object.position.z - asset.object.position.z, 2);
             isNear = Math.sqrt(isNear);
             if ((intersects[0].object.material && intersects[0].object.material.color.getHexString() == "deb887") || (isGLTF && clickeObjects.direction == "up")) /*&& isNear <= 2*/ { //== "deb887"
-                if(isGLTF){
+                if (isGLTF) {
                     bbBox[GLTFremove].selected = true;
-                }else{
+                } else {
 
                     cubeS.forEach((bloco, indexRandomBlock) => {
                         if (bloco.uuid && bloco.uuid == intersects[0].object.uuid) {
-                        var indexCube = new THREE.Box3().setFromObject(bloco);
-                        bbcube.forEach((bloco, indexbbCube) => {
-                            if (bloco.max && bloco.min && bloco.max.x == indexCube.max.x && bloco.max.z == indexCube.max.z &&
-                                bloco.min.x == indexCube.min.x && bloco.min.x == indexCube.min.x) {
+                            var indexCube = new THREE.Box3().setFromObject(bloco);
+                            bbcube.forEach((bloco, indexbbCube) => {
+                                if (bloco.max && bloco.min && bloco.max.x == indexCube.max.x && bloco.max.z == indexCube.max.z &&
+                                    bloco.min.x == indexCube.min.x && bloco.min.x == indexCube.min.x) {
                                     cubeS.splice(indexRandomBlock, 1)
                                     bbcube.splice(indexbbCube, 1)
                                 }
@@ -650,19 +668,19 @@ function render() {
                 sqrtPosition = Math.sqrt(sqrtPosition);
 
                 intersects[0].object.rotation.set(0, 0, 0);
-                if(isGLTF){
+                if (isGLTF) {
                     intersects[0].object.position.set(
                         0,
                         -0.09,
                         blockFromAsset,
-                        );
-                }else{
+                    );
+                } else {
 
                     intersects[0].object.position.set(
                         0,
                         0.5,
                         blockFromAsset,
-                        );
+                    );
                 }
                 asset.obj3D.add(intersects[0].object);
 
@@ -671,12 +689,12 @@ function render() {
                 clickeObjects.floor = intersects[0].object.position.y;
                 clickeObjects.top = intersects[0].object.position.y + blockElevationValue;
                 //Change color on click
-                if(intersects[0].object.material)
-                intersects[0].object.material.color.set(colors[1]);
+                if (intersects[0].object.material)
+                    intersects[0].object.material.color.set(colors[1]);
 
             } else if ((intersects[0].object.material && intersects[0].object.material.color.getHexString() != "deb887") || (isGLTF && clickeObjects.direction == "down")) {
-                if(intersects[0].object.material)
-                intersects[0].object.material.color.set(colors[0]);
+                if (intersects[0].object.material)
+                    intersects[0].object.material.color.set(colors[0]);
                 asset.obj3D.remove(intersects[0].object);
 
                 scene.add(intersects[0].object)
@@ -686,11 +704,11 @@ function render() {
                     asset.object.position.z + (blockFromAsset * Math.cos(THREE.MathUtils.degToRad(anguloY.Y)))
                 )
                 intersects[0].object.rotateY(THREE.MathUtils.degToRad(anguloY.Y));
-                if(isGLTF){
+                if (isGLTF) {
                     bbBox[GLTFremove].selected = false;
                     bbBox[GLTFremove].bb = new THREE.Box3().setFromObject(intersects[0].object)
                     bbBox[GLTFremove].object = intersects[0].object;
-                }else{
+                } else {
                     bbcube.push(new THREE.Box3().setFromObject(intersects[0].object));
                     cubeS.push(intersects[0].object)
                 }
@@ -704,7 +722,7 @@ function render() {
         click = false;
     }
     if (clickeObjects.object != undefined) {
-        if ((clickeObjects.object.material && clickeObjects.object.material.color.getHexString() == "deb887") || (clickeObjects.direction =="down")) {
+        if ((clickeObjects.object.material && clickeObjects.object.material.color.getHexString() == "deb887") || (clickeObjects.direction == "down")) {
             if (clickeObjects.object.position.y > clickeObjects.floor + 0.001) {
                 lerpConfig.destination = new THREE.Vector3(clickeObjects.object.position.x, clickeObjects.floor, clickeObjects.object.position.z)
                 clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
@@ -717,9 +735,10 @@ function render() {
                     platforms.pressed[c] = true;
                     clickeObjects.object.name = "";
                     platforms.object[c].material.color.set(colors[2]);
-
-                    playSound(acionar_plataforma);
-
+                    if (!platforms.sound[c]) {
+                        playSound(acionar_plataforma);
+                        platforms.sound[c] = true;
+                    }
                 } else if (checkCollisions(invisibleWayBlocks.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) }) || isInvisibleSelected != -1) {
                     let indexWay = getColissionObjectId(invisibleWayBlocks.box, { bb: new THREE.Box3().setFromObject(clickeObjects.object) });
                     if (indexWay != undefined) {
@@ -751,11 +770,14 @@ function render() {
                 clickeObjects.object = undefined;
                 clickeObjects.floor = undefined;
                 clickeObjects.top = undefined;
-                clickeObjects.direction = "up";
-                
+                if (clickeObjects.direction == "up") {
+                    clickeObjects.direction = "down";
+                } else {
+                    clickeObjects.direction = "up";
+                }
             }
         }
-        else if(clickeObjects.direction =="up"){
+        else if (clickeObjects.direction == "up") {
             if (clickeObjects.object.position.y < clickeObjects.top - 0.001) {
                 lerpConfig.destination = new THREE.Vector3(clickeObjects.object.position.x, clickeObjects.top, clickeObjects.object.position.z)
                 clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
@@ -763,8 +785,11 @@ function render() {
                 clickeObjects.object = undefined;
                 clickeObjects.floor = undefined;
                 clickeObjects.top = undefined;
-                clickeObjects.direction = "down"; 
-                
+                if (clickeObjects.direction == "up") {
+                    clickeObjects.direction = "down";
+                } else {
+                    clickeObjects.direction = "up";
+                }
             }
         }
     }
