@@ -636,7 +636,12 @@ function render() {
             bbBox.forEach((searchUUID, index) => {
                 searchUUID.object.children.forEach(child => {
                     if (child.uuid == intersects[0].object.uuid) {
-                        isGLTF = true;
+                        if(searchUUID.selected == true){
+                            isGLTF = true;
+                        }
+                        else if(searchUUID.selected == false && !bbBox.find(box=> box.selected == true)){
+                            isGLTF = true;
+                        }
                         intersects[0].object = searchUUID.object;
                         GLTFremove = index;
 
