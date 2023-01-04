@@ -3,10 +3,7 @@ import KeyboardState from '../libs/util/KeyboardState.js'
 import {
     initRenderer,
     setDefaultMaterial,
-    getMaxSize,
-    radiansToDegrees
 } from "../libs/util/util.js";
-import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import {
     checkCollisions,
     checkOpenDoorRoom,
@@ -143,9 +140,6 @@ function onButtonPressed() {
     trilha_sonora.play()
 }
 
-// GIRAR COM MOUSE
-new OrbitControls(camera, renderer.domElement); // Enable mouse rotation, pan, zoom etc.
-
 let ambientLight = createAmbientLight(scene)
 
 let dirLight = directionalLight(cameraholder)
@@ -204,8 +198,8 @@ let key3 = {
     bb: new THREE.Box3()
 }
 
-loadGLTFFile(loadingManager, asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
-loadGLTFFile(loadingManager, asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
+loadGLTFFile(loadingManager, asset, './asset/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
+loadGLTFFile(loadingManager, asset2, './asset/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
 
 loadGLTFFile(loadingManager, key1, './asset/key.glb', true, 0, -2, -77, "rgb(72,61,139)", true, 0, scene, bbkey, id_key, mixer);
 loadGLTFFile(loadingManager, key2, './asset/key.glb', true, 0, 4, 72, "rgb(128,0,0)", true, 1, scene, bbkey, id_key, mixer);
