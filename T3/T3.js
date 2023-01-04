@@ -54,7 +54,7 @@ const bbkey = [null, null, null];
 const bbBox = [];
 let get_key = [true, false, true, false];
 const id_key = [null, null, null];
-var clickeObjects = { object: undefined, floor: undefined, top: undefined, direction: "up" }
+var clickeObjects = { object: undefined, floor: undefined, top: undefined, direction: "up"}
 const invisibleWayBlocks = { box: [], cube: [], selected: [] };
 const light_switch = [];
 const spotLight_on = [];
@@ -579,7 +579,7 @@ function render() {
     let allLoaded = true;
     if(!bbBox[0].loaded){
         bbBox.forEach(box =>{
-            if(bbBox.object==null){
+            if(box.object==null){
                 allLoaded = false;
             
         }});
@@ -613,6 +613,7 @@ function render() {
         const intersects = raycaster.intersectObjects(scene.children);
         const blockFromAsset = 2;
         let GLTFremove;
+        
         if(intersects[0] && intersects[0].object && intersects[0].object.name!="randomCube"){
             bbBox.forEach( (searchUUID, index) =>{
                 searchUUID.object.children.forEach(child =>{
@@ -750,11 +751,8 @@ function render() {
                 clickeObjects.object = undefined;
                 clickeObjects.floor = undefined;
                 clickeObjects.top = undefined;
-                if(clickeObjects.direction =="up"){
-                    clickeObjects.direction = "down"; 
-                }else{
-                    clickeObjects.direction = "up"; 
-                }
+                clickeObjects.direction = "up";
+                
             }
         }
         else if(clickeObjects.direction =="up"){
@@ -765,11 +763,8 @@ function render() {
                 clickeObjects.object = undefined;
                 clickeObjects.floor = undefined;
                 clickeObjects.top = undefined;
-                if(clickeObjects.direction =="up"){
-                    clickeObjects.direction = "down"; 
-                }else{
-                    clickeObjects.direction = "up"; 
-                }
+                clickeObjects.direction = "down"; 
+                
             }
         }
     }
