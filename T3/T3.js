@@ -52,9 +52,9 @@ const objectsArea3 = [];
 const doors = { box: [], obj: [] };
 const bbkey = [null, null, null];
 const bbBox = [];
-let get_key = [true, false, true, false];
+let get_key = [true, false, false, false];
 const id_key = [null, null, null];
-var clickeObjects = { object: undefined, floor: undefined, top: undefined, direction: "up" }
+var clickeObjects = { object: undefined, floor: undefined, top: undefined, direction: "up", inPlataform: false }
 const invisibleWayBlocks = { box: [], cube: [], selected: [] };
 const light_switch = [];
 const spotLight_on = [];
@@ -631,7 +631,11 @@ function render() {
         raycaster.setFromCamera(pointer, camera);
         const intersects = raycaster.intersectObjects(scene.children);
         const blockFromAsset = 2;
+        let blockToElevate = true;
         let GLTFremove;
+        if(intersects[0].object.material.color.getHexString() == "deb887" && clickeObjects.direction == "down"){
+            blockToElevate = false;
+        }
         if (intersects[0] && intersects[0].object && intersects[0].object.name != "randomCube") {
             bbBox.forEach((searchUUID, index) => {
                 searchUUID.object.children.forEach(child => {
@@ -649,7 +653,7 @@ function render() {
                 })
             })
         };
-        if ((intersects[0] && intersects[0].object.name === "randomCube" && (clickeObjects.object == undefined || intersects[0].object.material.color.getHexString() != "deb887")) || (isGLTF)) {
+        if ((intersects[0] && intersects[0].object.name === "randomCube" && blockToElevate && (clickeObjects.object == undefined || intersects[0].object.material.color.getHexString() != "deb887")) || (isGLTF)) {
             let isNear = Math.pow(intersects[0].object.position.x - asset.object.position.x, 2) + Math.pow(intersects[0].object.position.z - asset.object.position.z, 2);
             isNear = Math.sqrt(isNear);
             if (((intersects[0].object.material && intersects[0].object.material.color.getHexString() == "deb887") || (isGLTF && clickeObjects.direction == "up")) && isNear <= 2.5)  { //== "deb887"
@@ -701,7 +705,6 @@ function render() {
                 else {
                     intersects[0].object.children.forEach(child => {
                         if (child && child.material) {
-                            //console.log(child.material.color.getHexString())
                             let white = parseInt(child.material.color.getHexString(), 16);
                             let red = 50;
                             let res = (white - red).toString(16).padStart(6, '0');
@@ -768,7 +771,8 @@ function render() {
                     platforms.object[c].position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.1);
                     platforms.pressed[c] = true;
                     clickeObjects.object.name = "";
-                    clickeObjects.object.floor += 1.5 
+                    clickeObjects.object.floor += 1.5 ;
+                    clickeObjects.inPlataform = true;
                     platforms.object[c].material.color.set(colors[2]);
                     if (!platforms.sound[c]) {
                         playSound(acionar_plataforma);
@@ -802,9 +806,21 @@ function render() {
                     invisibleWayBlocks.cube.splice(indexSelected, 1);
                     invisibleWayBlocks.box.splice(indexSelected, 1);
                 }
+                if(clickeObjects.inPlataform != false){
+                    let removeIn;
+                    bbBox.forEach((box, index) =>{
+                        if(box.object.uuid == clickeObjects.object.uuid){
+                            removeIn = index;
+                        }
+                    });
+                    bbcube.push(bbBox[removeIn].bb)
+                    bbBox.splice(removeIn,1);
+                    clickeObjects.inPlataform = false;
+                }
                 clickeObjects.object = undefined;
                 clickeObjects.floor = undefined;
                 clickeObjects.top = undefined;
+
                 if (clickeObjects.direction == "up") {
                     clickeObjects.direction = "down";
                 } else {

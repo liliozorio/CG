@@ -179,7 +179,8 @@ export function randomGLTF(loadingManager, p, numB, size_obstacle, available_spa
             loaded: false,
             bb: new THREE.Box3(),
             obj3D: new THREE.Object3D(),
-            selected: false
+            selected: false,
+            inPlataform: false
         }
         let x;
         let z;
