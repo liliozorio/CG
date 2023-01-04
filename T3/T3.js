@@ -3,10 +3,8 @@ import KeyboardState from '../libs/util/KeyboardState.js'
 import {
     initRenderer,
     setDefaultMaterial,
-    getMaxSize,
-    radiansToDegrees
 } from "../libs/util/util.js";
-import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
+
 import {
     checkCollisions,
     checkOpenDoorRoom,
@@ -52,7 +50,7 @@ const objectsArea3 = [];
 const doors = { box: [], obj: [] };
 const bbkey = [null, null, null];
 const bbBox = [];
-let get_key = [true, false, true, false];
+let get_key = [true, false, false, false];
 const id_key = [null, null, null];
 var clickeObjects = { object: undefined, floor: undefined, top: undefined, direction: "up" }
 const invisibleWayBlocks = { box: [], cube: [], selected: [] };
@@ -143,8 +141,6 @@ function onButtonPressed() {
     trilha_sonora.play()
 }
 
-// GIRAR COM MOUSE
-new OrbitControls(camera, renderer.domElement); // Enable mouse rotation, pan, zoom etc.
 
 let ambientLight = createAmbientLight(scene)
 
@@ -204,8 +200,8 @@ let key3 = {
     bb: new THREE.Box3()
 }  
   
-loadGLTFFile(loadingManager, asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
-loadGLTFFile(loadingManager, asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
+loadGLTFFile(loadingManager, asset, './asset/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
+loadGLTFFile(loadingManager, asset2, './asset/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
 
 loadGLTFFile(loadingManager, key1, './asset/key.glb', true, 0, -2, -77, "rgb(72,61,139)", true, 0, scene, bbkey, id_key, mixer);
 loadGLTFFile(loadingManager, key2, './asset/key.glb', true, 0, 4, 72, "rgb(128,0,0)", true, 1, scene, bbkey, id_key, mixer);
@@ -271,10 +267,10 @@ function keyboardUpdate() {
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if (select_stairs == 0) {
-                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
             else if (select_stairs == 1) {
-                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
             if (select_stairs == 2) {
                 movimentation_stairs(0, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
@@ -298,7 +294,7 @@ function keyboardUpdate() {
                 movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0, WALK_SIZE, 0, 0, WALK_SIZE, 0, 0, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
             if (select_stairs == 2) {
-                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
                 dirLight.intensity = dirLight.intensity + 0.01
                 ambientLight.intensity = ambientLight.intensity + 0.01
                 if (spotLightMan.intensity > 0) {
@@ -309,7 +305,7 @@ function keyboardUpdate() {
                 }
             }
             else if (select_stairs == 3) {
-                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(270, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
         }
         else {
@@ -371,13 +367,13 @@ function keyboardUpdate() {
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if (select_stairs == 0) {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
             else if (select_stairs == 1) {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
             if (select_stairs == 2) {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
                 dirLight.intensity = dirLight.intensity + 0.01
                 ambientLight.intensity = ambientLight.intensity + 0.01
                 if (spotLightMan.intensity > 0) {
@@ -388,7 +384,7 @@ function keyboardUpdate() {
                 }
             }
             else if (select_stairs == 3) {
-                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(315, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
         }
         else {
@@ -439,10 +435,10 @@ function keyboardUpdate() {
         if (escada) {
             var select_stairs = getColissionObjectId(bbstairs, asset)
             if (select_stairs == 0) {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
             else if (select_stairs == 1) {
-                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
             if (select_stairs == 2) {
                 movimentation_stairs(45, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.021, WALK_SIZE, 0, -0.021, WALK_SIZE, 0, -0.021, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
@@ -479,7 +475,7 @@ function keyboardUpdate() {
                 movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, -0.021, WALK_SIZE, 0, -0.021, WALK_SIZE, 0, -0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
             if (select_stairs == 2) {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
                 dirLight.intensity = dirLight.intensity + 0.01
                 ambientLight.intensity = ambientLight.intensity + 0.01
                 if (spotLightMan.intensity > 0) {
@@ -490,7 +486,7 @@ function keyboardUpdate() {
                 }
             }
             else if (select_stairs == 3) {
-                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.025, WALK_SIZE, 0, 0.025, WALK_SIZE, 0, 0.025, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
+                movimentation_stairs(225, Math.sin(rad) * WALK_SIZE, Math.cos(rad) * WALK_SIZE, 0.029, WALK_SIZE, 0, 0.029, WALK_SIZE, 0, 0.029, false, bbcube, doors, anguloY, asset, asset2, cameraholder, playAction, dirLight, ambientLight, bbstairs);
             }
         }
         else {
@@ -534,12 +530,13 @@ function keyboardUpdate() {
         }
     }
     if (keyboard.down("T")) {
+        platforms.pressed = [true,true,true,true,true]
+        var n = document.getElementsByClassName('key').length
         for (let i = 0; i < 3; i++) {
             id_key[i].removeFromParent();
             bbkey.splice(i, 1)
-            get_key[i + 1] = true;
-            viewportAddKey(i, true);
-
+            get_key[i + 1 + n] = true;
+            viewportAddKey(i + n, true);
         }
     }
 }
@@ -581,13 +578,15 @@ function render() {
 
     lightTrasition(light_switch, asset, spotLight_on, spotLightMan, platforms);
 
+    console.log(id_key)
     if (checkCollisions(bbkey, asset)) {
+        var n = document.getElementsByClassName('key').length
         let indexkey = getColissionObjectId(bbkey, asset);
-        id_key[indexkey].removeFromParent();
+        id_key[indexkey + n].removeFromParent();
         bbkey.splice(indexkey, 1)
-        get_key[indexkey + 1] = true;
+        get_key[indexkey + n + 1] = true;
         playSound(pegar_chave)
-        viewportAddKey(indexkey, false);
+        viewportAddKey(indexkey + n, false);
     }
     if (asset2.object && !asset2.loaded) {
         asset2.bb.setFromObject(asset2.object);
@@ -635,7 +634,12 @@ function render() {
             bbBox.forEach( (searchUUID, index) =>{
                 searchUUID.object.children.forEach(child =>{
                     if(child.uuid == intersects[0].object.uuid){
-                        isGLTF = true;
+                        if(searchUUID.selected == true){
+                            isGLTF = true;
+                        }
+                        else if(searchUUID.selected == false && !bbBox.find(box=> box.selected == true)){
+                            isGLTF = true;
+                        }
                         intersects[0].object = searchUUID.object;
                         GLTFremove = index;
                     }
