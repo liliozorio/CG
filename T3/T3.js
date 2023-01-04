@@ -52,7 +52,7 @@ const objectsArea3 = [];
 const doors = { box: [], obj: [] };
 const bbkey = [null, null, null];
 const bbBox = [];
-let get_key = [true, false, false, false];
+let get_key = [true, false, true, false];
 const id_key = [null, null, null];
 var clickeObjects = { object: undefined, floor: undefined, top: undefined, direction: "up" }
 const invisibleWayBlocks = { box: [], cube: [], selected: [] };
@@ -202,23 +202,14 @@ let key3 = {
     object: null,
     loaded: false,
     bb: new THREE.Box3()
-}
-
-let assetT = {
-    object: null,
-    loaded: false,
-    bb: new THREE.Box3(),
-    obj3D: new THREE.Object3D()
-}
-
-
+}  
+  
 loadGLTFFile(loadingManager, asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
 loadGLTFFile(loadingManager, asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
 
 loadGLTFFile(loadingManager, key1, './asset/key.glb', true, 0, -2, -77, "rgb(72,61,139)", true, 0, scene, bbkey, id_key, mixer);
 loadGLTFFile(loadingManager, key2, './asset/key.glb', true, 0, 4, 72, "rgb(128,0,0)", true, 1, scene, bbkey, id_key, mixer);
 loadGLTFFile(loadingManager, key3, './asset/key.glb', true, 80, -2, 0, "rgb(255,215,0)", true, 2, scene, bbkey, id_key, mixer);
-
 
 onWindowResize(camera, renderer)
 
@@ -265,7 +256,7 @@ createBarrier(4, 1, 3, -3, -3, -66, 0, 0, 0, bbcube, cubeS)
 
 finalPlatform = plataformsAreaFinal(scene)
 
-cubesArea3(bbcube, platforms, scene, objectsArea3, cubeS);
+cubesArea3(loadingManager, bbcube, platforms, scene, objectsArea3, bbBox, id_key, mixer);
 
 let spotLightMan = spotLightM(cameraholder)
 
@@ -603,9 +594,19 @@ function render() {
         asset2.loaded = true;
         asset.loaded = true;
     }
-
-    if (bbBox[bbBox.length - 1] && bbBox[bbBox.length - 1].object != null && !bbBox[bbBox.length - 1].loaded) {
-        bbBox.forEach((loadedBox, index) => {
+    let allLoaded = true;
+    if(!bbBox[0].loaded){
+        bbBox.forEach(box =>{
+            if(bbBox.object==null){
+                allLoaded = false;
+            
+        }});
+        if(allLoaded == true){
+            bbBox[0].loaded = true;
+        }
+    }
+    if(allLoaded){
+        bbBox.forEach((loadedBox, index) =>{
             bbBox[index].bb = new THREE.Box3().setFromObject(loadedBox.object);
             bbBox[index].loaded = true;
             bbBox[index].object.name = "randomGLTF"
@@ -630,10 +631,10 @@ function render() {
         const intersects = raycaster.intersectObjects(scene.children);
         const blockFromAsset = 2;
         let GLTFremove;
-        if (intersects[0].object.name != "randomCube") {
-            bbBox.forEach((searchUUID, index) => {
-                searchUUID.object.children.forEach(child => {
-                    if (child.uuid == intersects[0].object.uuid) {
+        if(intersects[0] && intersects[0].object && intersects[0].object.name!="randomCube"){
+            bbBox.forEach( (searchUUID, index) =>{
+                searchUUID.object.children.forEach(child =>{
+                    if(child.uuid == intersects[0].object.uuid){
                         isGLTF = true;
                         intersects[0].object = searchUUID.object;
                         GLTFremove = index;
@@ -641,7 +642,7 @@ function render() {
                 })
             })
         };
-        if ((intersects[0].object.name === "randomCube" && (clickeObjects.object == undefined || intersects[0].object.material.color.getHexString() != "deb887")) || (isGLTF)) {
+        if ((intersects[0] && intersects[0].object.name === "randomCube" && (clickeObjects.object == undefined || intersects[0].object.material.color.getHexString() != "deb887")) || (isGLTF)) {
             let isNear = Math.pow(intersects[0].object.position.x - asset.object.position.x, 2) + Math.pow(intersects[0].object.position.z - asset.object.position.z, 2);
             isNear = Math.sqrt(isNear);
             if ((intersects[0].object.material && intersects[0].object.material.color.getHexString() == "deb887") || (isGLTF && clickeObjects.direction == "up")) /*&& isNear <= 2*/ { //== "deb887"
@@ -755,7 +756,6 @@ function render() {
 
                 }
             } else {
-
                 let indexSelected = invisibleWayBlocks.selected.indexOf(true);
                 if (indexSelected != -1) {
                     let indexToRemove = bbcube.indexOf(invisibleWayBlocks.box[indexSelected]);
