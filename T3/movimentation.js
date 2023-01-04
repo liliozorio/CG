@@ -160,7 +160,7 @@ export function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, wal
         movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, -0.6, 0, deslisa, asset, asset2, anguloY, cameraholder);
         collision = checkCollisions(bbcube, asset2);
         collision_door = checkCollisions(doors.box, asset2);
-        collision_GLTF = checkCollisions(bbGLTF, asset)
+        collision_GLTF = checkCollisions(bbGLTF, asset2)
         if (collision || collision_door || collision_GLTF) {
             asset2.object.position.x = asset.object.position.x
             asset2.object.position.z = asset.object.position.z
@@ -168,6 +168,7 @@ export function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, wal
             asset2.bb.setFromObject(asset2.object);
             movimentation(angulo_max, 0, 0, 0, 0, 0, 0, walkZ_hide, 0.6, 0, deslisa, asset, asset2, anguloY, cameraholder);
             collision = checkCollisions(bbcube, asset2);
+            collision_GLTF = checkCollisions(bbGLTF, asset2)
             if (collision || collision_door || collision_GLTF) {
                 asset2.object.position.x = asset.object.position.x
                 asset2.object.position.z = asset.object.position.z
@@ -188,5 +189,5 @@ export function movimentation_colision(angulo_max, camX, camZ, walkZ, walkX, wal
             movimentation(angulo_max, camX, camZ, 0, walkZ, walkX, 0, walkZ_hide, walkX_hide, 0, deslisa, asset, asset2, anguloY, cameraholder);
         }
     }
-    return collision
+    return collision || collision_GLTF
 }
