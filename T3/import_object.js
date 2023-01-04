@@ -9,8 +9,9 @@ import{
 } from './light.js'
 
 // INITIALIZE CHARACTER
-export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, index, scene, bbkey, id_key, mixer, animation, scale) {
-    var loader = new GLTFLoader();
+export function loadGLTFFile(loadingManager, asset, file, add_scene, x, y, z, color, iskey, index, scene, bbkey, id_key, mixer, animation, scale) {
+    var loader = new GLTFLoader(loadingManager);
+    console.log(file)
     loader.load(file, function (gltf) {
         var obj = gltf.scene;
         obj.traverse(function (child) {
@@ -36,8 +37,6 @@ export function loadGLTFFile(asset, file, add_scene, x, y, z, color, iskey, inde
         }
         asset.object = obj;
         if (iskey) {
-            console.log("asset.object")
-            console.log(asset.object)
             bbkey[index] = new THREE.Box3().setFromObject(asset.object);
             id_key[index] = asset.object
         } else if(!animation){
