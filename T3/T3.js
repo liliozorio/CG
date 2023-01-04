@@ -578,7 +578,6 @@ function render() {
 
     lightTrasition(light_switch, asset, spotLight_on, spotLightMan, platforms);
 
-    console.log(id_key)
     if (checkCollisions(bbkey, asset)) {
         var n = document.getElementsByClassName('key').length
         let indexkey = getColissionObjectId(bbkey, asset);
@@ -700,7 +699,6 @@ function render() {
                 else {
                     intersects[0].object.children.forEach(child => {
                         if (child && child.material) {
-                            //console.log(child.material.color.getHexString())
                             let white = parseInt(child.material.color.getHexString(), 16);
                             let red = 50;
                             let res = (white - red).toString(16).padStart(6, '0');
