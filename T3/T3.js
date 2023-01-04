@@ -198,17 +198,10 @@ let key3 = {
     object: null,
     loaded: false,
     bb: new THREE.Box3()
-<<<<<<< HEAD
 }  
   
 loadGLTFFile(loadingManager, asset, './asset/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
 loadGLTFFile(loadingManager, asset2, './asset/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
-=======
-}
-
-loadGLTFFile(loadingManager, asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
-loadGLTFFile(loadingManager, asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
->>>>>>> 3ace8323d9911b81159241a81248aa01a3b4c35f
 
 loadGLTFFile(loadingManager, key1, './asset/key.glb', true, 0, -2, -77, "rgb(72,61,139)", true, 0, scene, bbkey, id_key, mixer);
 loadGLTFFile(loadingManager, key2, './asset/key.glb', true, 0, 4, 72, "rgb(128,0,0)", true, 1, scene, bbkey, id_key, mixer);
