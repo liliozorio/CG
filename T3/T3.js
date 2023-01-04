@@ -54,7 +54,7 @@ const bbkey = [null, null, null];
 const bbBox = [];
 let get_key = [true, false, true, false];
 const id_key = [null, null, null];
-var clickeObjects = { object: undefined, floor: undefined, top: undefined, direction: "up"}
+var clickeObjects = { object: undefined, floor: undefined, top: undefined, direction: "up" }
 const invisibleWayBlocks = { box: [], cube: [], selected: [] };
 const light_switch = [];
 const spotLight_on = [];
@@ -93,7 +93,7 @@ let cameraholder = new THREE.Object3D();
 cameraholder.add(camera);
 scene.add(cameraholder);
 
-material = setDefaultMaterial("rgb(205,133,63)");
+material = setDefaultMaterial("rgb(705,133,63)");
 
 const loadingManager = new THREE.LoadingManager(() => {
     let loadingScreen = document.getElementById('loading-screen');
@@ -202,8 +202,8 @@ let key3 = {
     object: null,
     loaded: false,
     bb: new THREE.Box3()
-}  
-  
+}
+
 loadGLTFFile(loadingManager, asset, '../assets/objects/walkingMan.glb', true, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
 loadGLTFFile(loadingManager, asset2, '../assets/objects/walkingMan.glb', false, 0, 0, 0, '', false, null, scene, bbkey, id_key, mixer);
 
@@ -555,7 +555,7 @@ function clickElement(events) {
 }
 
 let indexDoor
-let colors = ["rgb(222,184,135)", "rgb(165,42,42)", "rgb(102,205,170)", "rgb(60,179,113)"];
+let colors = ["rgb(222,184,135)", "rgb(165,42,42)", "rgb(102,705,170)", "rgb(60,179,113)"];
 function render() {
     if (checkCollisions(doors.box, asset)) {
         indexDoor = getColissionObjectId(doors.box, asset)
@@ -595,18 +595,19 @@ function render() {
         asset.loaded = true;
     }
     let allLoaded = true;
-    if(!bbBox[0].loaded){
-        bbBox.forEach(box =>{
-            if(box.object==null){
+    if (!bbBox[0].loaded) {
+        bbBox.forEach(box => {
+            if (box.object == null) {
                 allLoaded = false;
-            
-        }});
-        if(allLoaded == true){
+
+            }
+        });
+        if (allLoaded == true) {
             bbBox[0].loaded = true;
         }
     }
-    if(allLoaded){
-        bbBox.forEach((loadedBox, index) =>{
+    if (allLoaded) {
+        bbBox.forEach((loadedBox, index) => {
             bbBox[index].bb = new THREE.Box3().setFromObject(loadedBox.object);
             bbBox[index].loaded = true;
             bbBox[index].object.name = "randomGLTF"
@@ -631,14 +632,14 @@ function render() {
         const intersects = raycaster.intersectObjects(scene.children);
         const blockFromAsset = 2;
         let GLTFremove;
-        
-        if(intersects[0] && intersects[0].object && intersects[0].object.name!="randomCube"){
-            bbBox.forEach( (searchUUID, index) =>{
-                searchUUID.object.children.forEach(child =>{
-                    if(child.uuid == intersects[0].object.uuid){
+        if (intersects[0] && intersects[0].object && intersects[0].object.name != "randomCube") {
+            bbBox.forEach((searchUUID, index) => {
+                searchUUID.object.children.forEach(child => {
+                    if (child.uuid == intersects[0].object.uuid) {
                         isGLTF = true;
                         intersects[0].object = searchUUID.object;
                         GLTFremove = index;
+
                     }
                 })
             })
@@ -646,7 +647,7 @@ function render() {
         if ((intersects[0] && intersects[0].object.name === "randomCube" && (clickeObjects.object == undefined || intersects[0].object.material.color.getHexString() != "deb887")) || (isGLTF)) {
             let isNear = Math.pow(intersects[0].object.position.x - asset.object.position.x, 2) + Math.pow(intersects[0].object.position.z - asset.object.position.z, 2);
             isNear = Math.sqrt(isNear);
-            if ((intersects[0].object.material && intersects[0].object.material.color.getHexString() == "deb887") || (isGLTF && clickeObjects.direction == "up")) /*&& isNear <= 2*/ { //== "deb887"
+            if (((intersects[0].object.material && intersects[0].object.material.color.getHexString() == "deb887") || (isGLTF && clickeObjects.direction == "up")) && isNear <= 2.5)  { //== "deb887"
                 if (isGLTF) {
                     bbBox[GLTFremove].selected = true;
                 } else {
@@ -671,7 +672,7 @@ function render() {
                 if (isGLTF) {
                     intersects[0].object.position.set(
                         0,
-                        -0.09,
+                        0,
                         blockFromAsset,
                     );
                 } else {
@@ -689,12 +690,40 @@ function render() {
                 clickeObjects.floor = intersects[0].object.position.y;
                 clickeObjects.top = intersects[0].object.position.y + blockElevationValue;
                 //Change color on click
-                if (intersects[0].object.material)
+                if (intersects[0].object.material) {
                     intersects[0].object.material.color.set(colors[1]);
+                }
+                else {
+                    intersects[0].object.children.forEach(child => {
+                        if (child && child.material) {
+                            //console.log(child.material.color.getHexString())
+                            let white = parseInt(child.material.color.getHexString(), 16);
+                            let red = 50;
+                            let res = (white - red).toString(16).padStart(6, '0');
+                            if (white > 50){
+                                child.material.color.setHex(`0x${res}`)
+                            }
+                        }
+                    })
+
+                }
 
             } else if ((intersects[0].object.material && intersects[0].object.material.color.getHexString() != "deb887") || (isGLTF && clickeObjects.direction == "down")) {
-                if (intersects[0].object.material)
+                if (intersects[0].object.material) {
                     intersects[0].object.material.color.set(colors[0]);
+                }
+                else {
+                    intersects[0].object.children.forEach(child => {
+                        if (child && child.material) {
+                            let white = parseInt(child.material.color.getHexString(), 16);
+                            let red = 50;
+                            let res = (white + red).toString(16).padStart(6, '0');
+                            if (white > 50){
+                                child.material.color.setHex(`0x${res}`)
+                            }
+                        }
+                    })
+                }
                 asset.obj3D.remove(intersects[0].object);
 
                 scene.add(intersects[0].object)
@@ -723,7 +752,7 @@ function render() {
     }
     if (clickeObjects.object != undefined) {
         if ((clickeObjects.object.material && clickeObjects.object.material.color.getHexString() == "deb887") || (clickeObjects.direction == "down")) {
-            if (clickeObjects.object.position.y > clickeObjects.floor + 0.001) {
+            if (clickeObjects.object.position.y > clickeObjects.floor + 0.01) {
                 lerpConfig.destination = new THREE.Vector3(clickeObjects.object.position.x, clickeObjects.floor, clickeObjects.object.position.z)
                 clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
 
@@ -734,6 +763,7 @@ function render() {
                     platforms.object[c].position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.1);
                     platforms.pressed[c] = true;
                     clickeObjects.object.name = "";
+                    clickeObjects.object.floor += 1.5 
                     platforms.object[c].material.color.set(colors[2]);
                     if (!platforms.sound[c]) {
                         playSound(acionar_plataforma);
@@ -778,7 +808,7 @@ function render() {
             }
         }
         else if (clickeObjects.direction == "up") {
-            if (clickeObjects.object.position.y < clickeObjects.top - 0.001) {
+            if (clickeObjects.object.position.y < clickeObjects.top - 0.01) {
                 lerpConfig.destination = new THREE.Vector3(clickeObjects.object.position.x, clickeObjects.top, clickeObjects.object.position.z)
                 clickeObjects.object.position.lerp(lerpConfig.destination, lerpConfig.alpha + 0.2);
             } else {

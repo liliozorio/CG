@@ -53,7 +53,7 @@ export function createChambers(loadingManager, size_plane, size_obstacle, size_t
         p11: { rgb: "rgb(240,230,140)", x1: pp.p11.x - (pp.p11.w / 2) - 0.5, x2: pp.p11.x + pp.p11.w / 2 + 0.5, z1: pp.p11.z - (pp.p11.h / 2), z2: pp.p11.z + (pp.p11.h / 2), y: 3.05 },
     }
     randomCube(auxCdnt.p1, 6, size_obstacle, available_space, bbcube, cubeS, scene, id_key, mixer)
-    bbBox = randomGLTF(loadingManager, auxCdnt.p0, 6, size_obstacle, available_space, bbcube, bbBox, scene, id_key, mixer) //p2
+    bbBox = randomGLTF(loadingManager, auxCdnt.p2, 6, size_obstacle, available_space, bbcube, bbBox, scene, id_key, mixer) //p2
 
     makeEdges({ x: auxCdnt.p0.x1, y: 0.75, z: auxCdnt.p0.z1 }, pp.p0.w - 1, pp.p0.h - 1, 3, { f1: 1, f2: 1, f3: 1, f4: 1 },bbcube, cubeS, scene, "mainWall.jpeg")
     makeEdges({ x: auxCdnt.p1.x1, y: -2.25, z: auxCdnt.p1.z1 }, pp.p1.w, pp.p1.h, 3, { f1: 1, f2: 1, f3: 0, f4: 0 }, bbcube, cubeS, scene, "brickWall.jpeg")

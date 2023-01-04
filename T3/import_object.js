@@ -11,7 +11,6 @@ import{
 // INITIALIZE CHARACTER
 export function loadGLTFFile(loadingManager, asset, file, add_scene, x, y, z, color, iskey, index, scene, bbkey, id_key, mixer, animation, scale) {
     var loader = new GLTFLoader(loadingManager);
-    console.log(file)
     loader.load(file, function (gltf) {
         var obj = gltf.scene;
         obj.traverse(function (child) {
